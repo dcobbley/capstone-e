@@ -6,9 +6,7 @@ Using the Test Runner:
 ###Install Node, Grunt & Bower
 **Node must be installed first**
 
-Download and Install Node  
-
-	https://nodejs.org/download/  
+[Download and Install Node](https://nodejs.org/download/) 
 
 Install Grunt    
 
@@ -20,6 +18,7 @@ Install Bower
 
 --
 ###Install Dependencies
+**Run these commands from the projects root folder**
 
 Install project dependencies: 
 
@@ -31,6 +30,7 @@ Install the Test Runner dependencies
 
 --
 ###Run Test Runner
+**Run these commands from the projects root folder**
 
 Run tests and display results on devices or simulator
 
