@@ -36,7 +36,7 @@ function pushToVersion(version) {
       var target = null;
 
       if (version == 'any') {
-        target = simulators[0];
+        target = simulators[simulators.length-1];
       }
       else {
         for (var i = 0; i < simulators.length; ++i) {
@@ -49,7 +49,7 @@ function pushToVersion(version) {
 
       if (target != null) {
         console.log('Launching simulator at version', target.version);
-        startSimulator({ detached: true }).then(target).then(function(res) {
+        startSimulator({detached: true, version: target.version}).then(function(res) {
           launchTheApp(res);
         }, function(err) {
           console.log(err);
