@@ -1,0 +1,24 @@
+{
+  "name": "Firefox-os-backup-restore",
+  "version": "0.0.0",
+  "description": "Javascript library for facilitating backup/restore functionality on Firefox OS.",
+  "main": "app.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "author": "Thomas Guerena",
+  "license": "MIT",
+  "dependencies": {
+    "es6-promise": "^2.1.1",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.8.0",
+    "grunt-contrib-uglify": "^0.9.1",
+    "node-firefox-connect": "^1.2.0",
+    "node-firefox-find-devices": "^1.0.0",
+    "node-firefox-find-simulators": "^1.3.0",
+    "node-firefox-forward-ports": "^1.0.0",
+    "node-firefox-launch-app": "^1.1.0",
+    "node-firefox-start-simulator": "^1.3.1",
+    "push-app": "^2.0.2"
+  }
+}
