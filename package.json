@@ -6,7 +6,10 @@
   "scripts": {
     "test": "grunt test"
   },
-  "author": ["Thomas Guerena", "Ruben Niculcea"],
+  "author": [
+    "Thomas Guerena",
+    "Ruben Niculcea"
+  ],
   "license": "MIT",
   "dependencies": {
     "es6-promise": "^2.1.1",
@@ -22,6 +25,8 @@
     "push-app": "^2.0.2"
   },
   "devDependencies": {
-    "grunt-execute": "^0.2.2"
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-execute": "^0.2.2",
+    "grunt-jscs": "^1.8.0"
   }
 }
