@@ -10,7 +10,7 @@ Using the Test Runner:
 
 Install Grunt
 
-    $npm install -g grunt
+    $npm install -g grunt-cli
 
 Install Bower
 
