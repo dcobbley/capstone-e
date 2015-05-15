@@ -91,6 +91,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', function() {
     grunt.task.run([
       'jshint',
+      'jsbeautifier',
       'jscs',
       'browserify',
       'uglify'
