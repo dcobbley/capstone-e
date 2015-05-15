@@ -6,6 +6,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-execute'); // --------- Run node tasks
   grunt.loadNpmTasks('grunt-jscs'); // ------------ JS style guide
   grunt.loadNpmTasks('grunt-contrib-jshint'); // -- Code checker
+  grunt.loadNpmTasks('grunt-jsbeautifier'); // ---- Beautify code
 
   // Configure tasks
   grunt.initConfig({
@@ -14,6 +15,16 @@ module.exports = function(grunt) {
 
     jshint: {
       all: ['Gruntfile.js', 'modules/*.js', 'testrunner/tests/*.js']
+    },
+
+    jsbeautifier: {
+      files: ['modules/*.js'],
+      options: {
+        js: {
+          indentChar: ' ',
+          indentSize: 2
+        }
+      }
     },
 
     jscs: {
