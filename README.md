@@ -1,4 +1,4 @@
-# capstone-e 
+# capstone-e
 
 Using the Test Runner:
 --
@@ -6,12 +6,12 @@ Using the Test Runner:
 ###Install Node, Grunt & Bower
 **Node must be installed first**
 
-[Download and Install Node](https://nodejs.org/download/) 
+[Download and Install Node](https://nodejs.org/download/)
 
-Install Grunt    
+Install Grunt
 
-    $npm install -g grunt  
-    
+    $npm install -g grunt
+
 Install Bower
 
     $npm install -g bower
@@ -20,7 +20,7 @@ Install Bower
 ###Install Dependencies
 **Run these commands from the projects root folder**
 
-Install project dependencies: 
+Install project dependencies:
 
     $npm install
 
@@ -39,11 +39,11 @@ Run tests and display results on devices or simulator
 Run tests on simulator version 3.0
 
 	$grunt test --sim=3.0
-	
+
 Build our framework
 
 	$grunt build
-	
+
 Get complete list of options
 
 	$grunt help
