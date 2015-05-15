@@ -26,7 +26,7 @@ Install project dependencies:
 
 Install the Test Runner dependencies
 
-	$bower install ./testrunner
+	$cd testrunner; bower install; cd ..
 
 --
 ###Run Test Runner
