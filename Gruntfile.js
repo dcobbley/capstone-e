@@ -18,7 +18,7 @@ module.exports = function(grunt) {
     },
 
     jsbeautifier: {
-      files: ['modules/*.js'],
+      files: '<%= jshint.all %>',
       options: {
         js: {
           indentChar: ' ',
@@ -67,8 +67,8 @@ module.exports = function(grunt) {
   grunt.registerTask('default', function() {
     console.log('No opitions specified defaulting to push to any device then simulator');
     grunt.task.run([
-    	'build',
-    	'execute'
+      'build',
+      'execute'
     ]);
   });
 
@@ -114,8 +114,8 @@ module.exports = function(grunt) {
     }
 
     grunt.task.run([
-    	'build',
-    	'execute'
+      'build',
+      'execute'
     ]);
   });
 };
