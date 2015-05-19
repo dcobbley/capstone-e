@@ -1,9 +1,9 @@
 (function() {
 
-  function Ffsobr() {}
+  function FFOSBR() {}
 
   /* Import modules */
-  require('./square')(Ffsobr);
+  require('./square')(FFOSBR);
 
-  window.ffosbr = new Ffsobr();
+  window.ffosbr = new FFOSBR();
 })();
