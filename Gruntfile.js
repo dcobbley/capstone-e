@@ -7,6 +7,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-jscs'); // ------------ JS style guide
   grunt.loadNpmTasks('grunt-contrib-jshint'); // -- Code checker
   grunt.loadNpmTasks('grunt-jsbeautifier'); // ---- Beautify code
+  grunt.loadNpmTasks('grunt-contrib-copy'); // ---- Copy code to test runner
 
   // Configure tasks
   grunt.initConfig({
@@ -44,16 +45,25 @@ module.exports = function(grunt) {
       },
       js: {
         src: ['modules/*.js'],
-        dest: 'ourlib.js'
+        dest: 'FFOSBR.js'
       }
     },
 
     /* Compresses javascript */
     uglify: {
       js: {
-        src: 'ourlib.js',
-        dest: 'ourlib.min.js'
+        src: 'FFOSBR.js',
+        dest: 'FFOSBR.min.js'
       }
+    },
+
+    copy: {
+      main: {
+        files: [{
+          src: 'FFOSBR.js',
+          dest: 'testrunner/'
+        }],
+      },
     },
 
     execute: {
@@ -94,7 +104,8 @@ module.exports = function(grunt) {
       'jsbeautifier',
       'jscs',
       'browserify',
-      'uglify'
+      'uglify',
+      'copy'
     ]);
   });
 
