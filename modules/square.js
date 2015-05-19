@@ -1,3 +1,8 @@
-module.exports = function (num) {
-  return num * num;
+module.exports = function(Ffosbr) {
+
+
+  Ffosbr.prototype.square = function(num) {
+    return num * num;
+  };
+
 };

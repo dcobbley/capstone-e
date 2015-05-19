@@ -1,9 +1,9 @@
-var square = require('./square');
+(function() {
 
-// Let's square some numbers!
-for (var i = 0; i < 15; ++i) {
-  console.log(square(i));
-}
+  function Ffsobr() {}
 
-// See the correct line number?
-throw new Error('testing');
+  /* Import modules */
+  require('./square')(Ffsobr);
+
+  window.ffosbr = new Ffsobr();
+})();
