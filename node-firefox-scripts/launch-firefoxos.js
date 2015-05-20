@@ -49,10 +49,15 @@ function pushToVersion(version) {
 
       if (target != null) {
         console.log('Launching simulator at version', target.version);
-        startSimulator({detached: true, version: target.version}).then(function(res) {
-          launchTheApp(res);
-        }, function(err) {
-          console.log(err);
+
+        startSimulator({detached: true, version: target.version})
+          .then(function(simulator) {
+          console.log('Installing App');
+
+          connect(simulator.port)
+            .then(pushTheApp)
+            .then(launchTheApp)
+            .then(quit);
         });
       }
       else {
