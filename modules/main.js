@@ -3,7 +3,9 @@
   function Ffsobr() {}
 
   /* Import modules */
-  require('./square')(Ffsobr);
+  require('./FileIO')(Ffsobr);
+
+  // require('./examples/square')(Ffsobr);
 
   window.ffosbr = new Ffsobr();
 })();
