@@ -1,10 +1,10 @@
-module.exports = function (Ffosbr) {
+module.exports = function(Ffosbr) {
 
 
   /**
    * TODO -- describe module
-  */
-  function Media () {
+   */
+  function Media() {
 
 
     // Private member functions
@@ -13,10 +13,10 @@ module.exports = function (Ffosbr) {
      * @access private
      * @description Takes an array of DeviceStorage objects and returns
      *   whichever represents the internal storage.
-     * @param stores {array of DeviceStorage}
+     * @param {array of DeviceStorage} stores
      * @returns {DeviceStorage}
-    */
-    function getInternalStorage (stores) {
+     */
+    function getInternalStorage(stores) {
       for (var i = 0; i < stores.length; ++i) {
         if (stores[i].isRemovable === false) {
           return stores[i];
@@ -28,10 +28,10 @@ module.exports = function (Ffosbr) {
      * @access private
      * @description Takes an array of DeviceStorage objects and returns
      *   whichever represents the external storage.
-     * @param stores {array of DeviceStorage}
+     * @param {array of DeviceStorage} stores
      * @returns {DeviceStorage}
-    */
-    function getExternalStorage (stores) {
+     */
+    function getExternalStorage(stores) {
       for (var i = 0; i < stores.length; ++i) {
         if (stores[i].isRemovable === true) {
           return stores[i];
@@ -43,26 +43,26 @@ module.exports = function (Ffosbr) {
     // Public data members
 
     this.internal = {
-      sdcard:   null,  // {DeviceStorage} internal SD card
-      music:    null,  // {DeviceStorage} internal music
-      pictures: null,  // {DeviceStorage} internal pictures
-      videos:   null   // {DeviceStorage} internal videos
+      sdcard: null, // {DeviceStorage} internal SD card
+      music: null, // {DeviceStorage} internal music
+      pictures: null, // {DeviceStorage} internal pictures
+      videos: null // {DeviceStorage} internal videos
     };
 
     this.external = {
-      sdcard:   null,  // {DeviceStorage} external SD card
-      music:    null,  // {DeviceStorage} external music
-      pictures: null,  // {DeviceStorage} external pictures
-      videos:   null   // {DeviceStorage} external videos
+      sdcard: null, // {DeviceStorage} external SD card
+      music: null, // {DeviceStorage} external music
+      pictures: null, // {DeviceStorage} external pictures
+      videos: null // {DeviceStorage} external videos
     };
 
 
     // Private data members
 
-    var sdcardStores;    // {array of DeviceStorage}
-    var musicStores;     // {array of DeviceStorage}
-    var picturesStores;  // {array of DeviceStorage}
-    var videosStores;    // {array of DeviceStorage}
+    var sdcardStores; // {array of DeviceStorage}
+    var musicStores; // {array of DeviceStorage}
+    var picturesStores; // {array of DeviceStorage}
+    var videosStores; // {array of DeviceStorage}
 
 
     // Constructor
@@ -87,7 +87,7 @@ module.exports = function (Ffosbr) {
     // initialize video storage
     this.internal.videos = getInternalStorage(videosStores);
     this.external.videos = getExternalStorage(videosStores);
-	}
+  }
 
 
   // Public member functions
@@ -97,13 +97,13 @@ module.exports = function (Ffosbr) {
    * @description Fetches photos from both internal and external storages
    *   via DOMRequest. Each photo fetched will be passed to the provided
    *   "for-each" handler.
-   * @param forEach {callback}
-  */
+   * @param {callback} forEach
+   */
   Media.prototype.getPhotos = function(forEach) {
     // TODO
   };
 
 
   // Extend Ffosbr library
-	Ffosbr.media = new Media();
-}
+  Ffosbr.media = new Media();
+};
