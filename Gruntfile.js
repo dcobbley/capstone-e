@@ -39,14 +39,14 @@ module.exports = function(grunt) {
     browserify: {
       options: {
         // Generates inline source maps
-        browserifyOptions: {
-          debug: true
-        }
-      },
-      js: {
-        src: ['modules/*.js'],
-        dest: 'FFOSBR.js'
-      }
+         browserifyOptions: {
+           debug: true
+         }
+       },
+       js: {
+         src: ['modules/*.js'],
+         dest: 'FFOSBR.js'
+       }
     },
 
     /* Compresses javascript */
