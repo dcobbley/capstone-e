@@ -43,5 +43,11 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Installed dependencies
 node_modules/
 testrunner/bower_components/
+
+# Generated files
+FFOSBR.js
+FFOSBR.min.js
+testrunner/FFOSBR.js

@@ -196,6 +196,70 @@ module.exports = function(Ffosbr) {
   };
 
 
+  /**
+   * @access public
+   * @description Writes files to a specified destination. If the file type is
+   *   'apps', 'music', 'pictures', 'sdcard', or 'videos' then the file will be
+   *   handed off to the OS and any file paths in the 'dest' parameter will be
+   *   ignored. If the file type is 'sdcard1' the file will be written to the
+   *   external storage device with the exact 'dest' provided.
+   * @param {String} type
+   * @param {File} file
+   * @param {String} dest
+   */
+  Media.prototype.put = function(type, file, dest) {
+
+    // TODO -- should we accept an on-complete callback?
+
+    var filename = null; // dest without file paths
+    var storages = null; // array of DeviceStorage
+    var targetStorage = null; // DeviceStorage to write to
+    var sname = null; // valid OS media type
+    var write = null; // cursor or iterator
+
+    if (typeof(type) !== 'string') {
+      throw new Error('Missing or invalid media type');
+    }
+
+    if (!(file instanceof File)) {
+      throw new Error('Missing or invalid File');
+    }
+
+    if (typeof(dest) !== 'string') {
+      throw new Error('Missing or invalid write destination');
+    }
+
+    // strip out the file path
+    filename = dest.substr(dest.lastIndexOf('/') + 1, dest.length);
+
+    // If the type is 'sdcard1', use name 'sdcard'
+    sname = (type === 'sdcard1' ? 'sdcard' : type);
+    storages = getStorageByName(sname);
+    targetStorage = (internal === null ? external : internal);
+
+    if (type === 'sdcard1') {
+      write = targetStorage.addNamed(file, dest);
+    } else {
+      write = targetStorage.addNamed(file, filename);
+    }
+
+    // TODO -- handle all the terrible things that will undoubtedly
+    // go wrong while writing files...
+    //     - external doesn't exist
+    //     - not enough space for file
+
+    write.onsuccess = function() {
+      // TODO
+    };
+
+    write.onerror = function() {
+      // TODO
+    };
+
+
+  };
+
+
   // Extend Ffosbr library
   Ffosbr.media = new Media();
 };
