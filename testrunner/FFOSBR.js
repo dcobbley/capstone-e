@@ -1,108 +1,244 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = function(Ffosbr) {
-
-  // contributors:
-  //   KevinGrandon  https://github.com/KevinGrandon
-  //   punamdahiya   https://github.com/punamdahiya
-  // source:
-  //   https://github.com/mozilla-b2g/gaia/blob/master/shared/js/device_storage/get_storage_if_available.js
-
-  'use strict';
-
-  // Get a DeviceStorage object for the specified kind of storage and, if it
-  // is available, and if the specified number of bytes of storage space are
-  // free then asynchronously pass the DeviceStorage object to the success
-  // callback. Otherwise, invoke the error callback, if one is specified. If
-  // the error callback is called because device storage is not available, the
-  // argument will be a DeviceStorage status string like 'unavailable' or
-  // 'shared'. If the error callback is called because there is not enough
-  // storage space, the argument will be the number of bytes that are available.
-
-  Ffosbr.prototype.getStorageIfAvailable = function(kind, size, success, error) {
-    var storage = navigator.getDeviceStorage(kind);
-    storage.available().onsuccess = function(e) {
-      if (e.target.result !== 'available') {
-        if (error) {
-          error(e.target.result);
-        }
-      } else {
-        storage.freeSpace().onsuccess = function(e) {
-          if (e.target.result < size) {
-            if (error) {
-              error(e.target.result);
-            }
-          } else {
-            success(storage);
-          }
-        };
-      }
-    };
-  };
-};
-
-},{}],2:[function(require,module,exports){
 (function() {
 
-  function Ffsobr() {}
+  function FFOSBR() {}
 
   /* Import modules */
-  require('./getStorageIfAvailable')(Ffsobr);
-  require('./writeTo.js');
-  require('./square')(Ffsobr);
+  // require('./examples/square')(Ffsobr);
+
+  require('./utils');
+  require('./media');
 
   window.ffosbr = new Ffsobr();
 })();
 
-},{"./getStorageIfAvailable":1,"./square":3,"./writeTo.js":4}],3:[function(require,module,exports){
+},{"./media":2,"./utils":3}],2:[function(require,module,exports){
 module.exports = function(Ffosbr) {
 
-  Ffosbr.prototype.square = function(num) {
-    return num * num;
-  };
-
-};
-
-},{}],4:[function(require,module,exports){
-module.exports = function(Ffosbr) {
-
-  'use strict';
 
   /**
-   * Extend Ffosbr library to provide "write to external storage" functionality.
-   * @param {string} target Specifies the destination of the data. (e.g. SD card)
-   * @param {Blob|FileHandle} data Can be either raw data (e.g. file or blob?), or
-   *     a function which produces raw data.
-   * @param {requestCallback} success Provides callback for successful writes.
-   * @param {requestCallback} error Provides callback for unsuccessful writes.
+   * Manages internal and external storages, or handles to storage
+   * devices, and their various data sets, including apps, music,
+   * pictures, sdcard, and videos.
    */
-  Ffosbr.prototype.writeTo = function(target, data, success, error) {
+  function Media() {
 
-    // NOTE: data generators currently not supported
+    // Public data members
 
-    try {
+    this.internal = {
+      apps: null, // {DeviceStorage} internal apps
+      music: null, // {DeviceStorage} internal music
+      pictures: null, // {DeviceStorage} internal pictures
+      sdcard: null, // {DeviceStorage} internal SD card
+      videos: null // {DeviceStorage} internal videos
+    };
 
-      if (typeof data === undefined) {
-        throw new Error('Cannot write data type undefined.');
+    this.external = {
+      apps: null, // {DeviceStorage} external apps
+      music: null, // {DeviceStorage} external music
+      pictures: null, // {DeviceStorage} external pictures
+      sdcard: null, // {DeviceStorage} external SD card
+      videos: null // {DeviceStorage} external videos
+    };
+
+
+    // Private data members
+
+    var appStores; // {array of DeviceStorage}
+    var musicStores; // {array of DeviceStorage}
+    var picturesStores; // {array of DeviceStorage}
+    var sdcardStores; // {array of DeviceStorage}
+    var videosStores; // {array of DeviceStorage}
+
+
+    // Constructor
+
+    appStores = navigator.getDeviceStorages('apps');
+    musicStores = navigator.getDeviceStorages('music');
+    picturesStores = navigator.getDeviceStorages('pictures');
+    sdcardStores = navigator.getDeviceStorages('sdcard');
+    videosStores = navigator.getDeviceStorages('video');
+
+    // initialize app storage
+    this.internal.apps = getInternalStorage(appStores);
+    this.external.apps = getExternalStorage(appStores);
+
+    // initialize music storage
+    this.internal.music = getInternalStorage(musicStores);
+    this.external.music = getExternalStorage(musicStores);
+
+    // initialize picture storage
+    this.internal.pictures = getInternalStorage(picturesStores);
+    this.external.pictures = getExternalStorage(picturesStores);
+
+    // initialize sdcard storage
+    this.internal.sdcard = getInternalStorage(sdcardStores);
+    this.external.sdcard = getExternalStorage(sdcardStores);
+
+    // initialize video storage
+    this.internal.videos = getInternalStorage(videosStores);
+    this.external.videos = getExternalStorage(videosStores);
+  }
+
+  /**
+   * @access public
+   * @description Takes an array of DeviceStorage objects and returns
+   *   whichever represents the internal storage.
+   * @param {array of DeviceStorage} stores
+   * @returns {DeviceStorage}
+   */
+  Media.prototype.getInternalStorage = function(stores) {
+
+    // TODO - if there are multiple internal
+    // storages, do we just use the largest?
+    for (var i = 0; i < stores.length; ++i) {
+      if (stores[i].isRemovable === false) {
+        return stores[i];
       }
+    }
+  };
 
-      // TODO - get type of data (e.g. Blob, FileHandle, etc)
+  /**
+   * @access private
+   * @description Takes an array of DeviceStorage objects and returns
+   *   whichever represents the external storage.
+   * @param {array of DeviceStorage} stores
+   * @returns {DeviceStorage}
+   */
+  Media.prototype.getExternalStorage = function(stores) {
 
-      // NOTE: just testing
-      target = 'sdcard';
+    // TODO - if there are multiple external
+    // storages, do we just use the largest?
+    for (var i = 0; i < stores.length; ++i) {
+      if (stores[i].isRemovable === true) {
+        return stores[i];
+      }
+    }
+  };
 
-      // TODO - get size of data
-      var size = 1000; // in Bytes? = 1 MB
-      // TODO - get kind of data
-      var kind = Blob; // ?
+  /**
+   * @access private
+   * @description Takes a string describing which type of storage
+   *   is desired. Valid options are: apps, music, pictures,
+   *   sdcard, videos. Returns an option containing the appropriate
+   *   internal and external storages.
+   * @param {String} type
+   * @returns {Object}
+   */
+  function getStorageByName(type) {
 
-      var storage = getStorageIfAvailable();
+    var stores = {
+      internal: null,
+      external: null
+    };
 
-    } catch (err) {
-      console.error(err);
+    switch (type) {
+      case 'apps':
+        {
+          stores.internal = this.internal.apps;
+          stores.external = this.external.apps;
+          break;
+        }
+      case 'music':
+        {
+          stores.internal = this.internal.music;
+          stores.external = this.external.music;
+          break;
+        }
+      case 'pictures':
+        {
+          stores.internal = this.internal.pictures;
+          stores.external = this.external.pictures;
+          break;
+        }
+      case 'sdcard':
+        {
+          stores.internal = this.internal.sdcard;
+          stores.external = this.external.sdcard;
+          break;
+        }
+      case 'videos':
+        {
+          stores.internal = this.internal.videos;
+          stores.external = this.external.videos;
+          break;
+        }
+      default:
+        {
+          throw new Error('Invalid media type');
+        }
     }
 
+    return stores;
+  }
+
+  /**
+   * @access public
+   * @description Fetches files from both internal and external storages
+   *   via DOMRequest. The type of files fetch (e.g. pictures, music) is
+   *   specified by the type parameter. Each file fetched will be passed
+   *   to the provided "for-each" handler as a File object.
+   *   (Note: File extends Blob)
+   * @param {String} type
+   * @param {callback} forEach
+   */
+  Media.prototype.get = function(type, forEach) {
+
+    var internal = null;
+    var external = null;
+    var internalFiles = null;
+    var externalFiles = null;
+
+    if (typeof(type) !== 'string') {
+      throw new Error('Missing or invalid media type');
+    }
+
+    if (!window.ffosbr.utils.isFunction(forEach)) {
+      throw new Error('Missing or invalid callback');
+    }
+
+    internal = getStorageByName(type).internal;
+    external = getStorageByName(type).external;
+    internalFiles = internal.enumerate();
+    externalFiles = external.enumerate();
+
+    internalFiles.onsuccess = function() {
+      forEach(this.result);
+    };
+    externalFiles.onsuccess = function() {
+      forEach(this.result);
+    };
   };
+
+
+  // Extend Ffosbr library
+  Ffosbr.media = new Media();
 };
 
-},{}]},{},[1,2,3,4])
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9ncnVudC1icm93c2VyaWZ5L25vZGVfbW9kdWxlcy9icm93c2VyaWZ5L25vZGVfbW9kdWxlcy9icm93c2VyLXBhY2svX3ByZWx1ZGUuanMiLCJtb2R1bGVzL2dldFN0b3JhZ2VJZkF2YWlsYWJsZS5qcyIsIm1vZHVsZXMvbWFpbi5qcyIsIm1vZHVsZXMvc3F1YXJlLmpzIiwibW9kdWxlcy93cml0ZVRvLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0FDQUE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTs7QUN4Q0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBOztBQ1hBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7O0FDUEE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSIsImZpbGUiOiJnZW5lcmF0ZWQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlc0NvbnRlbnQiOlsiKGZ1bmN0aW9uIGUodCxuLHIpe2Z1bmN0aW9uIHMobyx1KXtpZighbltvXSl7aWYoIXRbb10pe3ZhciBhPXR5cGVvZiByZXF1aXJlPT1cImZ1bmN0aW9uXCImJnJlcXVpcmU7aWYoIXUmJmEpcmV0dXJuIGEobywhMCk7aWYoaSlyZXR1cm4gaShvLCEwKTt2YXIgZj1uZXcgRXJyb3IoXCJDYW5ub3QgZmluZCBtb2R1bGUgJ1wiK28rXCInXCIpO3Rocm93IGYuY29kZT1cIk1PRFVMRV9OT1RfRk9VTkRcIixmfXZhciBsPW5bb109e2V4cG9ydHM6e319O3Rbb11bMF0uY2FsbChsLmV4cG9ydHMsZnVuY3Rpb24oZSl7dmFyIG49dFtvXVsxXVtlXTtyZXR1cm4gcyhuP246ZSl9LGwsbC5leHBvcnRzLGUsdCxuLHIpfXJldHVybiBuW29dLmV4cG9ydHN9dmFyIGk9dHlwZW9mIHJlcXVpcmU9PVwiZnVuY3Rpb25cIiYmcmVxdWlyZTtmb3IodmFyIG89MDtvPHIubGVuZ3RoO28rKylzKHJbb10pO3JldHVybiBzfSkiLCJtb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uKEZmb3Nicikge1xuXG4gIC8vIGNvbnRyaWJ1dG9yczpcbiAgLy8gICBLZXZpbkdyYW5kb24gIGh0dHBzOi8vZ2l0aHViLmNvbS9LZXZpbkdyYW5kb25cbiAgLy8gICBwdW5hbWRhaGl5YSAgIGh0dHBzOi8vZ2l0aHViLmNvbS9wdW5hbWRhaGl5YVxuICAvLyBzb3VyY2U6XG4gIC8vICAgaHR0cHM6Ly9naXRodWIuY29tL21vemlsbGEtYjJnL2dhaWEvYmxvYi9tYXN0ZXIvc2hhcmVkL2pzL2RldmljZV9zdG9yYWdlL2dldF9zdG9yYWdlX2lmX2F2YWlsYWJsZS5qc1xuXG4gICd1c2Ugc3RyaWN0JztcblxuICAvLyBHZXQgYSBEZXZpY2VTdG9yYWdlIG9iamVjdCBmb3IgdGhlIHNwZWNpZmllZCBraW5kIG9mIHN0b3JhZ2UgYW5kLCBpZiBpdFxuICAvLyBpcyBhdmFpbGFibGUsIGFuZCBpZiB0aGUgc3BlY2lmaWVkIG51bWJlciBvZiBieXRlcyBvZiBzdG9yYWdlIHNwYWNlIGFyZVxuICAvLyBmcmVlIHRoZW4gYXN5bmNocm9ub3VzbHkgcGFzcyB0aGUgRGV2aWNlU3RvcmFnZSBvYmplY3QgdG8gdGhlIHN1Y2Nlc3NcbiAgLy8gY2FsbGJhY2suIE90aGVyd2lzZSwgaW52b2tlIHRoZSBlcnJvciBjYWxsYmFjaywgaWYgb25lIGlzIHNwZWNpZmllZC4gSWZcbiAgLy8gdGhlIGVycm9yIGNhbGxiYWNrIGlzIGNhbGxlZCBiZWNhdXNlIGRldmljZSBzdG9yYWdlIGlzIG5vdCBhdmFpbGFibGUsIHRoZVxuICAvLyBhcmd1bWVudCB3aWxsIGJlIGEgRGV2aWNlU3RvcmFnZSBzdGF0dXMgc3RyaW5nIGxpa2UgJ3VuYXZhaWxhYmxlJyBvclxuICAvLyAnc2hhcmVkJy4gSWYgdGhlIGVycm9yIGNhbGxiYWNrIGlzIGNhbGxlZCBiZWNhdXNlIHRoZXJlIGlzIG5vdCBlbm91Z2hcbiAgLy8gc3RvcmFnZSBzcGFjZSwgdGhlIGFyZ3VtZW50IHdpbGwgYmUgdGhlIG51bWJlciBvZiBieXRlcyB0aGF0IGFyZSBhdmFpbGFibGUuXG5cbiAgRmZvc2JyLnByb3RvdHlwZS5nZXRTdG9yYWdlSWZBdmFpbGFibGUgPSBmdW5jdGlvbihraW5kLCBzaXplLCBzdWNjZXNzLCBlcnJvcikge1xuICAgIHZhciBzdG9yYWdlID0gbmF2aWdhdG9yLmdldERldmljZVN0b3JhZ2Uoa2luZCk7XG4gICAgc3RvcmFnZS5hdmFpbGFibGUoKS5vbnN1Y2Nlc3MgPSBmdW5jdGlvbihlKSB7XG4gICAgICBpZiAoZS50YXJnZXQucmVzdWx0ICE9PSAnYXZhaWxhYmxlJykge1xuICAgICAgICBpZiAoZXJyb3IpIHtcbiAgICAgICAgICBlcnJvcihlLnRhcmdldC5yZXN1bHQpO1xuICAgICAgICB9XG4gICAgICB9IGVsc2Uge1xuICAgICAgICBzdG9yYWdlLmZyZWVTcGFjZSgpLm9uc3VjY2VzcyA9IGZ1bmN0aW9uKGUpIHtcbiAgICAgICAgICBpZiAoZS50YXJnZXQucmVzdWx0IDwgc2l6ZSkge1xuICAgICAgICAgICAgaWYgKGVycm9yKSB7XG4gICAgICAgICAgICAgIGVycm9yKGUudGFyZ2V0LnJlc3VsdCk7XG4gICAgICAgICAgICB9XG4gICAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICAgIHN1Y2Nlc3Moc3RvcmFnZSk7XG4gICAgICAgICAgfVxuICAgICAgICB9O1xuICAgICAgfVxuICAgIH07XG4gIH07XG59O1xuIiwiKGZ1bmN0aW9uKCkge1xuXG4gIGZ1bmN0aW9uIEZmc29icigpIHt9XG5cbiAgLyogSW1wb3J0IG1vZHVsZXMgKi9cbiAgcmVxdWlyZSgnLi9nZXRTdG9yYWdlSWZBdmFpbGFibGUnKShGZnNvYnIpO1xuICByZXF1aXJlKCcuL3dyaXRlVG8uanMnKTtcbiAgcmVxdWlyZSgnLi9zcXVhcmUnKShGZnNvYnIpO1xuXG4gIHdpbmRvdy5mZm9zYnIgPSBuZXcgRmZzb2JyKCk7XG59KSgpO1xuIiwibW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihGZm9zYnIpIHtcblxuICBGZm9zYnIucHJvdG90eXBlLnNxdWFyZSA9IGZ1bmN0aW9uKG51bSkge1xuICAgIHJldHVybiBudW0gKiBudW07XG4gIH07XG5cbn07XG4iLCJtb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uKEZmb3Nicikge1xuXG4gICd1c2Ugc3RyaWN0JztcblxuICAvKipcbiAgICogRXh0ZW5kIEZmb3NiciBsaWJyYXJ5IHRvIHByb3ZpZGUgXCJ3cml0ZSB0byBleHRlcm5hbCBzdG9yYWdlXCIgZnVuY3Rpb25hbGl0eS5cbiAgICogQHBhcmFtIHtzdHJpbmd9IHRhcmdldCBTcGVjaWZpZXMgdGhlIGRlc3RpbmF0aW9uIG9mIHRoZSBkYXRhLiAoZS5nLiBTRCBjYXJkKVxuICAgKiBAcGFyYW0ge0Jsb2J8RmlsZUhhbmRsZX0gZGF0YSBDYW4gYmUgZWl0aGVyIHJhdyBkYXRhIChlLmcuIGZpbGUgb3IgYmxvYj8pLCBvclxuICAgKiAgICAgYSBmdW5jdGlvbiB3aGljaCBwcm9kdWNlcyByYXcgZGF0YS5cbiAgICogQHBhcmFtIHtyZXF1ZXN0Q2FsbGJhY2t9IHN1Y2Nlc3MgUHJvdmlkZXMgY2FsbGJhY2sgZm9yIHN1Y2Nlc3NmdWwgd3JpdGVzLlxuICAgKiBAcGFyYW0ge3JlcXVlc3RDYWxsYmFja30gZXJyb3IgUHJvdmlkZXMgY2FsbGJhY2sgZm9yIHVuc3VjY2Vzc2Z1bCB3cml0ZXMuXG4gICAqL1xuICBGZm9zYnIucHJvdG90eXBlLndyaXRlVG8gPSBmdW5jdGlvbih0YXJnZXQsIGRhdGEsIHN1Y2Nlc3MsIGVycm9yKSB7XG5cbiAgICAvLyBOT1RFOiBkYXRhIGdlbmVyYXRvcnMgY3VycmVudGx5IG5vdCBzdXBwb3J0ZWRcblxuICAgIHRyeSB7XG5cbiAgICAgIGlmICh0eXBlb2YgZGF0YSA9PT0gdW5kZWZpbmVkKSB7XG4gICAgICAgIHRocm93IG5ldyBFcnJvcignQ2Fubm90IHdyaXRlIGRhdGEgdHlwZSB1bmRlZmluZWQuJyk7XG4gICAgICB9XG5cbiAgICAgIC8vIFRPRE8gLSBnZXQgdHlwZSBvZiBkYXRhIChlLmcuIEJsb2IsIEZpbGVIYW5kbGUsIGV0YylcblxuICAgICAgLy8gTk9URToganVzdCB0ZXN0aW5nXG4gICAgICB0YXJnZXQgPSAnc2RjYXJkJztcblxuICAgICAgLy8gVE9ETyAtIGdldCBzaXplIG9mIGRhdGFcbiAgICAgIHZhciBzaXplID0gMTAwMDsgLy8gaW4gQnl0ZXM/ID0gMSBNQlxuICAgICAgLy8gVE9ETyAtIGdldCBraW5kIG9mIGRhdGFcbiAgICAgIHZhciBraW5kID0gQmxvYjsgLy8gP1xuXG4gICAgICB2YXIgc3RvcmFnZSA9IGdldFN0b3JhZ2VJZkF2YWlsYWJsZSgpO1xuXG4gICAgfSBjYXRjaCAoZXJyKSB7XG4gICAgICBjb25zb2xlLmVycm9yKGVycik7XG4gICAgfVxuXG4gIH07XG59O1xuIl19
+},{}],3:[function(require,module,exports){
+module.exports = function(Ffosbr) {
+
+
+  /**
+   * Kitchen sink for useful functions.
+   */
+  function Utilities() {}
+
+  /**
+   * @access public
+   * @description Determines whether an object is a function.
+   * @param {any} functionToCheck
+   * @returns {boolean}
+   */
+  Utilities.prototype.isFunction = function(functionToCheck) {
+    var getType = {};
+    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+  };
+
+
+  // Extend Ffosbr library
+  Ffosbr.utils = new Utilities();
+};
+
+},{}]},{},[1,2,3])
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9ncnVudC1icm93c2VyaWZ5L25vZGVfbW9kdWxlcy9icm93c2VyaWZ5L25vZGVfbW9kdWxlcy9icm93c2VyLXBhY2svX3ByZWx1ZGUuanMiLCJtb2R1bGVzL21haW4uanMiLCJtb2R1bGVzL21lZGlhLmpzIiwibW9kdWxlcy91dGlscy5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtBQ0FBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBOztBQ1pBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBOztBQ3pNQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EiLCJmaWxlIjoiZ2VuZXJhdGVkLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXNDb250ZW50IjpbIihmdW5jdGlvbiBlKHQsbixyKXtmdW5jdGlvbiBzKG8sdSl7aWYoIW5bb10pe2lmKCF0W29dKXt2YXIgYT10eXBlb2YgcmVxdWlyZT09XCJmdW5jdGlvblwiJiZyZXF1aXJlO2lmKCF1JiZhKXJldHVybiBhKG8sITApO2lmKGkpcmV0dXJuIGkobywhMCk7dmFyIGY9bmV3IEVycm9yKFwiQ2Fubm90IGZpbmQgbW9kdWxlICdcIitvK1wiJ1wiKTt0aHJvdyBmLmNvZGU9XCJNT0RVTEVfTk9UX0ZPVU5EXCIsZn12YXIgbD1uW29dPXtleHBvcnRzOnt9fTt0W29dWzBdLmNhbGwobC5leHBvcnRzLGZ1bmN0aW9uKGUpe3ZhciBuPXRbb11bMV1bZV07cmV0dXJuIHMobj9uOmUpfSxsLGwuZXhwb3J0cyxlLHQsbixyKX1yZXR1cm4gbltvXS5leHBvcnRzfXZhciBpPXR5cGVvZiByZXF1aXJlPT1cImZ1bmN0aW9uXCImJnJlcXVpcmU7Zm9yKHZhciBvPTA7bzxyLmxlbmd0aDtvKyspcyhyW29dKTtyZXR1cm4gc30pIiwiKGZ1bmN0aW9uKCkge1xuXG4gIGZ1bmN0aW9uIEZGT1NCUigpIHt9XG5cbiAgLyogSW1wb3J0IG1vZHVsZXMgKi9cbiAgLy8gcmVxdWlyZSgnLi9leGFtcGxlcy9zcXVhcmUnKShGZnNvYnIpO1xuXG4gIHJlcXVpcmUoJy4vdXRpbHMnKTtcbiAgcmVxdWlyZSgnLi9tZWRpYScpO1xuXG4gIHdpbmRvdy5mZm9zYnIgPSBuZXcgRmZzb2JyKCk7XG59KSgpO1xuIiwibW9kdWxlLmV4cG9ydHMgPSBmdW5jdGlvbihGZm9zYnIpIHtcblxuXG4gIC8qKlxuICAgKiBNYW5hZ2VzIGludGVybmFsIGFuZCBleHRlcm5hbCBzdG9yYWdlcywgb3IgaGFuZGxlcyB0byBzdG9yYWdlXG4gICAqIGRldmljZXMsIGFuZCB0aGVpciB2YXJpb3VzIGRhdGEgc2V0cywgaW5jbHVkaW5nIGFwcHMsIG11c2ljLFxuICAgKiBwaWN0dXJlcywgc2RjYXJkLCBhbmQgdmlkZW9zLlxuICAgKi9cbiAgZnVuY3Rpb24gTWVkaWEoKSB7XG5cbiAgICAvLyBQdWJsaWMgZGF0YSBtZW1iZXJzXG5cbiAgICB0aGlzLmludGVybmFsID0ge1xuICAgICAgYXBwczogbnVsbCwgLy8ge0RldmljZVN0b3JhZ2V9IGludGVybmFsIGFwcHNcbiAgICAgIG11c2ljOiBudWxsLCAvLyB7RGV2aWNlU3RvcmFnZX0gaW50ZXJuYWwgbXVzaWNcbiAgICAgIHBpY3R1cmVzOiBudWxsLCAvLyB7RGV2aWNlU3RvcmFnZX0gaW50ZXJuYWwgcGljdHVyZXNcbiAgICAgIHNkY2FyZDogbnVsbCwgLy8ge0RldmljZVN0b3JhZ2V9IGludGVybmFsIFNEIGNhcmRcbiAgICAgIHZpZGVvczogbnVsbCAvLyB7RGV2aWNlU3RvcmFnZX0gaW50ZXJuYWwgdmlkZW9zXG4gICAgfTtcblxuICAgIHRoaXMuZXh0ZXJuYWwgPSB7XG4gICAgICBhcHBzOiBudWxsLCAvLyB7RGV2aWNlU3RvcmFnZX0gZXh0ZXJuYWwgYXBwc1xuICAgICAgbXVzaWM6IG51bGwsIC8vIHtEZXZpY2VTdG9yYWdlfSBleHRlcm5hbCBtdXNpY1xuICAgICAgcGljdHVyZXM6IG51bGwsIC8vIHtEZXZpY2VTdG9yYWdlfSBleHRlcm5hbCBwaWN0dXJlc1xuICAgICAgc2RjYXJkOiBudWxsLCAvLyB7RGV2aWNlU3RvcmFnZX0gZXh0ZXJuYWwgU0QgY2FyZFxuICAgICAgdmlkZW9zOiBudWxsIC8vIHtEZXZpY2VTdG9yYWdlfSBleHRlcm5hbCB2aWRlb3NcbiAgICB9O1xuXG5cbiAgICAvLyBQcml2YXRlIGRhdGEgbWVtYmVyc1xuXG4gICAgdmFyIGFwcFN0b3JlczsgLy8ge2FycmF5IG9mIERldmljZVN0b3JhZ2V9XG4gICAgdmFyIG11c2ljU3RvcmVzOyAvLyB7YXJyYXkgb2YgRGV2aWNlU3RvcmFnZX1cbiAgICB2YXIgcGljdHVyZXNTdG9yZXM7IC8vIHthcnJheSBvZiBEZXZpY2VTdG9yYWdlfVxuICAgIHZhciBzZGNhcmRTdG9yZXM7IC8vIHthcnJheSBvZiBEZXZpY2VTdG9yYWdlfVxuICAgIHZhciB2aWRlb3NTdG9yZXM7IC8vIHthcnJheSBvZiBEZXZpY2VTdG9yYWdlfVxuXG5cbiAgICAvLyBDb25zdHJ1Y3RvclxuXG4gICAgYXBwU3RvcmVzID0gbmF2aWdhdG9yLmdldERldmljZVN0b3JhZ2VzKCdhcHBzJyk7XG4gICAgbXVzaWNTdG9yZXMgPSBuYXZpZ2F0b3IuZ2V0RGV2aWNlU3RvcmFnZXMoJ211c2ljJyk7XG4gICAgcGljdHVyZXNTdG9yZXMgPSBuYXZpZ2F0b3IuZ2V0RGV2aWNlU3RvcmFnZXMoJ3BpY3R1cmVzJyk7XG4gICAgc2RjYXJkU3RvcmVzID0gbmF2aWdhdG9yLmdldERldmljZVN0b3JhZ2VzKCdzZGNhcmQnKTtcbiAgICB2aWRlb3NTdG9yZXMgPSBuYXZpZ2F0b3IuZ2V0RGV2aWNlU3RvcmFnZXMoJ3ZpZGVvJyk7XG5cbiAgICAvLyBpbml0aWFsaXplIGFwcCBzdG9yYWdlXG4gICAgdGhpcy5pbnRlcm5hbC5hcHBzID0gZ2V0SW50ZXJuYWxTdG9yYWdlKGFwcFN0b3Jlcyk7XG4gICAgdGhpcy5leHRlcm5hbC5hcHBzID0gZ2V0RXh0ZXJuYWxTdG9yYWdlKGFwcFN0b3Jlcyk7XG5cbiAgICAvLyBpbml0aWFsaXplIG11c2ljIHN0b3JhZ2VcbiAgICB0aGlzLmludGVybmFsLm11c2ljID0gZ2V0SW50ZXJuYWxTdG9yYWdlKG11c2ljU3RvcmVzKTtcbiAgICB0aGlzLmV4dGVybmFsLm11c2ljID0gZ2V0RXh0ZXJuYWxTdG9yYWdlKG11c2ljU3RvcmVzKTtcblxuICAgIC8vIGluaXRpYWxpemUgcGljdHVyZSBzdG9yYWdlXG4gICAgdGhpcy5pbnRlcm5hbC5waWN0dXJlcyA9IGdldEludGVybmFsU3RvcmFnZShwaWN0dXJlc1N0b3Jlcyk7XG4gICAgdGhpcy5leHRlcm5hbC5waWN0dXJlcyA9IGdldEV4dGVybmFsU3RvcmFnZShwaWN0dXJlc1N0b3Jlcyk7XG5cbiAgICAvLyBpbml0aWFsaXplIHNkY2FyZCBzdG9yYWdlXG4gICAgdGhpcy5pbnRlcm5hbC5zZGNhcmQgPSBnZXRJbnRlcm5hbFN0b3JhZ2Uoc2RjYXJkU3RvcmVzKTtcbiAgICB0aGlzLmV4dGVybmFsLnNkY2FyZCA9IGdldEV4dGVybmFsU3RvcmFnZShzZGNhcmRTdG9yZXMpO1xuXG4gICAgLy8gaW5pdGlhbGl6ZSB2aWRlbyBzdG9yYWdlXG4gICAgdGhpcy5pbnRlcm5hbC52aWRlb3MgPSBnZXRJbnRlcm5hbFN0b3JhZ2UodmlkZW9zU3RvcmVzKTtcbiAgICB0aGlzLmV4dGVybmFsLnZpZGVvcyA9IGdldEV4dGVybmFsU3RvcmFnZSh2aWRlb3NTdG9yZXMpO1xuICB9XG5cbiAgLyoqXG4gICAqIEBhY2Nlc3MgcHVibGljXG4gICAqIEBkZXNjcmlwdGlvbiBUYWtlcyBhbiBhcnJheSBvZiBEZXZpY2VTdG9yYWdlIG9iamVjdHMgYW5kIHJldHVybnNcbiAgICogICB3aGljaGV2ZXIgcmVwcmVzZW50cyB0aGUgaW50ZXJuYWwgc3RvcmFnZS5cbiAgICogQHBhcmFtIHthcnJheSBvZiBEZXZpY2VTdG9yYWdlfSBzdG9yZXNcbiAgICogQHJldHVybnMge0RldmljZVN0b3JhZ2V9XG4gICAqL1xuICBNZWRpYS5wcm90b3R5cGUuZ2V0SW50ZXJuYWxTdG9yYWdlID0gZnVuY3Rpb24oc3RvcmVzKSB7XG5cbiAgICAvLyBUT0RPIC0gaWYgdGhlcmUgYXJlIG11bHRpcGxlIGludGVybmFsXG4gICAgLy8gc3RvcmFnZXMsIGRvIHdlIGp1c3QgdXNlIHRoZSBsYXJnZXN0P1xuICAgIGZvciAodmFyIGkgPSAwOyBpIDwgc3RvcmVzLmxlbmd0aDsgKytpKSB7XG4gICAgICBpZiAoc3RvcmVzW2ldLmlzUmVtb3ZhYmxlID09PSBmYWxzZSkge1xuICAgICAgICByZXR1cm4gc3RvcmVzW2ldO1xuICAgICAgfVxuICAgIH1cbiAgfTtcblxuICAvKipcbiAgICogQGFjY2VzcyBwcml2YXRlXG4gICAqIEBkZXNjcmlwdGlvbiBUYWtlcyBhbiBhcnJheSBvZiBEZXZpY2VTdG9yYWdlIG9iamVjdHMgYW5kIHJldHVybnNcbiAgICogICB3aGljaGV2ZXIgcmVwcmVzZW50cyB0aGUgZXh0ZXJuYWwgc3RvcmFnZS5cbiAgICogQHBhcmFtIHthcnJheSBvZiBEZXZpY2VTdG9yYWdlfSBzdG9yZXNcbiAgICogQHJldHVybnMge0RldmljZVN0b3JhZ2V9XG4gICAqL1xuICBNZWRpYS5wcm90b3R5cGUuZ2V0RXh0ZXJuYWxTdG9yYWdlID0gZnVuY3Rpb24oc3RvcmVzKSB7XG5cbiAgICAvLyBUT0RPIC0gaWYgdGhlcmUgYXJlIG11bHRpcGxlIGV4dGVybmFsXG4gICAgLy8gc3RvcmFnZXMsIGRvIHdlIGp1c3QgdXNlIHRoZSBsYXJnZXN0P1xuICAgIGZvciAodmFyIGkgPSAwOyBpIDwgc3RvcmVzLmxlbmd0aDsgKytpKSB7XG4gICAgICBpZiAoc3RvcmVzW2ldLmlzUmVtb3ZhYmxlID09PSB0cnVlKSB7XG4gICAgICAgIHJldHVybiBzdG9yZXNbaV07XG4gICAgICB9XG4gICAgfVxuICB9O1xuXG4gIC8qKlxuICAgKiBAYWNjZXNzIHByaXZhdGVcbiAgICogQGRlc2NyaXB0aW9uIFRha2VzIGEgc3RyaW5nIGRlc2NyaWJpbmcgd2hpY2ggdHlwZSBvZiBzdG9yYWdlXG4gICAqICAgaXMgZGVzaXJlZC4gVmFsaWQgb3B0aW9ucyBhcmU6IGFwcHMsIG11c2ljLCBwaWN0dXJlcyxcbiAgICogICBzZGNhcmQsIHZpZGVvcy4gUmV0dXJucyBhbiBvcHRpb24gY29udGFpbmluZyB0aGUgYXBwcm9wcmlhdGVcbiAgICogICBpbnRlcm5hbCBhbmQgZXh0ZXJuYWwgc3RvcmFnZXMuXG4gICAqIEBwYXJhbSB7U3RyaW5nfSB0eXBlXG4gICAqIEByZXR1cm5zIHtPYmplY3R9XG4gICAqL1xuICBmdW5jdGlvbiBnZXRTdG9yYWdlQnlOYW1lKHR5cGUpIHtcblxuICAgIHZhciBzdG9yZXMgPSB7XG4gICAgICBpbnRlcm5hbDogbnVsbCxcbiAgICAgIGV4dGVybmFsOiBudWxsXG4gICAgfTtcblxuICAgIHN3aXRjaCAodHlwZSkge1xuICAgICAgY2FzZSAnYXBwcyc6XG4gICAgICAgIHtcbiAgICAgICAgICBzdG9yZXMuaW50ZXJuYWwgPSB0aGlzLmludGVybmFsLmFwcHM7XG4gICAgICAgICAgc3RvcmVzLmV4dGVybmFsID0gdGhpcy5leHRlcm5hbC5hcHBzO1xuICAgICAgICAgIGJyZWFrO1xuICAgICAgICB9XG4gICAgICBjYXNlICdtdXNpYyc6XG4gICAgICAgIHtcbiAgICAgICAgICBzdG9yZXMuaW50ZXJuYWwgPSB0aGlzLmludGVybmFsLm11c2ljO1xuICAgICAgICAgIHN0b3Jlcy5leHRlcm5hbCA9IHRoaXMuZXh0ZXJuYWwubXVzaWM7XG4gICAgICAgICAgYnJlYWs7XG4gICAgICAgIH1cbiAgICAgIGNhc2UgJ3BpY3R1cmVzJzpcbiAgICAgICAge1xuICAgICAgICAgIHN0b3Jlcy5pbnRlcm5hbCA9IHRoaXMuaW50ZXJuYWwucGljdHVyZXM7XG4gICAgICAgICAgc3RvcmVzLmV4dGVybmFsID0gdGhpcy5leHRlcm5hbC5waWN0dXJlcztcbiAgICAgICAgICBicmVhaztcbiAgICAgICAgfVxuICAgICAgY2FzZSAnc2RjYXJkJzpcbiAgICAgICAge1xuICAgICAgICAgIHN0b3Jlcy5pbnRlcm5hbCA9IHRoaXMuaW50ZXJuYWwuc2RjYXJkO1xuICAgICAgICAgIHN0b3Jlcy5leHRlcm5hbCA9IHRoaXMuZXh0ZXJuYWwuc2RjYXJkO1xuICAgICAgICAgIGJyZWFrO1xuICAgICAgICB9XG4gICAgICBjYXNlICd2aWRlb3MnOlxuICAgICAgICB7XG4gICAgICAgICAgc3RvcmVzLmludGVybmFsID0gdGhpcy5pbnRlcm5hbC52aWRlb3M7XG4gICAgICAgICAgc3RvcmVzLmV4dGVybmFsID0gdGhpcy5leHRlcm5hbC52aWRlb3M7XG4gICAgICAgICAgYnJlYWs7XG4gICAgICAgIH1cbiAgICAgIGRlZmF1bHQ6XG4gICAgICAgIHtcbiAgICAgICAgICB0aHJvdyBuZXcgRXJyb3IoJ0ludmFsaWQgbWVkaWEgdHlwZScpO1xuICAgICAgICB9XG4gICAgfVxuXG4gICAgcmV0dXJuIHN0b3JlcztcbiAgfVxuXG4gIC8qKlxuICAgKiBAYWNjZXNzIHB1YmxpY1xuICAgKiBAZGVzY3JpcHRpb24gRmV0Y2hlcyBmaWxlcyBmcm9tIGJvdGggaW50ZXJuYWwgYW5kIGV4dGVybmFsIHN0b3JhZ2VzXG4gICAqICAgdmlhIERPTVJlcXVlc3QuIFRoZSB0eXBlIG9mIGZpbGVzIGZldGNoIChlLmcuIHBpY3R1cmVzLCBtdXNpYykgaXNcbiAgICogICBzcGVjaWZpZWQgYnkgdGhlIHR5cGUgcGFyYW1ldGVyLiBFYWNoIGZpbGUgZmV0Y2hlZCB3aWxsIGJlIHBhc3NlZFxuICAgKiAgIHRvIHRoZSBwcm92aWRlZCBcImZvci1lYWNoXCIgaGFuZGxlciBhcyBhIEZpbGUgb2JqZWN0LlxuICAgKiAgIChOb3RlOiBGaWxlIGV4dGVuZHMgQmxvYilcbiAgICogQHBhcmFtIHtTdHJpbmd9IHR5cGVcbiAgICogQHBhcmFtIHtjYWxsYmFja30gZm9yRWFjaFxuICAgKi9cbiAgTWVkaWEucHJvdG90eXBlLmdldCA9IGZ1bmN0aW9uKHR5cGUsIGZvckVhY2gpIHtcblxuICAgIHZhciBpbnRlcm5hbCA9IG51bGw7XG4gICAgdmFyIGV4dGVybmFsID0gbnVsbDtcbiAgICB2YXIgaW50ZXJuYWxGaWxlcyA9IG51bGw7XG4gICAgdmFyIGV4dGVybmFsRmlsZXMgPSBudWxsO1xuXG4gICAgaWYgKHR5cGVvZih0eXBlKSAhPT0gJ3N0cmluZycpIHtcbiAgICAgIHRocm93IG5ldyBFcnJvcignTWlzc2luZyBvciBpbnZhbGlkIG1lZGlhIHR5cGUnKTtcbiAgICB9XG5cbiAgICBpZiAoIXdpbmRvdy5mZm9zYnIudXRpbHMuaXNGdW5jdGlvbihmb3JFYWNoKSkge1xuICAgICAgdGhyb3cgbmV3IEVycm9yKCdNaXNzaW5nIG9yIGludmFsaWQgY2FsbGJhY2snKTtcbiAgICB9XG5cbiAgICBpbnRlcm5hbCA9IGdldFN0b3JhZ2VCeU5hbWUodHlwZSkuaW50ZXJuYWw7XG4gICAgZXh0ZXJuYWwgPSBnZXRTdG9yYWdlQnlOYW1lKHR5cGUpLmV4dGVybmFsO1xuICAgIGludGVybmFsRmlsZXMgPSBpbnRlcm5hbC5lbnVtZXJhdGUoKTtcbiAgICBleHRlcm5hbEZpbGVzID0gZXh0ZXJuYWwuZW51bWVyYXRlKCk7XG5cbiAgICBpbnRlcm5hbEZpbGVzLm9uc3VjY2VzcyA9IGZ1bmN0aW9uKCkge1xuICAgICAgZm9yRWFjaCh0aGlzLnJlc3VsdCk7XG4gICAgfTtcbiAgICBleHRlcm5hbEZpbGVzLm9uc3VjY2VzcyA9IGZ1bmN0aW9uKCkge1xuICAgICAgZm9yRWFjaCh0aGlzLnJlc3VsdCk7XG4gICAgfTtcbiAgfTtcblxuXG4gIC8vIEV4dGVuZCBGZm9zYnIgbGlicmFyeVxuICBGZm9zYnIubWVkaWEgPSBuZXcgTWVkaWEoKTtcbn07XG4iLCJtb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uKEZmb3Nicikge1xuXG5cbiAgLyoqXG4gICAqIEtpdGNoZW4gc2luayBmb3IgdXNlZnVsIGZ1bmN0aW9ucy5cbiAgICovXG4gIGZ1bmN0aW9uIFV0aWxpdGllcygpIHt9XG5cbiAgLyoqXG4gICAqIEBhY2Nlc3MgcHVibGljXG4gICAqIEBkZXNjcmlwdGlvbiBEZXRlcm1pbmVzIHdoZXRoZXIgYW4gb2JqZWN0IGlzIGEgZnVuY3Rpb24uXG4gICAqIEBwYXJhbSB7YW55fSBmdW5jdGlvblRvQ2hlY2tcbiAgICogQHJldHVybnMge2Jvb2xlYW59XG4gICAqL1xuICBVdGlsaXRpZXMucHJvdG90eXBlLmlzRnVuY3Rpb24gPSBmdW5jdGlvbihmdW5jdGlvblRvQ2hlY2spIHtcbiAgICB2YXIgZ2V0VHlwZSA9IHt9O1xuICAgIHJldHVybiBmdW5jdGlvblRvQ2hlY2sgJiYgZ2V0VHlwZS50b1N0cmluZy5jYWxsKGZ1bmN0aW9uVG9DaGVjaykgPT09ICdbb2JqZWN0IEZ1bmN0aW9uXSc7XG4gIH07XG5cblxuICAvLyBFeHRlbmQgRmZvc2JyIGxpYnJhcnlcbiAgRmZvc2JyLnV0aWxzID0gbmV3IFV0aWxpdGllcygpO1xufTtcbiJdfQ==
