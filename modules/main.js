@@ -1,12 +1,11 @@
 (function() {
 
-  function FFOSBR() {}
+  var Ffosbr = function() {
 
-  /* Import modules */
-  // require('./examples/square')(Ffsobr);
+    /* Import modules */
+    this.utils = require('./utils');
+    this.media = require('./media');
+  };
 
-  require('./utils');
-  require('./media');
-
-  window.ffosbr = new Ffsobr();
+  window.ffosbr = new Ffosbr();
 })();
