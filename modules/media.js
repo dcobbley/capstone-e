@@ -7,20 +7,22 @@ function Media() {
 
   // Public data members
 
+  // Each storage contains a store {DeviceStorage} and a ready {boolean}
   this.internal = {
-    apps: null, // {DeviceStorage} internal apps
-    music: null, // {DeviceStorage} internal music
-    pictures: null, // {DeviceStorage} internal pictures
-    sdcard: null, // {DeviceStorage} internal SD card
-    videos: null // {DeviceStorage} internal videos
+    apps: {},
+    music: {},
+    pictures: {},
+    sdcard: {},
+    videos: {}
   };
 
+  // Each storage contains a store {DeviceStorage} and a ready {boolean}
   this.external = {
-    apps: null, // {DeviceStorage} external apps
-    music: null, // {DeviceStorage} external music
-    pictures: null, // {DeviceStorage} external pictures
-    sdcard: null, // {DeviceStorage} external SD card
-    videos: null // {DeviceStorage} external videos
+    apps: {},
+    music: {},
+    pictures: {},
+    sdcard: {},
+    videos: {}
   };
 
 
@@ -40,6 +42,11 @@ function Media() {
   picturesStores = navigator.getDeviceStorages('pictures');
   sdcardStores = navigator.getDeviceStorages('sdcard');
   videosStores = navigator.getDeviceStorages('video');
+
+
+  // TODO -- we need a way of tracking which of the above
+  // calls failed.
+
 
   // initialize app storage
   this.internal.apps = this.getInternalStorage(appStores);
@@ -75,9 +82,17 @@ Media.prototype.getInternalStorage = function(stores) {
   // storages, do we just use the largest?
   for (var i = 0; i < stores.length; ++i) {
     if (stores[i].isRemovable === false) {
-      return stores[i];
+      return {
+        store: stores[i],
+        ready: true
+      };
     }
   }
+
+  return {
+    store: null,
+    ready: false
+  };
 };
 
 /**
@@ -93,13 +108,21 @@ Media.prototype.getExternalStorage = function(stores) {
   // storages, do we just use the largest?
   for (var i = 0; i < stores.length; ++i) {
     if (stores[i].isRemovable === true) {
-      return stores[i];
+      return {
+        store: stores[i],
+        ready: true
+      };
     }
   }
+
+  return {
+    store: null,
+    ready: false
+  };
 };
 
 /**
- * @access private
+ * @access public
  * @description Takes a string describing which type of storage
  *   is desired. Valid options are: apps, music, pictures,
  *   sdcard, videos. Returns an option containing the appropriate
@@ -107,7 +130,7 @@ Media.prototype.getExternalStorage = function(stores) {
  * @param {String} type
  * @returns {Object}
  */
-function getStorageByName(type) {
+Media.prototype.getStorageByName = function(type) {
 
   var stores = {
     internal: null,
@@ -152,7 +175,7 @@ function getStorageByName(type) {
   }
 
   return stores;
-}
+};
 
 /**
  * @access public
@@ -166,6 +189,9 @@ function getStorageByName(type) {
  */
 Media.prototype.get = function(type, forEach) {
 
+  // TODO -- add support for type 'sdcard1'
+
+  var storages = null;
   var internal = null;
   var external = null;
   var internalFiles = null;
@@ -179,10 +205,20 @@ Media.prototype.get = function(type, forEach) {
     throw new Error('Missing or invalid callback');
   }
 
-  internal = this.getStorageByName(type).internal;
-  external = this.getStorageByName(type).external;
-  internalFiles = internal.enumerate();
-  externalFiles = external.enumerate();
+  storages = this.getStorageByName(type === 'sdcard1' ? 'sdcard' : type);
+  internal = storages.internal;
+  external = storages.external;
+
+
+  // TODO -- should this succeed if only one is false?
+  if (internal.ready === true && external.ready === true) {
+    internalFiles = internal.enumerate();
+    externalFiles = external.enumerate();
+  } else if (type === 'sdcard1' && external.ready === true) {
+    externalFiles = external.enumerate();
+  } else {
+    throw new Error('Attempt to read from an invalid storage. Abort.');
+  }
 
   internalFiles.onsuccess = function() {
     forEach(this.result);
@@ -234,10 +270,16 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   storages = getStorageByName(sname);
   targetStorage = (internal === null ? external : internal);
 
-  if (type === 'sdcard1') {
+
+  // TODO -- check for ready! HERE
+
+
+  if (type === 'sdcard1' && targetStorage.ready === true) {
     write = targetStorage.addNamed(file, dest);
-  } else {
+  } else if (targetStorage.ready === true) {
     write = targetStorage.addNamed(file, filename);
+  } else {
+    throw new Error('Attempt to write to an invalid storage. Abort.');
   }
 
   write.onsuccess = function(fileWritten) {
@@ -278,7 +320,11 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       throw new Error('Missing or invalid filename');
     }
 
-    remove = externalSD.delete(filename);
+    if (externalSD.ready === true) {
+      remove = externalSD.delete(filename);
+    } else {
+      throw new Error('Attempt to delete from invalid storage. Abort.');
+    }
 
     remove.onsuccess = function(fileRemoved) {
       // Only call the oncomplete callback if it was provided
