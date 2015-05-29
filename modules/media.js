@@ -278,24 +278,26 @@ module.exports = function(Ffosbr) {
       var remove = null; // cursor or iterator
 
       if (typeof(filename) !== 'string') {
-       throw new Error('Missing or invalid filename');
+        throw new Error('Missing or invalid filename');
       }
 
       remove = externalSD.delete(filename);
 
-      remove.onsuccess = function (fileRemoved) {
+      remove.onsuccess = function(fileRemoved) {
         // Only call the oncomplete callback if it was provided
         if (window.ffosbr.utils.isFunction(oncomplete)) {
           oncomplete();
         }
       };
 
-      remove.onerror = function () {
+      remove.onerror = function() {
         // TODO -- Found out if this fails when the file doesn't exist.
         // If that's the case, detect it and don't throw any errors. We'll
         // also need to call the oncomplete callback in that case.
-      }
-    }
+
+        console.error(this.error); // temporary
+      };
+    };
 
 
   };
