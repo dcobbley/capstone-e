@@ -7,32 +7,54 @@ QUnit.test('Example: settings', function(assert) {
   //assert.ok(isFunction(ffosbr.settings), 'Settings is a function');
 
   //passing in ('photos', true) sets photos to true
-  assert.notEqual(backupTypes.photos, true, 'photos is false before function call');
-  ffosbr.BackupItems('photos', true);
-  assert.equal(backupTypes.photos, true, 'photos is true after function call');
+  assert.notEqual(options.photos, true, 'photos is false before function call');
+  ffosbr.Options({
+    photos: true
+  });
+  assert.equal(options.photos, true, 'photos is true after function call');
 
   //passing in ('videos', true) sets videos to true
-  assert.notEqual(backupTypes.videos, true, 'videos is false before function call');
-  ffosbr.BackupItems('videos', true);
-  assert.equal(backupTypes.videos, true, 'videos is true after function call');
+  assert.notEqual(options.videos, true, 'videos is false before function call');
+  ffosbr.Options({
+    videos: true
+  });
+  assert.equal(options.videos, true, 'videos is true after function call');
 
   //passing in ('contacts', true) sets contacts to true
-  assert.notEqual(backupTypes.contacts, true, 'contacts is false before function call');
-  ffosbr.BackupItems('contacts', true);
-  assert.equal(backupTypes.contacts, true, 'contacts is true after function call');
+  assert.notEqual(options.contacts, true, 'contacts is false before function call');
+  ffosbr.Options({
+    contacts: true
+  });
+  assert.equal(options.contacts, true, 'contacts is true after function call');
 
   //passing in ('photos', true) sets photos to true
-  assert.notEqual(backupTypes.text, true, 'text is false before function call');
-  ffosbr.BackupItems('text', true);
-  assert.equal(backupTypes.text, true, 'text is true after function call');
+  assert.notEqual(options.text, true, 'text is false before function call');
+  ffosbr.Options({
+    text: true
+  });
+  assert.equal(options.text, true, 'text is true after function call');
 
 
   //passing in a value in hours returns a value in millisecs
-  assert.equal(backupTimes.intervalTime, null, 'intervalTime is null before setting');
-  ffosbr.BackupTimer('intervalTime', 5);
-  assert.notEqual(backupTimes.intervalTime, 5, 'intervalTime is not equal to 5 hours');
-  assert.equal(backupTimes.intervalTime, 18000000, '5 hours is equal to 18 M milliseconds. conversion is correct.');
+  assert.equal(options.intervalTime, null, 'intervalTime is null before setting');
+  ffosbr.Options({
+    intervalTime: 5
+  });
+  assert.notEqual(options.intervalTime, 5, 'intervalTime is not equal to 5 hours');
+  assert.equal(options.intervalTime, 18000000, '5 hours is equal to 18 M milliseconds. conversion is correct.');
 
-
-
+  //set everything back to null in one shot
+  ffosbr.Options({
+    photos: null,
+    videos: null,
+    contacts: null,
+    text: null,
+    intervalTime: null,
+    id: null,
+    registeredTimer: null,
+    repeat: null
+  });
+  for (var i in options) {
+    assert.equal(options.i, null, i + ' is null');
+  }
 });

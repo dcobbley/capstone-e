@@ -1,67 +1,55 @@
  module.exports = function(Ffosbr) {
-   //var internalStorage = navigator.getDeviceStorage('sdcard');
-   //var sdcard = navigator.getDeviceStorage('sdcard1');
-   //var appSettings = navigator.getDeviceStorage('apps');
 
-   //Ffosbr.prototype.settings = function() {
-   //function settings() {
-   var DAYS_STARTING_SUNDAY = require('constants').DAYS_STARTING_SUNDAY;
    var timeInMilliSec = 0;
 
    {
-     backupTypes = {
+     options = {
        'photos': false,
        'videos': false,
        'contacts': false,
-       'text': false
-     };
-   }
-
-   {
-     backupTimes = {
+       'text': false,
        'intervalTime': null, // pass in value in hours
        'id': null,
        'registeredTimer': false,
-       'repeat': false,
+       'repeat': false
      };
-
    }
 
-   Ffosbr.prototype.BackupItems = function(key, value) {
-     if (key == 'photos') {
-       backupTypes.photos = value;
+
+   Ffosbr.prototype.Options = function(my_dictionary) {
+     for (var key in my_dictionary) {
+       if (key == 'photos') {
+         options.photos = my_dictionary.photos;
+       }
+       if (key == 'videos') {
+         options.videos = my_dictionary.videos;
+       }
+       if (key == 'contacts') {
+         options.contacts = my_dictionary.contacts;
+       }
+       if (key == 'text') {
+         options.text = my_dictionary.text;
+       }
+       if (key == 'id') {
+         options.id = my_dictionary.id;
+       }
+       if (key == 'registeredTimer') {
+         options.registeredTimer = my_dictionary.registeredTimer;
+       }
+       if (key == 'repeat') {
+         options.repeat = my_dictionary.repeat;
+       }
+
+       //////pass in the value in hours /////////
+       if (key == 'intervalTime') {
+         timeInMilliSec = my_dictionary.intervalTime * 1000 * 60 * 60;
+         options.intervalTime = timeInMilliSec;
+       }
+
      }
-     if (key == 'videos') {
-       backupTypes.videos = value;
-     }
-     if (key == 'contacts') {
-       backupTypes.contacts = value;
-     }
-     if (key == 'text') {
-       backupTypes.text = value;
-     }
-     return backupTypes;
+     return options;
 
    };
 
-   Ffosbr.prototype.BackupTimer = function(key, value) {
-     if (key == 'id') {
-       backupTimes.id = value;
-     }
-     if (key == 'registeredTimer') {
-       backupTimes.registeredTimer = value;
-     }
-     if (key == 'repeat') {
-       backupTimes.repeat = value;
-     }
-
-     //////pass in the value in hours /////////
-     if (key == 'intervalTime') {
-       timeInMilliSec = value * 1000 * 60 * 60;
-       backupTimes.intervalTime = timeInMilliSec;
-     }
-     return backupTimes;
-   };
-   //}
    //Ffosbr.settings = new Settings();
  };
