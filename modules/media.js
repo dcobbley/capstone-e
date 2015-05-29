@@ -202,14 +202,14 @@ module.exports = function(Ffosbr) {
    *   'apps', 'music', 'pictures', 'sdcard', or 'videos' then the file will be
    *   handed off to the OS and any file paths in the 'dest' parameter will be
    *   ignored. If the file type is 'sdcard1' the file will be written to the
-   *   external storage device with the exact 'dest' provided.
+   *   external storage device with the exact 'dest' provided. If an oncomplete
+   *   callback if provided, it will be called after the file has been written.
    * @param {String} type
    * @param {File} file
    * @param {String} dest
+   * @param {requestCallback} oncomplete
    */
-  Media.prototype.put = function(type, file, dest) {
-
-    // TODO -- should we accept an on-complete callback?
+  Media.prototype.put = function(type, file, dest, oncomplete) {
 
     var filename = null; // dest without file paths
     var storages = null; // array of DeviceStorage
@@ -243,18 +243,59 @@ module.exports = function(Ffosbr) {
       write = targetStorage.addNamed(file, filename);
     }
 
-    // TODO -- handle all the terrible things that will undoubtedly
-    // go wrong while writing files...
-    //     - external doesn't exist
-    //     - not enough space for file
-
-    write.onsuccess = function() {
-      // TODO
+    write.onsuccess = function(fileWritten) {
+      // Only call the oncomplete callback if it was provided
+      if (window.ffosbr.utils.isFunction(oncomplete)) {
+        oncomplete();
+      }
     };
 
     write.onerror = function() {
-      // TODO
+      // TODO -- handle all the terrible things that will undoubtedly
+      // go wrong while writing files...
+      //     - external doesn't exist
+      //     - not enough space for file
+
+      // TODO - this will fail if the file already exists, but this
+      // isn't really a failure.. We need a way of determining when
+      // this is the case. Also, call the oncomplete callback.
+
+      console.error(this.error); // temporary
     };
+
+
+    /**
+     * @access public
+     * @description Removes a file from the external sdcard. If an oncomplete
+     *   callback is provided, it will be called after the file is removed.
+     * @param {String} filename - Specifies the full path to the file to be
+     *   removed from the external sdcard (sdcard1).
+     * @param {requestCallback} oncomplete
+     */
+    Media.prototype.remove = function(filename, oncomplete) {
+
+      var externalSD = this.getStorageByName('sdcard').external;
+      var remove = null; // cursor or iterator
+
+      if (typeof(filename) !== 'string') {
+       throw new Error('Missing or invalid filename');
+      }
+
+      remove = externalSD.delete(filename);
+
+      remove.onsuccess = function (fileRemoved) {
+        // Only call the oncomplete callback if it was provided
+        if (window.ffosbr.utils.isFunction(oncomplete)) {
+          oncomplete();
+        }
+      };
+
+      remove.onerror = function () {
+        // TODO -- Found out if this fails when the file doesn't exist.
+        // If that's the case, detect it and don't throw any errors. We'll
+        // also need to call the oncomplete callback in that case.
+      }
+    }
 
 
   };
