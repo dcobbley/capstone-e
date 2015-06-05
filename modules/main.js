@@ -1,9 +1,10 @@
 (function() {
 
-  function FFOSBR() {}
+  var Ffosbr = function() {
 
-  /* Import modules */
-  require('./square')(FFOSBR);
+    /* Import modules */
+    this.settings = require('./settings');
+  };
 
-  window.ffosbr = new FFOSBR();
+  window.ffosbr = new Ffosbr();
 })();
