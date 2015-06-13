@@ -209,7 +209,6 @@ Media.prototype.get = function(type, forEach) {
   internal = storages.internal;
   external = storages.external;
 
-
   // TODO -- should this succeed if only one is false?
   if (internal.ready === true && external.ready === true) {
     internalFiles = internal.enumerate();
@@ -267,17 +266,18 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   // If the type is 'sdcard1', use name 'sdcard'
   sname = (type === 'sdcard1' ? 'sdcard' : type);
-  storages = getStorageByName(sname);
-  targetStorage = (internal === null ? external : internal);
+  storages = this.getStorageByName(sname);
 
-
-  // TODO -- check for ready! HERE
-
+  if (type === 'sdcard1' && storages.external !== null) {
+    targetStorage = storages.external;
+  } else {
+    targetStorage = (storages.internal === null ? storages.external : storages.internal);
+  }
 
   if (type === 'sdcard1' && targetStorage.ready === true) {
-    write = targetStorage.addNamed(file, dest);
+    write = targetStorage.store.addNamed(file, dest);
   } else if (targetStorage.ready === true) {
-    write = targetStorage.addNamed(file, filename);
+    write = targetStorage.store.addNamed(file, filename);
   } else {
     throw new Error('Attempt to write to an invalid storage. Abort.');
   }
@@ -299,7 +299,10 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
     // isn't really a failure.. We need a way of determining when
     // this is the case. Also, call the oncomplete callback.
 
-    console.error(this.error); // temporary
+    // Only call the oncomplete callback if it was provided
+    if (window.ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(this.error);
+    }
   };
 
 
