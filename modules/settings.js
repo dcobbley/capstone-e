@@ -1,55 +1,62 @@
- module.exports = function(Ffosbr) {
+function Settings() {
+  var timeInMilliSec = 0;
 
-   var timeInMilliSec = 0;
-
-   {
-     options = {
-       'photos': false,
-       'videos': false,
-       'contacts': false,
-       'text': false,
-       'intervalTime': null, // pass in value in hours
-       'id': null,
-       'registeredTimer': false,
-       'repeat': false
-     };
-   }
+  var options = {
+    photos: false,
+    videos: false,
+    contacts: false,
+    text: false,
+    intervalTime: 0, // pass in value in hours
+    id: 0,
+    registeredTimer: false,
+    repeat: false
+  };
 
 
-   Ffosbr.prototype.Options = function(my_dictionary) {
-     for (var key in my_dictionary) {
-       if (key == 'photos') {
-         options.photos = my_dictionary.photos;
-       }
-       if (key == 'videos') {
-         options.videos = my_dictionary.videos;
-       }
-       if (key == 'contacts') {
-         options.contacts = my_dictionary.contacts;
-       }
-       if (key == 'text') {
-         options.text = my_dictionary.text;
-       }
-       if (key == 'id') {
-         options.id = my_dictionary.id;
-       }
-       if (key == 'registeredTimer') {
-         options.registeredTimer = my_dictionary.registeredTimer;
-       }
-       if (key == 'repeat') {
-         options.repeat = my_dictionary.repeat;
-       }
 
-       //////pass in the value in hours /////////
-       if (key == 'intervalTime') {
-         timeInMilliSec = my_dictionary.intervalTime * 1000 * 60 * 60;
-         options.intervalTime = timeInMilliSec;
-       }
+  Settings.prototype.Options = function(myDictionary) {
+    if (!myDictionary) {
+      return options;
+    }
 
-     }
-     return options;
 
-   };
+    if (myDictionary.photos !== undefined && typeof myDictionary.photos === "boolean") {
+      options.photos = myDictionary.photos;
+    }
 
-   //Ffosbr.settings = new Settings();
- };
+    if (myDictionary.videos !== undefined && typeof myDictionary.videos === "boolean") {
+      options.videos = myDictionary.videos;
+    }
+
+    if (myDictionary.contacts !== undefined && typeof myDictionary.contacts === "boolean") {
+      options.contacts = myDictionary.contacts;
+    }
+
+    if (myDictionary.text !== undefined && typeof myDictionary.text === "boolean") {
+      options.text = myDictionary.text;
+    }
+
+    if (myDictionary.id !== undefined && typeof myDictionary.id === "number") {
+      options.id = myDictionary.id;
+    }
+
+    if (myDictionary.registeredTimer !== undefined && typeof myDictionary.registeredTimer === "boolean") {
+      options.registeredTimer = myDictionary.registeredTimer;
+    }
+
+    if (myDictionary.repeat !== undefined && typeof myDictionary.repeat === "boolean") {
+      options.repeat = myDictionary.repeat;
+    }
+    //////pass in the value in hours /////////
+    if (myDictionary.intervalTime !== undefined && typeof myDictionary.intervalTime === "number") {
+      timeInMilliSec = myDictionary.intervalTime * 1000 * 60 * 60;
+      options.intervalTime = timeInMilliSec;
+    }
+
+
+    return options;
+
+  };
+
+}
+module.exports = new Settings();

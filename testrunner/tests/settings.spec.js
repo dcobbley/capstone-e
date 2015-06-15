@@ -1,60 +1,37 @@
-QUnit.test('Example: settings', function(assert) {
+QUnit.test('Settings', function(assert) {
 
-  // The function 'settings' must defined
-  assert.notEqual(typeof ffosbr.settings, undefined, 'Settings exists');
+  assert.notEqual(ffosbr.settings.Options().photos, true, 'photos is false before call');
+  assert.notEqual(ffosbr.settings.Options().videos, true, 'videos is false before call');
+  assert.notEqual(ffosbr.settings.Options().contacts, true, 'contacts is false before call');
+  assert.notEqual(ffosbr.settings.Options().text, true, 'text is false before call');
+  assert.notEqual(ffosbr.settings.Options().intervalTime, 1, 'intervalTime is not 1 before call');
+  assert.notEqual(ffosbr.settings.Options().id, 1, 'id is not 1 before call');
+  assert.notEqual(ffosbr.settings.Options().registeredTimer, true, 'registeredTimer is false before call');
+  assert.notEqual(ffosbr.settings.Options().repeat, true, 'repeat is false before call');
 
-  // The function 'settings' must be a function
-  //assert.ok(isFunction(ffosbr.settings), 'Settings is a function');
 
-  //passing in ('photos', true) sets photos to true
-  assert.notEqual(options.photos, true, 'photos is false before function call');
-  ffosbr.Options({
-    photos: true
+  ffosbr.settings.Options({
+    photos: true,
+    videos: true,
+    contacts: true,
+    text: true,
+    intervalTime: 1, // pass in value in hours
+    id: 1,
+    registeredTimer: true,
+    repeat: true
   });
-  assert.equal(options.photos, true, 'photos is true after function call');
-
-  //passing in ('videos', true) sets videos to true
-  assert.notEqual(options.videos, true, 'videos is false before function call');
-  ffosbr.Options({
-    videos: true
-  });
-  assert.equal(options.videos, true, 'videos is true after function call');
-
-  //passing in ('contacts', true) sets contacts to true
-  assert.notEqual(options.contacts, true, 'contacts is false before function call');
-  ffosbr.Options({
-    contacts: true
-  });
-  assert.equal(options.contacts, true, 'contacts is true after function call');
-
-  //passing in ('photos', true) sets photos to true
-  assert.notEqual(options.text, true, 'text is false before function call');
-  ffosbr.Options({
-    text: true
-  });
-  assert.equal(options.text, true, 'text is true after function call');
 
 
-  //passing in a value in hours returns a value in millisecs
-  assert.equal(options.intervalTime, null, 'intervalTime is null before setting');
-  ffosbr.Options({
-    intervalTime: 5
-  });
-  assert.notEqual(options.intervalTime, 5, 'intervalTime is not equal to 5 hours');
-  assert.equal(options.intervalTime, 18000000, '5 hours is equal to 18 M milliseconds. conversion is correct.');
+  assert.equal(ffosbr.settings.Options().photos, true, 'photos is true after call');
+  assert.equal(ffosbr.settings.Options().videos, true, 'videos is true after call');
+  assert.equal(ffosbr.settings.Options().contacts, true, 'contacts is true after call');
+  assert.equal(ffosbr.settings.Options().text, true, 'text is true after call');
+  assert.equal(ffosbr.settings.Options().intervalTime, 3600000, 'intervalTime is 36000 s after call');
+  assert.equal(ffosbr.settings.Options().id, 1, 'id is 1 after call');
+  assert.equal(ffosbr.settings.Options().registeredTimer, true, 'registeredTimer is true after call');
+  assert.equal(ffosbr.settings.Options().repeat, true, 'repeat is true after call');
 
-  //set everything back to null in one shot
-  ffosbr.Options({
-    photos: null,
-    videos: null,
-    contacts: null,
-    text: null,
-    intervalTime: null,
-    id: null,
-    registeredTimer: null,
-    repeat: null
-  });
-  for (var i in options) {
-    assert.equal(options.i, null, i + ' is null');
-  }
+
+
+
 });
