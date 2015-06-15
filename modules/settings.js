@@ -14,49 +14,54 @@ function Settings() {
 
 
 
-  Settings.prototype.Options = function(myDictionary) {
+  Settings.prototype.options = function(myDictionary) {
     if (!myDictionary) {
       return options;
     }
 
-
-    if (myDictionary.photos !== undefined && typeof myDictionary.photos === "boolean") {
+    if (myDictionary.photos !== undefined &&
+      typeof myDictionary.photos === 'boolean') {
       options.photos = myDictionary.photos;
     }
 
-    if (myDictionary.videos !== undefined && typeof myDictionary.videos === "boolean") {
+    if (myDictionary.videos !== undefined &&
+      typeof myDictionary.videos === 'boolean') {
       options.videos = myDictionary.videos;
     }
 
-    if (myDictionary.contacts !== undefined && typeof myDictionary.contacts === "boolean") {
+    if (myDictionary.contacts !== undefined &&
+      typeof myDictionary.contacts === 'boolean') {
       options.contacts = myDictionary.contacts;
     }
 
-    if (myDictionary.text !== undefined && typeof myDictionary.text === "boolean") {
+    if (myDictionary.text !== undefined &&
+      typeof myDictionary.text === 'boolean') {
       options.text = myDictionary.text;
     }
 
-    if (myDictionary.id !== undefined && typeof myDictionary.id === "number") {
+    if (myDictionary.id !== undefined &&
+      typeof myDictionary.id === 'number') {
       options.id = myDictionary.id;
     }
 
-    if (myDictionary.registeredTimer !== undefined && typeof myDictionary.registeredTimer === "boolean") {
+    if (myDictionary.registeredTimer !== undefined &&
+      typeof myDictionary.registeredTimer === 'boolean') {
       options.registeredTimer = myDictionary.registeredTimer;
     }
 
-    if (myDictionary.repeat !== undefined && typeof myDictionary.repeat === "boolean") {
+    if (myDictionary.repeat !== undefined &&
+      typeof myDictionary.repeat === 'boolean') {
       options.repeat = myDictionary.repeat;
     }
     //////pass in the value in hours /////////
-    if (myDictionary.intervalTime !== undefined && typeof myDictionary.intervalTime === "number") {
+    if (myDictionary.intervalTime !== undefined &&
+      typeof myDictionary.intervalTime === 'number') {
       timeInMilliSec = myDictionary.intervalTime * 1000 * 60 * 60;
       options.intervalTime = timeInMilliSec;
     }
 
-
     return options;
-
   };
-
 }
+
 module.exports = new Settings();
