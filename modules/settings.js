@@ -2,17 +2,24 @@ function Settings() {
   var timeInMilliSec = 0;
 
   var options = {
-    photos: false,
-    videos: false,
-    contacts: false,
-    text: false,
-    intervalTime: 0, // pass in value in hours
+    photos: true,
+    videos: true,
+    contacts: true,
+    text: true,
+    intervalTime: 24, // pass in value in hours
     id: 0,
     registeredTimer: false,
-    repeat: false
+    repeat: true
   };
 
+  // Load options if present
+  (function() {
+    var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
+    if (retrievedOptions !== null) {
+      self.options = JSON.parse(retrievedOptions);
+    }
+  })();
 
   Settings.prototype.options = function(myDictionary) {
     if (!myDictionary) {
@@ -60,6 +67,7 @@ function Settings() {
       options.intervalTime = timeInMilliSec;
     }
 
+    localStorage.setItem('ffosbrOptions', JSON.stringify(options));
     return options;
   };
 }
