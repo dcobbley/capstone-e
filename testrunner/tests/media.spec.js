@@ -20,21 +20,23 @@ QUnit.test('Get internal storage', function(assert) {
       onlyExternalStorages.push(storages[i]);
     }
   }
+  
+  console.log(ffosbr.media.getInternalStorage(emptyStorage));
 
-  assert.strictEquals(
-    ffosbr.media.getInternalStorage(emptyStorage),
+  assert.strictEqual(
+    ffosbr.media.getInternalStorage(emptyStorage)['store'],
     null,
     '...returns null from empty list'
   );
 
-  assert.strictEquals(
-    ffosbr.media.getInternalStorage(onlyExternalStorages),
+  assert.strictEqual(
+    ffosbr.media.getInternalStorage(onlyExternalStorages)['store'],
     null,
     '...returns null from list of only external storages'
   );
 
-  assert.strictNotEquals(
-    ffosbr.media.getInternalStorage(storages),
+  assert.notStrictEqual(
+    ffosbr.media.getInternalStorage(storages)['store'],
     null,
     '...returns DeviceStorage instance from storage list'
   );
@@ -45,7 +47,43 @@ QUnit.test('Get internal storage', function(assert) {
  * Media.getExternalStorage (modules/media.js)
  */
 QUnit.test('Get external storage', function(assert) {
-  // TODO
+  // The function 'getInternalStorage' must defined
+  assert.notEqual(typeof ffosbr.media.getExternalStorage, undefined, '...exists');
+
+  // The function 'getInternalStorage' must be a function
+  assert.ok(isFunction(ffosbr.media.getExternalStorage), '...is a function');
+
+
+  // It returns null when no internal storage is found
+  var storages = navigator.getDeviceStorages('sdcard');
+  var emptyStorage = [];
+  var onlyInternalStorages = [];
+
+  for (var i = 0; i < storages.length; ++i) {
+    if (storages[i].isRemovable === false) {
+      onlyInternalStorages.push(storages[i]);
+    }
+  }
+  
+  console.log(ffosbr.media.getExternalStorage(emptyStorage));
+
+  assert.strictEqual(
+    ffosbr.media.getExternalStorage(emptyStorage)['store'],
+    null,
+    '...returns null from empty list'
+  );
+
+  assert.strictEqual(
+    ffosbr.media.getExternalStorage(onlyInternalStorages)['store'],
+    null,
+    '...returns null from list of only external storages'
+  );
+
+  assert.notStrictEqual(
+    ffosbr.media.getExternalStorage(storages)['store'],
+    null,
+    '...returns DeviceStorage instance from storage list'
+  );
 });
 
 

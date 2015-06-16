@@ -16,7 +16,8 @@
   "permissions": {
     "systemXHR": {
       "description": "Required to load remote content"
-    }
+    },
+      "device-storage:sdcard": {"access": "readcreate"}
   },
   "installs_allowed_from": [
     "*"
