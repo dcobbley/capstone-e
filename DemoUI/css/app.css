@@ -25,6 +25,33 @@ section {
   background: white;
 }
 
+li.main-list-item {
+  border-bottom: none !important
+}
+
+.main-list-icon {
+  margin-left: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  float: left;
+  width: 20%;
+}
+
+.main-list-label {
+  margin-left: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 40%;
+}
+
+.main-list-hist {
+  margin-left: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  float: right;
+  width: 40%;
+}
+
 .slide-up {
   animation: slide-up 0.4s forwards ease-out;
 }

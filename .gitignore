@@ -44,4 +44,5 @@ Temporary Items
 .apdisk
 
 node_modules/
-testrunner/bower_components/
+bower_components/
+*/bower_components/*

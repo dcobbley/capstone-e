@@ -17,6 +17,7 @@
 
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/gaia-fonts/style.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
 
     <link href="css/header.css" rel="stylesheet">
     <link href="css/lists.css" rel="stylesheet">
@@ -47,58 +48,74 @@
     <link rel="prefetch" type="application/l10n" href="data/locales.ini" />
     <script type="text/javascript" src="js/libs/l10n.js" defer></script>
   </head>
-  <body class='skin-comms' style='overflow: scroll;'>
-      <section role='region' class='vbox fit'>
-       <header>
-        <menu type="toolbar">
-          <a href='#' id='settings-button'>
-            <span class='icon icon-settings'>
-              settings
-            </span>
-          </a>
-        </menu>
-        <h1>FFOSBR Demo</h1>
-      </header> 
+  <body style='overflow: scroll;'>
+      <section role='region' class='vbox fit' style='position: absolute'>
+        <header>
+          <menu type="toolbar">
+            <a href='#' id='settings-button'>
+              <span class='icon icon-settings'>
+                settings
+              </span>
+            </a>
+          </menu>
+          <h1>FFOSBR Demo</h1>
+        </header>
       
-      <section class='gaia-list fit scroll sticky' style='margin-top: 5rem'>
-        <article>
-          <header>
-            <center>
-              <h2>BUTANS</h2>
-            </center>
-          </header>
-          <ul>
-            <li>
-              <button id='init-backup-button' class='bb-button recommend'>
-                Initial Backup
-              </button>
-            </li>
-            <li>
-              <button id='inc-backup-button' class='bb-button recommend'>
-                Incremental Backup
-              </button>
-            </li>
-            <li>
-              <button id='clear-backup-button' class='bb-button recommend'>
-                Clear Backup
-              </button>
-            </li>
-          </ul>
-        </article>
+      <section class='gaia-list fit scroll sticky' style='margin-top: 5rem; position: absolute'>
+        <div data-type='list' style="overflow-y: scroll; height: calc(100% - 10rem); padding: 0">
+          <li class='main-list-item'>
+            <div class='main-list-icon' id='photo-icon'>
+              <i class="fa fa-picture-o fa-3x"></i>
+            </div>
+            <div class='main-list-label' id='photo-label'>
+              <p style='padding: 0px'>Photos</p>
+            </div>
+          </li>
+          <li class='main-list-item'>
+            <div class='main-list-icon' id='video-icon'>
+              <i class="fa fa-film fa-3x"></i>
+            </div>
+            <div class='main-list-label' id='video-label'>
+              <p style='padding: 0px'>Videos</p>
+            </div>
+          </li>
+          <li class='main-list-item'>
+            <div class='main-list-icon' id='contact-icon'>
+              <i class="fa fa-users fa-3x"></i>
+            </div>
+            <div class='main-list-label' id='contact-label'>
+              <p style='padding: 0px'>Contacts</p>
+            </div>
+          </li>
+          <li class='main-list-item'>
+            <div class='main-list-icon' id='settings-icon'>
+              <i class="fa fa-sliders fa-3x"></i>
+            </div>
+            <div class='main-list-label' id='settings-label'>
+              <p style='padding: 0px'>Settings</p>
+            </div>
+            <div class='main-list-hist'>
+              <p style='padding: 0px'>hello</p>
+            </div>
+          </li>
+        </div>
       </section>
+      <div class="footer">
+          <button id="backup-button" class="bb-button recommend" style="margin: 5px 5%; width: 90%;">
+            Backup
+          </button>
+      </div>
     </section>
 
     <section role='region' id='settings-page' class='vbox fit' style="transform: translateY(100%); position: absolute;">
-      <article>
-        <header>
-          <menu type='toolbar'>
-            <button id='settings-done-button'>
-              done
-            </button>
-          </menu>
-          <h1>Settings</h1>
-        </header>
-      </article>
+      <header>
+        <menu type='toolbar'>
+          <button id='settings-done-button'>
+            done
+          </button>
+        </menu>
+        <h1>Settings</h1>
+      </header>
     </section>
   </body>
 </html>
