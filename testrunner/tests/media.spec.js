@@ -113,9 +113,8 @@ xhr.responseType = "arraybuffer";//force the HTTP response, response-type header
 
 xhr.onload = function() 
 {
-    blob = xhr.response;//xhr.response is now a blob object
-    //xhr.responseType = "blob";// "arraybuffer";
-    //console.log( blob);
+    blob = xhr.response;//xhr.response is now a arraybuffer object
+
     var file = new File([blob], "hello", {type: "image/png"});
     console.log(file);
   
