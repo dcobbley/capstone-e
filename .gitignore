@@ -46,3 +46,8 @@ Temporary Items
 node_modules/
 bower_components/
 */bower_components/*
+
+# Generated files
+FFOSBR.js
+FFOSBR.min.js
+*/FFOSBR.js

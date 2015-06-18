@@ -39,14 +39,14 @@ module.exports = function(grunt) {
     browserify: {
       options: {
         // Generates inline source maps
-         browserifyOptions: {
-           debug: true
-         }
-       },
-       js: {
-         src: ['modules/*.js'],
-         dest: 'FFOSBR.js'
-       }
+        browserifyOptions: {
+          debug: true
+        }
+      },
+      js: {
+        src: ['modules/*.js'],
+        dest: 'FFOSBR.js'
+      }
     },
 
     /* Compresses javascript */
@@ -62,6 +62,9 @@ module.exports = function(grunt) {
         files: [{
           src: 'FFOSBR.js',
           dest: 'testrunner/'
+        }, {
+          src: 'FFOSBR.js',
+          dest: 'DemoUI/'
         }],
       },
     },
@@ -75,7 +78,7 @@ module.exports = function(grunt) {
 
 
   grunt.registerTask('default', function() {
-    console.log('No opitions specified defaulting to push to any device then simulator');
+    console.log('No options specified. Will attempt to push to any device, then the simulator');
     grunt.task.run([
       'build',
       'execute'
