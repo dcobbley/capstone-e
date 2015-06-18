@@ -17,10 +17,15 @@
     "systemXHR": {
       "description": "Required to load remote content"
     },
-      "device-storage:sdcard": {"access": "readcreate"}
+    "device-storage:sdcard": {"access": "readcreate"},
+    "device-storage:pictures":{ "access": "readwrite" }
+
   },
   "installs_allowed_from": [
     "*"
   ],
-  "default_locale": "en"
+  "default_locale": "en",
+   "testphotos": {
+    "128": "/testphotos/icon128x128.png"
+  }
 }

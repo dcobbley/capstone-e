@@ -91,5 +91,55 @@ QUnit.test('Get external storage', function(assert) {
  * Media.get (modules/media.js)
  */
 QUnit.test('Get media from storage', function(assert) {
-  //
+  var storages = navigator.getDeviceStorages('pictures');
+  console.log(storages[0]);
+
+
+var blob = null;
+var xhr = new XMLHttpRequest(); 
+xhr.open("GET", "/testphotos/icon128x128.png"); 
+xhr.responseType = "arraybuffer";//force the HTTP response, response-type header to be blob
+
+
+
+xhr.onload = function() 
+{
+    blob = xhr.response;//xhr.response is now a blob object
+    //xhr.responseType = "blob";// "arraybuffer";
+    //console.log( blob);
+    var file = new File([blob], "hello", {type: "image/png"});
+    console.log(file);
+  
+  var write = storages[0].add(file);
+  console.log(write);
+  write.onsuccess = function () {
+    console.log(this.result);
+  } 
+  write.onerror = function () {
+    console.log(this.error);
+  }
+  
+  
+  
+
+}
+xhr.send();
+  
+  
+  
+  assert.ok(isFunction(ffosbr.media.getInternalStorage), '...is a function');
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
