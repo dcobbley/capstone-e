@@ -89,6 +89,10 @@ QUnit.test('Get external storage', function(assert) {
 
 /**
  * Media.get (modules/media.js)
+ * TODO
+ * Right now this is an example of how to load media onto the phone for testing. 
+ *
+ *
  */
 QUnit.test('Get media from storage', function(assert) {
   var storages = navigator.getDeviceStorages('pictures');
@@ -97,6 +101,11 @@ QUnit.test('Get media from storage', function(assert) {
 
 var blob = null;
 var xhr = new XMLHttpRequest(); 
+/* Place the files in a directory that is in the packaged app project and 
+ * retrieve them with xhr.
+ *
+ *
+ */
 xhr.open("GET", "/testphotos/icon128x128.png"); 
 xhr.responseType = "arraybuffer";//force the HTTP response, response-type header to be blob
 
