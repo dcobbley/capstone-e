@@ -180,16 +180,17 @@ Media.prototype.getStorageByName = function(type) {
 /**
  * @access public
  * @description Fetches files from both internal and external storages
- *   via DOMRequest. The type of files fetch (e.g. pictures, music) is
- *   specified by the type parameter. Each file fetched will be passed
- *   to the provided "for-each" handler as a File object.
+ *   via DOMRequest. The type of files fetched (e.g. pictures, music) is
+ *   specified by the "type" parameter. Each file fetched will be passed
+ *   to the provided "forEach" handler as a File object. If the "type"
+ *   parameter is "sdcard1" and a "directory" parameter is provided, only
+ *   files found in the specified directory will be returned.
  *   (Note: File extends Blob)
  * @param {String} type
+ * @param {String} directory (optional)
  * @param {callback} forEach
  */
-Media.prototype.get = function(type, forEach) {
-
-  // TODO -- add support for type 'sdcard1'
+Media.prototype.get = function(type, directory, forEach) {
 
   var storages = null;
   var internal = null;
@@ -197,8 +198,20 @@ Media.prototype.get = function(type, forEach) {
   var internalFiles = null;
   var externalFiles = null;
 
+  // TODO - write utility/settings function to confirm
+  // a valid media type.
   if (typeof(type) !== 'string') {
     throw new Error('Missing or invalid media type');
+  }
+
+  if (typeof(directory) !== 'string') {
+    if (isFunction(directory)) {
+      // Parameter "directory" was not provided
+      forEach = directory;
+    } else {
+      throw new Error('Missing or invalid directory');
+    }
+    directory = null;
   }
 
   if (!window.ffosbr.utils.isFunction(forEach)) {
@@ -209,11 +222,10 @@ Media.prototype.get = function(type, forEach) {
   internal = storages.internal;
   external = storages.external;
 
-  // TODO -- should this succeed if only one is false?
-
-
   if (type === 'sdcard1' && external.ready === true) {
-    externalFiles = external.enumerate();
+    if (directory !== null) {
+      externalFiles = external.enumerate(directory);
+    }
   } else if (internal.ready === true || external.ready === true) {
     internalFiles = (internal.ready ? internal.enumerate() : null);
     externalFiles = (external.ready ? external.enumerate() : null);
@@ -224,6 +236,7 @@ Media.prototype.get = function(type, forEach) {
   internalFiles.onsuccess = function() {
     forEach(this.result);
   };
+
   externalFiles.onsuccess = function() {
     forEach(this.result);
   };
@@ -241,7 +254,7 @@ Media.prototype.get = function(type, forEach) {
  * @param {String} type
  * @param {File} file
  * @param {String} dest
- * @param {requestCallback} oncomplete
+ * @param {requestCallback} oncomplete (option)
  */
 Media.prototype.put = function(type, file, dest, oncomplete) {
 
@@ -256,7 +269,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   }
 
   if (!(file instanceof File)) {
-    throw new Error('Missing or invalid File');
+    throw new Error('Missing or invalid file');
   }
 
   if (typeof(dest) !== 'string') {
@@ -314,7 +327,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
    *   callback is provided, it will be called after the file is removed.
    * @param {String} filename - Specifies the full path to the file to be
    *   removed from the external sdcard (sdcard1).
-   * @param {requestCallback} oncomplete
+   * @param {requestCallback} oncomplete (optional)
    */
   Media.prototype.remove = function(filename, oncomplete) {
 
@@ -331,7 +344,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       throw new Error('Attempt to delete from invalid storage. Abort.');
     }
 
-    remove.onsuccess = function(fileRemoved) {
+    remove.onsuccess = function() {
       // Only call the oncomplete callback if it was provided
       if (window.ffosbr.utils.isFunction(oncomplete)) {
         oncomplete();
@@ -343,7 +356,10 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       // If that's the case, detect it and don't throw any errors. We'll
       // also need to call the oncomplete callback in that case.
 
-      console.error(this.error); // temporary
+      // Only call the oncomplete callback if it was provided
+      if (window.ffosbr.utils.isFunction(oncomplete)) {
+        oncomplete(this.error);
+      }
     };
   };
 
