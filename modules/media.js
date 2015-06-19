@@ -195,8 +195,8 @@ Media.prototype.get = function(type, directory, forEach) {
   var storages = null;
   var internal = null;
   var external = null;
-  var internalFiles = null;
-  var externalFiles = null;
+  var internalFiles = {};
+  var externalFiles = {};
 
   // TODO - write utility/settings function to confirm
   // a valid media type.
@@ -206,10 +206,13 @@ Media.prototype.get = function(type, directory, forEach) {
 
   if (typeof(directory) !== 'string') {
     if (isFunction(directory)) {
-      // Parameter "directory" was not provided
+      // Parameter "directory" was not provided, and the
+      // second parameter is really the "forEach" function
       forEach = directory;
-    } else {
+    } else if (isFunction(forEach)) {
       throw new Error('Missing or invalid directory');
+    } else {
+      throw new Error('Missing or invalid callback');
     }
     directory = null;
   }
@@ -226,9 +229,13 @@ Media.prototype.get = function(type, directory, forEach) {
     if (directory !== null) {
       externalFiles = external.enumerate(directory);
     }
+  } else if (type === 'sdcard1' && external.ready === false) {
+    throw new Error('Attempt to read from an invalid storage. Abort.');
   } else if (internal.ready === true || external.ready === true) {
-    internalFiles = (internal.ready ? internal.enumerate() : null);
-    externalFiles = (external.ready ? external.enumerate() : null);
+    // Fall back to empty objects to avoid errors providing
+    // "onsuccess" callbacks to null variables.
+    internalFiles = (internal.ready ? internal.store.enumerate() : {});
+    externalFiles = (external.ready ? external.store.enumerate() : {});
   } else {
     throw new Error('Attempt to read from an invalid storage. Abort.');
   }

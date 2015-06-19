@@ -93,6 +93,16 @@ QUnit.test('Get external storage', function(assert) {
 //  */
 QUnit.test('Get media from storage', function(assert) {
 
+  var storages = navigator.getDeviceStorages('sdcard');
+  var externalPresent = false;
+
+  // Check for an external SD card
+  for (var i = 0; i < storages.length; ++i) {
+    if (storages[i].isRemovable === true) {
+      externalPresent = true;
+    }
+  }
+
   var callback = function(item) {
     console.log(item);
   };
@@ -113,15 +123,17 @@ QUnit.test('Get media from storage', function(assert) {
     '...throws error when passed invalid callback'
   );
 
-  //get sdcard1 without card should throw error.
-  //only passes when there is not an external sdcard.
-  assert.raises(
-    function() {
-      ffosbr.media.get('sdcard1', callback);
-    },
-    new Error('Attempt to read from an invalid storage. Abort.'),
-    '...throws error when there is not an external sdcard'
-  );
+  // Get sdcard1 without card should throw error.
+  // NOTES: only passes when there is not an external sdcard.
+  if (!externalPresent) {
+    assert.raises(
+      function() {
+        ffosbr.media.get('sdcard1', callback);
+      },
+      new Error('Attempt to read from an invalid storage. Abort.'),
+      '...throws error when there is not an external sdcard'
+    );
+  }
 
   var result;
   try {
