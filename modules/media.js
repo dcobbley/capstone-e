@@ -224,8 +224,7 @@ Media.prototype.get = function(type, directory, forEach) {
     if (directory !== null) {
       externalFiles = external.enumerate(directory);
     }
-  }
-  else if (internal.ready === true || external.ready === true) {
+  } else if (internal.ready === true || external.ready === true) {
     internalFiles = (internal.ready ? internal.enumerate() : null);
     externalFiles = (external.ready ? external.enumerate() : null);
   } else {
