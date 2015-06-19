@@ -198,16 +198,18 @@ Media.prototype.get = function(type, directory, forEach) {
   var internalFiles = null;
   var externalFiles = null;
 
+  // TODO - write utility/settings function to confirm
+  // a valid media type.
   if (typeof(type) !== 'string') {
     throw new Error('Missing or invalid media type');
   }
 
   if (typeof(directory) !== 'string') {
-    if (typeof(forEach) !== undefined) {
-      // The directory parameter was given but is invalid
-      throw new Error('Missing or invalid directory');
-    } else {
+    if (isFunction(directory)) {
+      // Parameter "directory" was not provided
       forEach = directory;
+    } else {
+      throw new Error('Missing or invalid directory');
     }
     directory = null;
   }
