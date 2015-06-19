@@ -209,6 +209,7 @@ Media.prototype.get = function(type, directory, forEach) {
     } else {
       forEach = directory;
     }
+    directory = null;
   }
 
   if (!window.ffosbr.utils.isFunction(forEach)) {
@@ -220,7 +221,9 @@ Media.prototype.get = function(type, directory, forEach) {
   external = storages.external;
 
   if (type === 'sdcard1' && external.ready === true) {
-    externalFiles = external.enumerate();
+    if (directory !== null) {
+      externalFiles = external.enumerate(directory);
+    }
   }
   else if (internal.ready === true || external.ready === true) {
     internalFiles = (internal.ready ? internal.enumerate() : null);
@@ -230,9 +233,6 @@ Media.prototype.get = function(type, directory, forEach) {
   }
 
   internalFiles.onsuccess = function() {
-    if (directory) {
-      //
-    }
     forEach(this.result);
   };
 
