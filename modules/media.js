@@ -210,11 +210,13 @@ Media.prototype.get = function(type, forEach) {
   external = storages.external;
 
   // TODO -- should this succeed if only one is false?
-  if (internal.ready === true && external.ready === true) {
-    internalFiles = internal.enumerate();
+
+
+  if (type === 'sdcard1' && external.ready === true) {
     externalFiles = external.enumerate();
-  } else if (type === 'sdcard1' && external.ready === true) {
-    externalFiles = external.enumerate();
+  } else if (internal.ready === true || external.ready === true) {
+    internalFiles = (internal.ready ? internal.enumerate() : null);
+    externalFiles = (external.ready ? external.enumerate() : null);
   } else {
     throw new Error('Attempt to read from an invalid storage. Abort.');
   }
