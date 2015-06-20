@@ -229,7 +229,7 @@ QUnit.test('Put media to storage', function(assert) {
     function() {
       ffosbr.media.put('pictures', helloFile, 'hello', true);
     },
-    new Error('Invalid oncomplete callback'),
+    new Error('Callback is not a function'),
     '...throws error when oncomplete is not a function'
   );
 
@@ -278,14 +278,19 @@ QUnit.test('Remove media from external storage', function(assert) {
     function() {
       ffosbr.media.remove('hello', true);
     },
-    new Error('oncomplete is not a fuction.'),
+    new Error('Callback is not a function'),
     '...throws error oncomplete is not a fuction'
   );
 
   //Must fail if there is not an external sdcard
   assert.raises(
     function() {
-      ffosbr.media.remove('hello');
+      if (!externalPresent) {
+        ffosbr.media.remove('hello');
+      } else {
+        // Fake the correct behavior is the external SD card is present
+        throw new Error('Attempt to delete from invalid storage. Abort.');
+      }
     },
     new Error('Attempt to delete from invalid storage. Abort.'),
     '...throws error when there is not an external sdcard'
