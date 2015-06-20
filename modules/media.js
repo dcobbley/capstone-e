@@ -205,11 +205,11 @@ Media.prototype.get = function(type, directory, forEach) {
   }
 
   if (typeof(directory) !== 'string') {
-    if (isFunction(directory)) {
+    if (window.ffosbr.utils.isFunction(directory)) {
       // Parameter "directory" was not provided, and the
       // second parameter is really the "forEach" function
       forEach = directory;
-    } else if (isFunction(forEach)) {
+    } else if (window.ffosbr.utils.isFunction(forEach)) {
       throw new Error('Missing or invalid directory');
     } else {
       throw new Error('Missing or invalid callback');
@@ -283,6 +283,10 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
     throw new Error('Missing or invalid write destination');
   }
 
+  if (oncomplete && !window.ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Invalid oncomplete callback');
+  }
+
   // strip out the file path
   filename = dest.substr(dest.lastIndexOf('/') + 1, dest.length);
 
@@ -290,13 +294,17 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   sname = (type === 'sdcard1' ? 'sdcard' : type);
   storages = this.getStorageByName(sname);
 
-  if (type === 'sdcard1' && storages.external !== null) {
-    targetStorage = storages.external;
+  if (type === 'sdcard1') {
+    if (storages.external !== null && storages.external.ready === true) {
+      targetStorage = storages.external;
+    } else {
+      throw new Error('Attempt to write to an invalid storage. Abort.');
+    }
   } else {
     targetStorage = (storages.internal === null ? storages.external : storages.internal);
   }
 
-  if (type === 'sdcard1' && targetStorage.ready === true) {
+  if (type === 'sdcard1') {
     write = targetStorage.store.addNamed(file, dest);
   } else if (targetStorage.ready === true) {
     write = targetStorage.store.addNamed(file, filename);
