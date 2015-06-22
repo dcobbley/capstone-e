@@ -132,4 +132,34 @@ module.exports = function(grunt) {
       'execute'
     ]);
   });
+
+  /**
+   * Deploys the demo UI application to the device or a simulator.
+   * Same options as above.
+   */
+  grunt.registerTask('demo', function() {
+    if (grunt.option('sim')) {
+      var simVersion = grunt.option('sim').toFixed(1);
+      grunt.config.set('execute.options.args', ['pushToVersion', simVersion]);
+    } else {
+      grunt.config.set('execute.options.args', ['pushToAnything']);
+    }
+
+    // Update execute target and jshint to point to DemoUI.
+    grunt.config.set('execute.target.src', 'node-firefox-scripts/launch-demo.js');
+
+    // Replace testrunner directory with DemoUI in jshint.all
+    var newSearchDirectories = grunt.config.get('jshint.all');
+    var index = newSearchDirectories.indexOf('testrunner/tests/*.js');
+    if (index > -1) {
+      newSearchDirectories.splice(index, 1);
+    }
+    newSearchDirectories.push('DemoUI/js/*.js');
+    grunt.config.set('jshint.all', newSearchDirectories);
+
+    grunt.task.run([
+      'build',
+      'execute'
+    ]);
+  });
 };
