@@ -26,46 +26,97 @@ window.addEventListener('DOMContentLoaded', function() {
 
   }
 
-  document.getElementById('settings-button').addEventListener("click", function () {
+  function loadBackupDetailPage(detailOptions) {
+    // Load the title of the detail page from options
+    var detailPageDataTypeTitle = document.getElementById('detail-page-title');
+    detailPageDataTypeTitle.textContent = detailOptions.dataType;
+
+    // Slide the backup detail page onto the screen
+    var backupDetailPage = document.getElementById('backup-detail-page');
+    backupDetailPage.style.zIndex = '100';
+    backupDetailPage.setAttribute('class', 'go-deeper-in');
+  }
+
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   * EVENT LISTENERS                                                               *
+   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  // Settings page listeners
+
+  document.getElementById('settings-button').addEventListener('click', function() {
     var settingsPage = document.getElementById('settings-page');
 
     // Make sure the page sliding up is on top
-    settingsPage.style.zIndex = "100";
-    settingsPage.setAttribute("class", "slide-up");
+    settingsPage.style.zIndex = '100';
+    settingsPage.setAttribute('class', 'slide-up');
   });
 
-  document.getElementById('settings-done-button').addEventListener("click", function () {
+  document.getElementById('settings-done-button').addEventListener('click', function() {
     var settingsPage = document.getElementById('settings-page');
 
-    settingsPage.setAttribute("class", "slide-down");
-    
+    settingsPage.setAttribute('class', 'slide-down');
+
     setTimeout(function() {
-      settingsPage.style.zIndex = "none";
+      settingsPage.style.zIndex = 'none';
     }, 400);
   });
 
-  document.getElementById('backup-page-back-button').addEventListener("click", function () {
-    document.getElementById('backup-page')
-            .setAttribute("class", "go-deeper-back-out");
-    document.getElementById('backups-page')
-            .setAttribute("class", "go-deeper-back-in");
+  // Backup Detail Page listeners
+  document.getElementById('backup-detail-done-button').addEventListener('click', function() {
+    var backupDetailPage = document.getElementById('backup-detail-page');
+    backupDetailPage.setAttribute('class', 'go-deeper-back-out');
   });
 
-  document.getElementById('backup-button').addEventListener("click", function () {
-    var backupName = "Backup " + Math.floor((Math.random() * 100) + 1);
+  document.getElementById('photo-infopane').addEventListener('click', function() {
+    var detailPageOptions = {
+      dataType: 'Photos'
+    };
+    loadBackupDetailPage(detailPageOptions);
+  });
+
+  document.getElementById('video-infopane').addEventListener('click', function() {
+    var detailPageOptions = {
+      dataType: 'Videos'
+    };
+    loadBackupDetailPage(detailPageOptions);
+  });
+
+  document.getElementById('contact-infopane').addEventListener('click', function() {
+    var detailPageOptions = {
+      dataType: 'Contacts'
+    };
+    loadBackupDetailPage(detailPageOptions);
+  });
+
+  document.getElementById('settings-infopane').addEventListener('click', function() {
+    var detailPageOptions = {
+      dataType: 'Settings'
+    };
+    loadBackupDetailPage(detailPageOptions);
+  });
+
+  document.getElementById('backup-page-back-button').addEventListener('click', function() {
+    document.getElementById('backup-page')
+      .setAttribute('class', 'go-deeper-back-out');
+    document.getElementById('backups-page')
+      .setAttribute('class', 'go-deeper-back-in');
+  });
+
+  document.getElementById('backup-button').addEventListener('click', function() {
+    var backupName = 'Backup ' + Math.floor((Math.random() * 100) + 1);
     var backupDate = new Date();
     var backupList = document.getElementById('backup-list');
 
-    var newItem = document.createElement("LI");
+    var newItem = document.createElement('LI');
 
-    var linkNode = document.createElement("A");
+    var linkNode = document.createElement('A');
     linkNode.setAttribute('href', '#');
 
-    var firstP = document.createElement("P");
+    var firstP = document.createElement('P');
     var titleNode = document.createTextNode(backupName);
     firstP.appendChild(titleNode);
 
-    var secondP = document.createElement("P");
+    var secondP = document.createElement('P');
     var subtitleNode = document.createTextNode(backupDate);
     secondP.appendChild(subtitleNode);
 
@@ -76,17 +127,16 @@ window.addEventListener('DOMContentLoaded', function() {
 
     backupList.insertBefore(newItem, backupList.childNodes[0]);
 
-    linkNode.addEventListener("click", function () {
+    linkNode.addEventListener('click', function() {
       var backupPage = document.getElementById('backup-page');
       var backupsPage = document.getElementById('backups-page');
 
       document.getElementById('backup-page-backup-name').innerHTML = backupName;
       document.getElementById('backup-page-backup-date').innerHTML = backupDate;
 
-      backupPage.setAttribute("class", "go-deeper-in");
-      backupsPage.setAttribute("class", "go-deeper-out");
+      backupPage.setAttribute('class', 'go-deeper-in');
+      backupsPage.setAttribute('class', 'go-deeper-out');
     });
   });
 
 });
-

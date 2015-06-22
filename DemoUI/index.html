@@ -61,43 +61,51 @@
           <h1>FFOSBR Demo</h1>
         </header>
       
-      <section class='gaia-list fit scroll sticky' style='margin-top: 5rem; position: absolute'>
+      <section class='gaia-list fit scroll sticky' id='main-page' style='margin-top: 5rem; position: absolute'>
         <div data-type='list' style="overflow-y: scroll; height: calc(100% - 10rem); padding: 0">
-          <li class='main-list-item'>
-            <div class='main-list-icon' id='photo-icon'>
-              <i class="fa fa-picture-o fa-3x"></i>
-            </div>
-            <div class='main-list-label' id='photo-label'>
-              <p style='padding: 0px'>Photos</p>
-            </div>
-          </li>
-          <li class='main-list-item'>
-            <div class='main-list-icon' id='video-icon'>
-              <i class="fa fa-film fa-3x"></i>
-            </div>
-            <div class='main-list-label' id='video-label'>
-              <p style='padding: 0px'>Videos</p>
-            </div>
-          </li>
-          <li class='main-list-item'>
-            <div class='main-list-icon' id='contact-icon'>
-              <i class="fa fa-users fa-3x"></i>
-            </div>
-            <div class='main-list-label' id='contact-label'>
-              <p style='padding: 0px'>Contacts</p>
-            </div>
-          </li>
-          <li class='main-list-item'>
-            <div class='main-list-icon' id='settings-icon'>
-              <i class="fa fa-sliders fa-3x"></i>
-            </div>
-            <div class='main-list-label' id='settings-label'>
-              <p style='padding: 0px'>Settings</p>
-            </div>
-            <div class='main-list-hist'>
-              <p style='padding: 0px'>hello</p>
-            </div>
-          </li>
+          <a href='#' id='photo-infopane'>
+            <li class='main-list-item'>
+              <div class='main-list-icon' id='photo-icon'>
+                <i class="fa fa-picture-o fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='photo-label'>
+                <p style='padding: 0px'>Photos</p>
+              </div>
+            </li>
+          </a>
+          <a href='#' id='video-infopane'>
+            <li class='main-list-item'>
+              <div class='main-list-icon' id='video-icon'>
+                <i class="fa fa-film fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='video-label'>
+                <p style='padding: 0px'>Videos</p>
+              </div>
+            </li>
+          </a>
+          <a href='#' id='contact-infopane'>
+            <li class='main-list-item'>
+              <div class='main-list-icon' id='contact-icon'>
+                <i class="fa fa-users fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='contact-label'>
+                <p style='padding: 0px'>Contacts</p>
+              </div>
+            </li>
+          </a>
+          <a href='#' id='settings-infopane'>
+            <li class='main-list-item'>
+              <div class='main-list-icon' id='settings-icon'>
+                <i class="fa fa-sliders fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='settings-label'>
+                <p style='padding: 0px'>Settings</p>
+              </div>
+              <div class='main-list-hist'>
+                <p style='padding: 0px'>hello</p>
+              </div>
+            </li>
+          </a>
         </div>
       </section>
       <div class="footer">
@@ -115,6 +123,17 @@
           </button>
         </menu>
         <h1>Settings</h1>
+      </header>
+    </section>
+
+    <section role='region' id='backup-detail-page' class='vbox fit' style="transform: translateX(100%); position: absolute;">
+      <header>
+        <menu type='toolbar'>
+          <button id='backup-detail-done-button'>
+            done
+          </button>
+        </menu>
+        <h1 id='detail-page-title'>EMPTY !!</h1>
       </header>
     </section>
   </body>
