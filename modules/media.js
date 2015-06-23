@@ -228,6 +228,8 @@ Media.prototype.get = function(type, directory, forEach) {
   if (type === 'sdcard1' && external.ready === true) {
     if (directory !== null) {
       externalFiles = external.enumerate(directory);
+    } else {
+      externalFiles = external.enumerate();
     }
   } else if (type === 'sdcard1' && external.ready === false) {
     throw new Error('Attempt to read from an invalid storage. Abort.');
