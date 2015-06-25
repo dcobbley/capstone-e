@@ -195,8 +195,8 @@ Media.prototype.get = function(type, directory, forEach) {
   var storages = null;
   var internal = null;
   var external = null;
-  var internalFiles = null;
-  var externalFiles = null;
+  var internalFiles = {};
+  var externalFiles = {};
 
   // TODO - write utility/settings function to confirm
   // a valid media type.
@@ -205,11 +205,14 @@ Media.prototype.get = function(type, directory, forEach) {
   }
 
   if (typeof(directory) !== 'string') {
-    if (isFunction(directory)) {
-      // Parameter "directory" was not provided
+    if (window.ffosbr.utils.isFunction(directory)) {
+      // Parameter "directory" was not provided, and the
+      // second parameter is really the "forEach" function
       forEach = directory;
-    } else {
+    } else if (window.ffosbr.utils.isFunction(forEach)) {
       throw new Error('Missing or invalid directory');
+    } else {
+      throw new Error('Missing or invalid callback');
     }
     directory = null;
   }
@@ -225,10 +228,16 @@ Media.prototype.get = function(type, directory, forEach) {
   if (type === 'sdcard1' && external.ready === true) {
     if (directory !== null) {
       externalFiles = external.enumerate(directory);
+    } else {
+      externalFiles = external.enumerate();
     }
+  } else if (type === 'sdcard1' && external.ready === false) {
+    throw new Error('Attempt to read from an invalid storage. Abort.');
   } else if (internal.ready === true || external.ready === true) {
-    internalFiles = (internal.ready ? internal.enumerate() : null);
-    externalFiles = (external.ready ? external.enumerate() : null);
+    // Fall back to empty objects to avoid errors providing
+    // "onsuccess" callbacks to null variables.
+    internalFiles = (internal.ready ? internal.store.enumerate() : {});
+    externalFiles = (external.ready ? external.store.enumerate() : {});
   } else {
     throw new Error('Attempt to read from an invalid storage. Abort.');
   }
@@ -276,6 +285,10 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
     throw new Error('Missing or invalid write destination');
   }
 
+  if (oncomplete && !window.ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Callback is not a function');
+  }
+
   // strip out the file path
   filename = dest.substr(dest.lastIndexOf('/') + 1, dest.length);
 
@@ -283,13 +296,17 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   sname = (type === 'sdcard1' ? 'sdcard' : type);
   storages = this.getStorageByName(sname);
 
-  if (type === 'sdcard1' && storages.external !== null) {
-    targetStorage = storages.external;
+  if (type === 'sdcard1') {
+    if (storages.external !== null && storages.external.ready === true) {
+      targetStorage = storages.external;
+    } else {
+      throw new Error('Attempt to write to an invalid storage. Abort.');
+    }
   } else {
     targetStorage = (storages.internal === null ? storages.external : storages.internal);
   }
 
-  if (type === 'sdcard1' && targetStorage.ready === true) {
+  if (type === 'sdcard1') {
     write = targetStorage.store.addNamed(file, dest);
   } else if (targetStorage.ready === true) {
     write = targetStorage.store.addNamed(file, filename);
@@ -319,51 +336,52 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       oncomplete(this.error);
     }
   };
+};
 
+/**
+ * @access public
+ * @description Removes a file from the external sdcard. If an oncomplete
+ *   callback is provided, it will be called after the file is removed.
+ * @param {String} filename - Specifies the full path to the file to be
+ *   removed from the external sdcard (sdcard1).
+ * @param {requestCallback} oncomplete (optional)
+ */
+Media.prototype.remove = function(filename, oncomplete) {
 
-  /**
-   * @access public
-   * @description Removes a file from the external sdcard. If an oncomplete
-   *   callback is provided, it will be called after the file is removed.
-   * @param {String} filename - Specifies the full path to the file to be
-   *   removed from the external sdcard (sdcard1).
-   * @param {requestCallback} oncomplete (optional)
-   */
-  Media.prototype.remove = function(filename, oncomplete) {
+  var externalSD = this.getStorageByName('sdcard').external;
+  var remove = null; // cursor or iterator
 
-    var externalSD = this.getStorageByName('sdcard').external;
-    var remove = null; // cursor or iterator
+  if (typeof(filename) !== 'string') {
+    throw new Error('Missing or invalid filename');
+  }
 
-    if (typeof(filename) !== 'string') {
-      throw new Error('Missing or invalid filename');
+  if (oncomplete && !window.ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Callback is not a function');
+  }
+
+  if (externalSD.ready === true) {
+    remove = externalSD.store.delete(filename);
+  } else {
+    throw new Error('Attempt to delete from invalid storage. Abort.');
+  }
+
+  remove.onsuccess = function() {
+    // Only call the oncomplete callback if it was provided
+    if (window.ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete();
     }
-
-    if (externalSD.ready === true) {
-      remove = externalSD.delete(filename);
-    } else {
-      throw new Error('Attempt to delete from invalid storage. Abort.');
-    }
-
-    remove.onsuccess = function() {
-      // Only call the oncomplete callback if it was provided
-      if (window.ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete();
-      }
-    };
-
-    remove.onerror = function() {
-      // TODO -- Found out if this fails when the file doesn't exist.
-      // If that's the case, detect it and don't throw any errors. We'll
-      // also need to call the oncomplete callback in that case.
-
-      // Only call the oncomplete callback if it was provided
-      if (window.ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete(this.error);
-      }
-    };
   };
 
+  remove.onerror = function() {
+    // TODO -- Found out if this fails when the file doesn't exist.
+    // If that's the case, detect it and don't throw any errors. We'll
+    // also need to call the oncomplete callback in that case.
 
+    // Only call the oncomplete callback if it was provided
+    if (window.ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(this.error);
+    }
+  };
 };
 
 // Extend Ffosbr library
