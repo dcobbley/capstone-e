@@ -19,7 +19,7 @@ function Settings() {
   }
 }
 
-Settings.prototype.validate = function (potentialOptions) {
+Settings.prototype.validate = function (potentialOptions, value) {
 
   var valid = true;
   var opts = null;
@@ -36,8 +36,17 @@ Settings.prototype.validate = function (potentialOptions) {
 
   if (typeof potentialOptions === 'object') {
     opts = potentialOptions; // validate parameter object
-  } else {
+  }
+  else if (typeof potentialOptions === 'string') {
+    opts = {}; // single field check
+    opts[potentialOptions] = value;
+  }
+  else if (typeof potentialOptions === 'undefined') {
     opts = this.options; // validate current options
+  }
+  else {
+    // TODO - replace with ErrorHandler module
+    return console.log('Invalid validate parameter', field);
   }
 
   // Support partial validation
@@ -66,36 +75,36 @@ Settings.prototype.set = function(newOptions) {
     return console.log('Invalid config object', newOptions);
   }
 
-  if (this.validate({ photos: newOptions.photos })) {
+  if (this.validate('photos', newOptions.photos)) {
     this.options.photos = newOptions.photos;
   }
 
-  if (this.validate({ videos: newOptions.videos })) {
+  if (this.validate('videos', newOptions.videos)) {
     this.options.videos = newOptions.videos;
   }
 
-  if (this.validate({ contacts: newOptions.contacts })) {
+  if (this.validate('contacts', newOptions.contacts)) {
     this.options.contacts = newOptions.contacts;
   }
 
-  if (this.validate({ text: newOptions.text })) {
+  if (this.validate('text',newOptions.text)) {
     this.options.text = newOptions.text;
   }
 
-  if (this.validate({ id: newOptions.id })) {
+  if (this.validate('id', newOptions.id)) {
     this.options.id = newOptions.id;
   }
 
-  if (this.validate({ registeredTimer: newOptions.registeredTimer })) {
+  if (this.validate('registeredTimer', newOptions.registeredTimer)) {
     this.options.registeredTimer = newOptions.registeredTimer;
   }
 
-  if (this.validate({ repeat: newOptions.repeat })) {
+  if (this.validate('repeat', newOptions.repeat)) {
     this.options.repeat = newOptions.repeat;
   }
 
   //////pass in the value in hours /////////
-  if (this.validate({ intervalTime: newOptions.intervalTime })) {
+  if (this.validate('intervalTime', newOptions.intervalTime)) {
     this.options.intervalTime = newOptions.intervalTime;
   }
 
