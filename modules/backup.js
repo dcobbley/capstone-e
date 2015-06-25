@@ -23,8 +23,8 @@ var backup = function(type, oncomplete) {
   if (typeof(paths[type]) === undefined) {
     throw new Error('Invalid data type. Cannot restore type ' + type);
   } else if (paths[type] === 'contacts') {
-		return backupContacts();
-	}
+    return backupContacts();
+  }
 
   window.ffosbr.media.get(type, function(file) {
     if (!file) {
@@ -37,58 +37,66 @@ var backup = function(type, oncomplete) {
     });
   });
 
-	// back up contacts function 
-  var backupContacts = function () {
-		var allContactsCursor,
-        selectedContacts = [];
+  // back up contacts function
+  var backupContacts = function() {
 
-		allContactsCursor = navigator.mozContacts.getAll({sortBy: "name", sortOrder: "ascending"});
-    
+    console.log('At least I got called..'); //rmv
+
+    var allContactsCursor,
+      selectedContacts = [];
+
+    allContactsCursor = navigator.mozContacts.getAll({
+      sortBy: 'name',
+      sortOrder: 'ascending'
+    });
+
     allContactsCursor.onsuccess = function() {
-    	if(allContactsCursor.result) {
-      	var contact = allContactsCursor.result;
-        	console.log("new result:" + contact.name);
-          selectedContacts.push(contact);
-          allContactsCursor.continue();
-			}
+      if (allContactsCursor.result) {
+        var contact = allContactsCursor.result;
+        console.log('new result:' + contact.name);
+        selectedContacts.push(contact);
+        allContactsCursor.continue();
+      }
     };
 
     allContactsCursor.onerror = function() {
-    	alert("Error getting contacts");
+      alert('Error getting contacts');
     };
-    
-     var vCard = "",
-         i = 0,
-         len = 0;
-     for(i = 0, len = selectedContacts.length; i < len; i++) {
-       vCard += ffosbr.utils.contactToVcard(selectedContacts[i]);
-       vCard += "\r\n";
-     }
 
-		ffosbr.clean('contacts', function () {
-			var sdcard = ffosbr.media.getStorageByName('sdcard').external,
-            file   = new Blob([vCard], {type: "text/vcard"}),
-            request = null;
+    var vCard = '',
+      i = 0,
+      len = 0;
+    for (i = 0, len = selectedContacts.length; i < len; i++) {
+      vCard += ffosbr.utils.contactToVcard(selectedContacts[i]);
+      vCard += '\r\n';
+    }
 
-				if (sdcard.ready === true) {
-					request = sdcard.store.addNamed(file, paths['contacts'] + "contacts.vcf")
-				} else {
-					// error
-				}
+    ffosbr.clean('contacts', function() {
+      var sdcard = ffosbr.media.getStorageByName('sdcard').external,
+        file = new Blob([vCard], {
+          type: 'text/vcard'
+        }),
+        request = null;
 
-        request.onsuccess = function () {
-          var name = this.result;
-          console.log('File "' + name + '" successfully wrote on the sdcard storage area');
-          alert("Contacts saved to SD Card");
-        }
+      if (sdcard.ready === true) {
+        request = sdcard.store.addNamed(file, paths.contacts + 'contacts.vcf');
+      } else {
+        // error
+      }
 
-        // An error typically occur if a file with the same name already exist
-        request.onerror = function () {
-          console.warn('Unable to write the file: ' + this.error.name);
-          alert("Could not save contacts: " + this.error.name);
-        }
-		});
-	}
+      request.onsuccess = function() {
+        var name = this.result;
+        console.log('File \"' + name + '\" successfully wrote on the sdcard storage area');
+        alert('Contacts saved to SD Card');
+      };
+
+      // An error typically occur if a file with the same name already exist
+      request.onerror = function() {
+        console.warn('Unable to write the file: ' + this.error.name);
+        alert('Could not save contacts: ' + this.error.name);
+      };
+    });
+  };
 };
 
 // Defines Ffosbr backup
