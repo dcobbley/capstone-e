@@ -25,43 +25,36 @@ function Settings() {
       return options;
     }
 
-    if (myDictionary.photos !== undefined &&
-      typeof myDictionary.photos === 'boolean') {
+    if (typeof myDictionary.photos === 'boolean') {
       options.photos = myDictionary.photos;
     }
 
-    if (myDictionary.videos !== undefined &&
-      typeof myDictionary.videos === 'boolean') {
+    if (typeof myDictionary.videos === 'boolean') {
       options.videos = myDictionary.videos;
     }
 
-    if (myDictionary.contacts !== undefined &&
-      typeof myDictionary.contacts === 'boolean') {
+    if (typeof myDictionary.contacts === 'boolean') {
       options.contacts = myDictionary.contacts;
     }
 
-    if (myDictionary.text !== undefined &&
-      typeof myDictionary.text === 'boolean') {
+    if (typeof myDictionary.text === 'boolean') {
       options.text = myDictionary.text;
     }
 
-    if (myDictionary.id !== undefined &&
-      typeof myDictionary.id === 'number') {
+    if (typeof myDictionary.id === 'number') {
       options.id = myDictionary.id;
     }
 
-    if (myDictionary.registeredTimer !== undefined &&
-      typeof myDictionary.registeredTimer === 'boolean') {
+    if (typeof myDictionary.registeredTimer === 'boolean') {
       options.registeredTimer = myDictionary.registeredTimer;
     }
 
-    if (myDictionary.repeat !== undefined &&
-      typeof myDictionary.repeat === 'boolean') {
+    if (typeof myDictionary.repeat === 'boolean') {
       options.repeat = myDictionary.repeat;
     }
+
     //////pass in the value in hours /////////
-    if (myDictionary.intervalTime !== undefined &&
-      typeof myDictionary.intervalTime === 'number') {
+    if (typeof myDictionary.intervalTime === 'number') {
       options.intervalTime = myDictionary.intervalTime;
     }
 
