@@ -22,8 +22,8 @@ var backup = function(type, oncomplete) {
 
   if (typeof(paths[type]) === undefined) {
     throw new Error('Invalid data type. Cannot restore type ' + type);
-  } else if (paths[type] === 'contacts') {
-    return backupContacts();
+  } else if (type === 'contacts') {
+    return getContacts();
   }
 
   window.ffosbr.media.get(type, function(file) {
@@ -37,13 +37,12 @@ var backup = function(type, oncomplete) {
     });
   });
 
+
   // back up contacts function
-  var backupContacts = function() {
+  function getContacts() {
 
-    console.log('At least I got called..'); //rmv
-
-    var allContactsCursor,
-      selectedContacts = [];
+    var selectedContacts = [];
+    var allContactsCursor;
 
     allContactsCursor = navigator.mozContacts.getAll({
       sortBy: 'name',
@@ -51,22 +50,25 @@ var backup = function(type, oncomplete) {
     });
 
     allContactsCursor.onsuccess = function() {
-      if (allContactsCursor.result) {
-        var contact = allContactsCursor.result;
-        console.log('new result:' + contact.name);
+      if (this.result) {
+        var contact = this.result;
         selectedContacts.push(contact);
         allContactsCursor.continue();
+      } else {
+        putContacts(selectedContacts);
       }
     };
 
     allContactsCursor.onerror = function() {
       alert('Error getting contacts');
     };
+  }
 
-    var vCard = '',
-      i = 0,
-      len = 0;
-    for (i = 0, len = selectedContacts.length; i < len; i++) {
+  function putContacts(selectedContacts) {
+
+    var vCard = '';
+
+    for (var i = 0, len = selectedContacts.length; i < len; ++i) {
       vCard += ffosbr.utils.contactToVcard(selectedContacts[i]);
       vCard += '\r\n';
     }
@@ -81,22 +83,21 @@ var backup = function(type, oncomplete) {
       if (sdcard.ready === true) {
         request = sdcard.store.addNamed(file, paths.contacts + 'contacts.vcf');
       } else {
-        // error
+        // TODO - handle errors
+        alert('external sdcard not ready'); //rmv
       }
 
       request.onsuccess = function() {
-        var name = this.result;
-        console.log('File \"' + name + '\" successfully wrote on the sdcard storage area');
-        alert('Contacts saved to SD Card');
+        oncomplete();
       };
 
       // An error typically occur if a file with the same name already exist
       request.onerror = function() {
-        console.warn('Unable to write the file: ' + this.error.name);
-        alert('Could not save contacts: ' + this.error.name);
+        var error = this.error;
+        oncomplete(error);
       };
     });
-  };
+  }
 };
 
 // Defines Ffosbr backup

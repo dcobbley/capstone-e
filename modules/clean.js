@@ -19,13 +19,13 @@ var clean = function(type, oncomplete) {
     music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
-    contacts: 'backup/videos/',
+    contacts: 'backup/contacts/',
     settings: 'backup/settings/'
   };
 
   if (typeof(paths[type]) === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
-  } else if (paths[type] === 'contacts') {
+  } else if (type === 'contacts') {
     return cleanContacts();
   }
 
@@ -42,15 +42,14 @@ var clean = function(type, oncomplete) {
 
     var filename = paths[type] + file.name;
     window.ffosbr.media.remove(filename, function(error) {
-      if (error) {
-        throw error;
-      }
+      // Pass the error if it exists
+      oncomplete((error ? error : undefined));
     });
   };
 
-  var cleanContacts = function() {
+  function cleanContacts() {
     ffosbr.media.remove(paths.contacts + 'contacts.vcf', oncomplete);
-  };
+  }
 };
 
 // Defines Ffosbr clean
