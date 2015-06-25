@@ -1,6 +1,6 @@
 function Settings() {
 
-  var options = {
+  this.options = {
     photos: true,
     videos: true,
     contacts: true,
@@ -12,55 +12,106 @@ function Settings() {
   };
 
   // Load options if present
-  (function() {
-    var retrievedOptions = localStorage.getItem('ffosbrOptions');
+  var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
-    if (retrievedOptions !== null) {
-      options = JSON.parse(retrievedOptions);
-    }
-  })();
-
-  Settings.prototype.options = function(myDictionary) {
-    if (!myDictionary) {
-      return options;
-    }
-
-    if (typeof myDictionary.photos === 'boolean') {
-      options.photos = myDictionary.photos;
-    }
-
-    if (typeof myDictionary.videos === 'boolean') {
-      options.videos = myDictionary.videos;
-    }
-
-    if (typeof myDictionary.contacts === 'boolean') {
-      options.contacts = myDictionary.contacts;
-    }
-
-    if (typeof myDictionary.text === 'boolean') {
-      options.text = myDictionary.text;
-    }
-
-    if (typeof myDictionary.id === 'number') {
-      options.id = myDictionary.id;
-    }
-
-    if (typeof myDictionary.registeredTimer === 'boolean') {
-      options.registeredTimer = myDictionary.registeredTimer;
-    }
-
-    if (typeof myDictionary.repeat === 'boolean') {
-      options.repeat = myDictionary.repeat;
-    }
-
-    //////pass in the value in hours /////////
-    if (typeof myDictionary.intervalTime === 'number') {
-      options.intervalTime = myDictionary.intervalTime;
-    }
-
-    localStorage.setItem('ffosbrOptions', JSON.stringify(options));
-    return options;
-  };
+  if (retrievedOptions !== null) {
+    this.options = JSON.parse(retrievedOptions);
+  }
 }
+
+Settings.prototype.validate = function (potentialOptions) {
+
+  var valid = true;
+  var opts = null;
+  var validTypes = {
+    photos: 'boolean',
+    videos: 'boolean',
+    contacts: 'boolean',
+    text: 'boolean',
+    intervalTime: 'number',
+    id: 'number',
+    registeredTimer: 'boolean',
+    repeat: 'boolean'
+  };
+
+  if (typeof potentialOptions === 'object') {
+    opts = potentialOptions; // validate parameter object
+  } else {
+    opts = this.options; // validate current options
+  }
+
+  // Support partial validation
+  for (var field in opts) {
+    if (typeof this.options[field] === 'undefined') {
+      // TODO - replace with ErrorHandler module
+      console.log('Unrecognized settings option', field);
+      valid = false;
+    }
+    else if (typeof opts[field] !== typeof validTypes[field]) {
+      // TODO - replace with ErrorHandler module
+      console.log('Invalid type for settings option', field);
+      valid = false;
+    }
+  }
+
+  return valid;
+};
+
+Settings.prototype.set = function(newOptions) {
+
+  if (typeof newOptions === 'undefined') {
+    return;
+  } else if (typeof newOptions !== 'object') {
+    // TODO - replace with ErrorHandler module
+    return console.log('Invalid config object', newOptions);
+  }
+
+  if (this.validate({ photos: newOptions.photos })) {
+    this.options.photos = newOptions.photos;
+  }
+
+  if (this.validate({ videos: newOptions.videos })) {
+    this.options.videos = newOptions.videos;
+  }
+
+  if (this.validate({ contacts: newOptions.contacts })) {
+    this.options.contacts = newOptions.contacts;
+  }
+
+  if (this.validate({ text: newOptions.text })) {
+    this.options.text = newOptions.text;
+  }
+
+  if (this.validate({ id: newOptions.id })) {
+    this.options.id = newOptions.id;
+  }
+
+  if (this.validate({ registeredTimer: newOptions.registeredTimer })) {
+    this.options.registeredTimer = newOptions.registeredTimer;
+  }
+
+  if (this.validate({ repeat: newOptions.repeat })) {
+    this.options.repeat = newOptions.repeat;
+  }
+
+  //////pass in the value in hours /////////
+  if (this.validate({ intervalTime: newOptions.intervalTime })) {
+    this.options.intervalTime = newOptions.intervalTime;
+  }
+
+  localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
+};
+
+Settings.prototype.get = function (field) {
+
+  if (typeof field === 'undefined') {
+    return this.options;
+  } else if (typeof field !== 'string') {
+    // TODO - replace with ErrorHandler module
+    return console.log('Invalid settings field', newOptions);
+  }
+
+  return this.options[field];
+};
 
 module.exports = new Settings();
