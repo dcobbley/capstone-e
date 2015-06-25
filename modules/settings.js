@@ -1,5 +1,4 @@
 function Settings() {
-  var timeInMilliSec = 0;
 
   var options = {
     photos: true,
@@ -17,7 +16,7 @@ function Settings() {
     var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
     if (retrievedOptions !== null) {
-      self.options = JSON.parse(retrievedOptions);
+      options = JSON.parse(retrievedOptions);
     }
   })();
 
@@ -63,8 +62,7 @@ function Settings() {
     //////pass in the value in hours /////////
     if (myDictionary.intervalTime !== undefined &&
       typeof myDictionary.intervalTime === 'number') {
-      timeInMilliSec = myDictionary.intervalTime * 1000 * 60 * 60;
-      options.intervalTime = timeInMilliSec;
+      options.intervalTime = myDictionary.intervalTime;
     }
 
     localStorage.setItem('ffosbrOptions', JSON.stringify(options));
