@@ -122,9 +122,9 @@ module.exports = function(grunt) {
 
     if (grunt.option('sim')) {
       var simVersion = grunt.option('sim').toFixed(1);
-      grunt.config.set('execute.options.args', ['pushToVersion', simVersion]);
+      grunt.config.set('execute.options.args', ['../testrunner', 'pushToVersion', simVersion]);
     } else {
-      grunt.config.set('execute.options.args', ['pushToAnything']);
+      grunt.config.set('execute.options.args', ['../testrunner', 'pushToAnything']);
     }
 
     grunt.task.run([
@@ -140,13 +140,10 @@ module.exports = function(grunt) {
   grunt.registerTask('demo', function() {
     if (grunt.option('sim')) {
       var simVersion = grunt.option('sim').toFixed(1);
-      grunt.config.set('execute.options.args', ['pushToVersion', simVersion]);
+      grunt.config.set('execute.options.args', ['../DemoUI', 'pushToVersion', simVersion]);
     } else {
-      grunt.config.set('execute.options.args', ['pushToAnything']);
+      grunt.config.set('execute.options.args', ['../DemoUI', 'pushToAnything']);
     }
-
-    // Update execute target and jshint to point to DemoUI.
-    grunt.config.set('execute.target.src', 'node-firefox-scripts/launch-demo.js');
 
     // Replace testrunner directory with DemoUI in jshint.all
     var newSearchDirectories = grunt.config.get('jshint.all');
