@@ -25,6 +25,8 @@ var clean = function(type, oncomplete) {
 
   if (typeof(paths[type]) === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
+  } else if (paths[type] === 'contacts') {
+    return cleanContacts();
   }
 
   externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
@@ -44,6 +46,10 @@ var clean = function(type, oncomplete) {
         throw error;
       }
     });
+  };
+
+  var cleanContacts = function() {
+    ffosbr.media.remove(paths.contacts + 'contacts.vcf', oncomplete);
   };
 };
 
