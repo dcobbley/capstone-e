@@ -13,7 +13,7 @@ var restore = function(onerror) {
   // TODO - use real path
   var backupFilePath = 'backup/';
   var externalSD = null;
-  var restoreFiles = null;
+  var restoreFiles = {};
   var type = null;
 
   // TODO - replace with actual file paths
@@ -23,14 +23,16 @@ var restore = function(onerror) {
     music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
-    contacts: 'backup/videos/',
+    contacts: 'backup/contacts/',
     settings: 'backup/settings/'
   };
 
   externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
 
   if (externalSD.ready === true) {
-    restoreFiles = externalSD.store.enumerate(paths[type]);
+    // UNCOMMENT
+    // restoreFiles = externalSD.store.enumerate(paths[type]);
+    restoreContacts(paths.contacts);
   }
 
   restoreFiles.onsuccess = function(file) {
@@ -63,13 +65,41 @@ var restore = function(onerror) {
         }
       });
     } else if (filepath === paths.contacts) {
-      // TODO - backup contacts
+      // This is already done for us
     } else if (filepath === paths.settings) {
-      // TODO - backup settings
+      // TODO
     } else {
       throw new Error('Failed to determine data type of ' + fn);
     }
   };
+
+
+  function restoreContacts(fulldir) {
+
+    var dirname = paths.contacts.substr(0, paths.contacts.lastIndexOf('/'));
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+      var contents = this.result;
+      var data = JSON.parse(contents);
+      for (var i = 0; i < data.length; ++i) {
+        navigator.mozContacts.save(data[i]);
+      }
+    };
+
+    ffosbr.media.get('sdcard1', dirname, function(file, err) {
+      if (err) {
+        alert(err.message);
+      } else {
+        alert(file.name); //rmv
+        reader.readAsText(file);
+      }
+    });
+  }
+
+  function restoreSettings() {
+    // TODO
+  }
 };
 
 // Defines Ffosbr restore

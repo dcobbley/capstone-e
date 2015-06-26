@@ -48,7 +48,7 @@ var clean = function(type, oncomplete) {
   };
 
   function cleanContacts() {
-    ffosbr.media.remove(paths.contacts + 'contacts.vcf', oncomplete);
+    ffosbr.media.remove(paths.contacts + 'contacts.json', oncomplete);
   }
 };
 

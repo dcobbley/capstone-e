@@ -50,8 +50,8 @@ var backup = function(type, oncomplete) {
     });
 
     allContactsCursor.onsuccess = function() {
-      if (this.result) {
-        var contact = this.result;
+      var contact = this.result;
+      if (contact) {
         selectedContacts.push(contact);
         allContactsCursor.continue();
       } else {
@@ -66,22 +66,23 @@ var backup = function(type, oncomplete) {
 
   function putContacts(selectedContacts) {
 
-    var vCard = '';
+    var cdata = [];
 
-    for (var i = 0, len = selectedContacts.length; i < len; ++i) {
-      vCard += ffosbr.utils.contactToVcard(selectedContacts[i]);
-      vCard += '\r\n';
+    for (var i = 0; i < selectedContacts.length; ++i) {
+      cdata.push(selectedContacts[i]);
     }
 
     ffosbr.clean('contacts', function() {
-      var sdcard = ffosbr.media.getStorageByName('sdcard').external,
-        file = new Blob([vCard], {
-          type: 'text/vcard'
-        }),
-        request = null;
+      var sdcard = ffosbr.media.getStorageByName('sdcard').external;
+      var file = new Blob([JSON.stringify(cdata)], {
+        type: 'text/json'
+      });
+      var filename = 'contacts.json';
+      var request = null;
+
 
       if (sdcard.ready === true) {
-        request = sdcard.store.addNamed(file, paths.contacts + 'contacts.vcf');
+        request = sdcard.store.addNamed(file, paths.contacts + filename);
       } else {
         // TODO - handle errors
         alert('external sdcard not ready'); //rmv
