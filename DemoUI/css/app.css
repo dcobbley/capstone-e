@@ -45,15 +45,41 @@ li.main-list-item {
   margin-left: 0px;
   margin-top: 5px;
   margin-bottom: 5px;
-  width: 40%;
+  width: 35%;
 }
 
 .main-list-hist {
   margin-left: 0px;
-  margin-top: 5px;
-  margin-bottom: 5px;
   float: right;
-  width: 40%;
+  width: 45%;
+}
+
+.main-list-hist-row {
+  margin-left: 0px;
+  padding: 0px;
+}
+
+.main-list-hist-label {
+  font-size: 14px !important;
+  opacity: 0.6;
+  line-height: 1.1 !important;
+  padding-top: 0px !important;
+}
+
+.main-list-hist-data {
+  font-size: 12px !important;
+  opacity: 0.6;
+  line-height: 1.1 !important;
+  padding-top: 0px !important;
+}
+
+.backup-detail-page {
+  transform: translateX(100%); position: absolute;
+}
+
+.option-list {
+  background-color: black;
+  opacity: 0.4;
 }
 
 .slide-up {
