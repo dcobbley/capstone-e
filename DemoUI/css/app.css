@@ -25,8 +25,9 @@ section {
   background: white;
 }
 
-li.main-list-item {
-  border-bottom: none !important
+li.main-list-item.infopane {
+  height: 80px;
+  border-bottom: solid 0.1rem #e7e7e7;
 }
 
 .main-list-link {
@@ -59,6 +60,14 @@ li.main-list-item {
   padding: 0px;
 }
 
+/*
+ * gaia has some high-specificity class in place here already.
+ * Since this is just a demo application anyway and this code probably
+ * doesn't need to be extensively maintained, I'm just using
+ * "!important".
+ *
+ * Sorry.
+ */
 .main-list-hist-label {
   font-size: 14px !important;
   opacity: 0.6;
@@ -69,7 +78,7 @@ li.main-list-item {
 .main-list-hist-data {
   font-size: 12px !important;
   opacity: 0.6;
-  line-height: 1.1 !important;
+  line-height: 1.2 !important;
   padding-top: 0px !important;
 }
 
