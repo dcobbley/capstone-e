@@ -15,6 +15,5 @@
     "tests"
   ],
   "dependencies": {
-    "qunit": "~1.18.0"
   }
 }

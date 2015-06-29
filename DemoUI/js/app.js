@@ -26,6 +26,27 @@ window.addEventListener('DOMContentLoaded', function() {
 
   }
 
+  // FOR TESTING PURPOSES ONLY
+  // Initialize options object
+  var options = {
+    photos: {
+      dataType: 'Photos',
+      lastUpdated: new Date('2015-06-20T19:00-0700')
+    },
+    videos: {
+      dataType: 'Videos',
+      lastUpdated: new Date('2015-06-20T19:00-0700')
+    },
+    contacts: {
+      dataType: 'Contacts',
+      lastUpdated: new Date('2015-06-20T19:00-0700')
+    },
+    settings: {
+      dataType: 'Settings',
+      lastUpdated: new Date('2015-06-20T19:00-0700')
+    }
+  }
+
   function loadBackupDetailPage(detailOptions) {
     // Load the title of the detail page from options
     var detailPageDataTypeTitle = document.getElementById('detail-page-title');
@@ -36,6 +57,31 @@ window.addEventListener('DOMContentLoaded', function() {
     backupDetailPage.style.zIndex = '100';
     backupDetailPage.setAttribute('class', 'go-deeper-in');
   }
+
+  function dateFormat(date) {
+    var minutes = date.getMinutes();
+    if(minutes < 10) {
+      minutes = '0' + minutes;
+    }
+    return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + 
+      date.getHours() + ':' + minutes;
+  }
+
+  function refreshHistories() {
+    var photoUpdatedAt = document.getElementById('photo-hist-date');
+    photoUpdatedAt.textContent = dateFormat(options.photos.lastUpdated);
+
+    var videoUpdatedAt = document.getElementById('video-hist-date');
+    videoUpdatedAt.textContent = dateFormat(options.videos.lastUpdated);
+
+    var contactUpdatedAt = document.getElementById('contact-hist-date');
+    contactUpdatedAt.textContent = dateFormat(options.contacts.lastUpdated);
+
+    var settingsUpdatedAt = document.getElementById('settings-hist-date');
+    settingsUpdatedAt.textContent = dateFormat(options.settings.lastUpdated);
+  }
+
+  refreshHistories();
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    * EVENT LISTENERS                                                               *
@@ -68,31 +114,19 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 
   document.getElementById('photo-infopane').addEventListener('click', function() {
-    var detailPageOptions = {
-      dataType: 'Photos'
-    };
-    loadBackupDetailPage(detailPageOptions);
+    loadBackupDetailPage(options.photos);
   });
 
   document.getElementById('video-infopane').addEventListener('click', function() {
-    var detailPageOptions = {
-      dataType: 'Videos'
-    };
-    loadBackupDetailPage(detailPageOptions);
+    loadBackupDetailPage(options.videos);
   });
 
   document.getElementById('contact-infopane').addEventListener('click', function() {
-    var detailPageOptions = {
-      dataType: 'Contacts'
-    };
-    loadBackupDetailPage(detailPageOptions);
+    loadBackupDetailPage(options.contacts);
   });
 
   document.getElementById('settings-infopane').addEventListener('click', function() {
-    var detailPageOptions = {
-      dataType: 'Settings'
-    };
-    loadBackupDetailPage(detailPageOptions);
+    loadBackupDetailPage(options.settings);
   });
 
   document.getElementById('backup-page-back-button').addEventListener('click', function() {
