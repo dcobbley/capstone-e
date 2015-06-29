@@ -170,7 +170,7 @@ Media.prototype.getStorageByName = function(type) {
       }
     default:
       {
-        throw new Error('Invalid media type');
+        throw new Error('Invalid media type: ' + type);
       }
   }
 
@@ -185,6 +185,7 @@ Media.prototype.getStorageByName = function(type) {
  *   to the provided "forEach" handler as a File object. If the "type"
  *   parameter is "sdcard1" and a "directory" parameter is provided, only
  *   files found in the specified directory will be returned.
+ *   (Note: "directory" must not have a trailing "/")
  *   (Note: File extends Blob)
  * @param {String} type
  * @param {String} directory (optional)
@@ -227,9 +228,9 @@ Media.prototype.get = function(type, directory, forEach) {
 
   if (type === 'sdcard1' && external.ready === true) {
     if (directory !== null) {
-      externalFiles = external.enumerate(directory);
+      externalFiles = external.store.enumerate(directory);
     } else {
-      externalFiles = external.enumerate();
+      externalFiles = external.store.enumerate();
     }
   } else if (type === 'sdcard1' && external.ready === false) {
     throw new Error('Attempt to read from an invalid storage. Abort.');
@@ -242,13 +243,20 @@ Media.prototype.get = function(type, directory, forEach) {
     throw new Error('Attempt to read from an invalid storage. Abort.');
   }
 
-  internalFiles.onsuccess = function() {
-    forEach(this.result);
-  };
+  function onsuccess() {
+    var result = this.result;
+    forEach(result, undefined);
+  }
 
-  externalFiles.onsuccess = function() {
-    forEach(this.result);
-  };
+  function onerror() {
+    var error = this.error;
+    forEach(undefined, error);
+  }
+
+  internalFiles.onsuccess = onsuccess;
+  externalFiles.onsuccess = onsuccess;
+  internalFiles.onerror = onerror;
+  externalFiles.onerror = onerror;
 };
 
 
