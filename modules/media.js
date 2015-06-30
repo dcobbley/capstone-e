@@ -106,11 +106,12 @@ Media.prototype.getExternalStorage = function(stores) {
 
   // TODO - if there are multiple external
   // storages, do we just use the largest?
+
   for (var i = 0; i < stores.length; ++i) {
     if (stores[i].isRemovable === true) {
       return {
         store: stores[i],
-        ready: true
+        ready: (stores[i].storageStatus().result === 'Mounted' ? true : false)
       };
     }
   }
@@ -228,8 +229,6 @@ Media.prototype.get = function(type, directory, forEach) {
   if (type === 'sdcard1' && external.ready === true) {
     if (directory !== null) {
       externalFiles = external.enumerate(directory);
-    } else {
-      externalFiles = external.enumerate();
     }
   } else if (type === 'sdcard1' && external.ready === false) {
     throw new Error('Attempt to read from an invalid storage. Abort.');
