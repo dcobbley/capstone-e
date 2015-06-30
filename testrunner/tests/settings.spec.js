@@ -16,8 +16,8 @@ QUnit.test('Settings', function(assert) {
 
   // Tests Settings.get fetching entire options
   assert.strictEqual(objectsMatch(
-      ffosbr.settings.get(),
-      ffosbr.settings.options
+    ffosbr.settings.get(),
+    ffosbr.settings.options
   ), true, 'Get returns valid options object');
 
   // Tests Settings.validate using single field
@@ -34,8 +34,12 @@ QUnit.test('Settings', function(assert) {
   ffosbr.settings.options.photos = previousPhotosValue;
 
   // Tests Settings.validate using potentialOptions object
-  assert.strictEqual(ffosbr.settings.validate({ photos: false }), true, 'Validate returns true for valid potentialOptions object');
-  assert.strictEqual(ffosbr.settings.validate({ photos: 42 }), false, 'Validate returns false for invalid potentialOptions object');
+  assert.strictEqual(ffosbr.settings.validate({
+    photos: false
+  }), true, 'Validate returns true for valid potentialOptions object');
+  assert.strictEqual(ffosbr.settings.validate({
+    photos: 42
+  }), false, 'Validate returns false for invalid potentialOptions object');
 
 
   // Invert default values
@@ -59,6 +63,16 @@ QUnit.test('Settings', function(assert) {
   assert.strictEqual(ffosbr.settings.options.id, 1, 'id is 1 after setting');
   assert.strictEqual(ffosbr.settings.options.registeredTimer, true, 'registeredTimer is true after setting');
   assert.strictEqual(ffosbr.settings.options.repeat, false, 'repeat is false after setting');
+
+  // Revert changes
+  ffosbr.settings.options.photos = true;
+  ffosbr.settings.options.videos = true;
+  ffosbr.settings.options.contacts = true;
+  ffosbr.settings.options.text = true;
+  ffosbr.settings.options.intervalTime = 24;
+  ffosbr.settings.options.id = 0;
+  ffosbr.settings.options.registeredTimer = false;
+  ffosbr.settings.options.repeat = true;
 
   // Remove and readd ffosbr.js to test persistent storage
   var ffosbrScriptEle = document.getElementById('FFOSBR');
@@ -90,7 +104,7 @@ QUnit.test('Settings', function(assert) {
     assert.strictEqual(ffosbr.settings.options.repeat, false, 'repeat is false after reloading');
 
     // Reset default settings for next test run
-    ffosbr.settings.options({
+    ffosbr.settings.set({
       photos: true,
       videos: true,
       contacts: true,

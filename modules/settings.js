@@ -19,7 +19,7 @@ function Settings() {
   }
 }
 
-Settings.prototype.validate = function (potentialOptions, value) {
+Settings.prototype.validate = function(potentialOptions, value) {
 
   var valid = true;
   var opts = null;
@@ -36,15 +36,16 @@ Settings.prototype.validate = function (potentialOptions, value) {
 
   if (typeof potentialOptions === 'object') {
     opts = potentialOptions; // validate parameter object
-  }
-  else if (typeof potentialOptions === 'string') {
+  } else if (typeof potentialOptions === 'string') {
     opts = {}; // single field check
-    opts[potentialOptions] = value;
-  }
-  else if (typeof potentialOptions === 'undefined') {
+    if (typeof value === 'undefined') {
+      opts[potentialOptions] = this.options[potentialOptions];
+    } else {
+      opts[potentialOptions] = value;
+    }
+  } else if (typeof potentialOptions === 'undefined') {
     opts = this.options; // validate current options
-  }
-  else {
+  } else {
     // TODO - replace with ErrorHandler module
     return console.log('Invalid validate parameter', field);
   }
@@ -55,10 +56,14 @@ Settings.prototype.validate = function (potentialOptions, value) {
       // TODO - replace with ErrorHandler module
       console.log('Unrecognized settings option', field);
       valid = false;
-    }
-    else if (typeof opts[field] !== typeof validTypes[field]) {
+    } else if (typeof opts[field] !== validTypes[field]) {
       // TODO - replace with ErrorHandler module
       console.log('Invalid type for settings option', field);
+
+
+      // alert(field + ': ' + typeof opts[field] + ' vs ' + typeof validTypes[field]); //rmv
+
+
       valid = false;
     }
   }
@@ -87,7 +92,7 @@ Settings.prototype.set = function(newOptions) {
     this.options.contacts = newOptions.contacts;
   }
 
-  if (this.validate('text',newOptions.text)) {
+  if (this.validate('text', newOptions.text)) {
     this.options.text = newOptions.text;
   }
 
@@ -111,7 +116,7 @@ Settings.prototype.set = function(newOptions) {
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
 };
 
-Settings.prototype.get = function (field) {
+Settings.prototype.get = function(field) {
 
   if (typeof field === 'undefined') {
     return this.options;
