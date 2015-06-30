@@ -12,14 +12,13 @@
   "developer": {
     "name": "Thomas Guerena"
   },
-  "type": "privileged",
+  "type": "certified",
   "permissions": {
-    "systemXHR": {
-      "description": "Required to load remote content"
-    },
-    "device-storage:sdcard": {"access": "readcreate"},
-    "device-storage:pictures":{ "access": "readwrite" }
-
+    "systemXHR": { "description": "Required to load remote content" },
+    "device-storage:sdcard": { "access": "readcreate" },
+    "device-storage:pictures":{ "access": "readwrite" },
+    "contacts": { "description": "Needed to access contacts", "access": "readwrite" },
+    "mobileConnection": { "description": "Access contacts from SIM card" }
   },
   "installs_allowed_from": [
     "*"
