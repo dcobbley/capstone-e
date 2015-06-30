@@ -30,9 +30,8 @@ var restore = function(onerror) {
   externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
 
   if (externalSD.ready === true) {
-    // UNCOMMENT
-    // restoreFiles = externalSD.store.enumerate(paths[type]);
-    restoreContacts(paths.contacts);
+    restoreFiles = externalSD.store.enumerate(paths[type]);
+    ffosbr.contacts.restore();
   }
 
   restoreFiles.onsuccess = function(file) {
