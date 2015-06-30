@@ -97,13 +97,7 @@ Contacts.prototype.getContactsFromSIM = function() {
 	// Array of { MozMobileConnectionArray }
 	var cards = navigator.mozMobileConnections;
     var request = null;
-	for (var i = 0; i < cards.length; ++i) {
-		if (cards[i].iccId) {
-			var id = navigator.mozIccManager.IccIds[i];
-			var icc = navigator.mozIccManager.getIccById(id);
-			request = icc.readContacts('adn');
-
-			request.onsuccess = function () {
+	var onSuccessFunction = function () {
 				var result = this.result;
 				if (result) {
 					++that.requestsFinished;
@@ -115,10 +109,20 @@ Contacts.prototype.getContactsFromSIM = function() {
 				}
 			};
 
-			request.onerror = function (err) {
+			var onErrorFunction = function (err) {
 				throw err;
 			};
-		}
+
+	for (var i = 0; i < cards.length; ++i) {
+		if (cards[i].iccId) {
+			var id = navigator.mozIccManager.IccIds[i];
+			var icc = navigator.mozIccManager.getIccById(id);
+			request = icc.readContacts('adn');
+
+			request.onsuccess = onSuccessFunction;
+			request.onerror = onErrorFunction;
+
+				}
 	}
 };
 
