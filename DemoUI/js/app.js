@@ -31,21 +31,25 @@ window.addEventListener('DOMContentLoaded', function() {
   var options = {
     photos: {
       dataType: 'Photos',
-      lastUpdated: new Date('2015-06-20T19:00-0700')
+      lastUpdated: new Date('2015-06-20T19:00-0700'),
+      size: 123
     },
     videos: {
       dataType: 'Videos',
-      lastUpdated: new Date('2015-06-20T19:00-0700')
+      lastUpdated: new Date('2015-06-20T19:00-0700'),
+      size: 1234
     },
     contacts: {
       dataType: 'Contacts',
-      lastUpdated: new Date('2015-06-20T19:00-0700')
+      lastUpdated: new Date('2015-06-20T19:00-0700'),
+      size: 12345
     },
     settings: {
       dataType: 'Settings',
-      lastUpdated: new Date('2015-06-20T19:00-0700')
+      lastUpdated: new Date('2015-06-20T19:00-0700'),
+      size: 123456
     }
-  }
+  };
 
   function loadBackupDetailPage(detailOptions) {
     // Load the title of the detail page from options
@@ -58,27 +62,55 @@ window.addEventListener('DOMContentLoaded', function() {
     backupDetailPage.setAttribute('class', 'go-deeper-in');
   }
 
+  /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   * HISTORY HELPERS                                                               *
+   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
   function dateFormat(date) {
     var minutes = date.getMinutes();
-    if(minutes < 10) {
+    if (minutes < 10) {
       minutes = '0' + minutes;
     }
-    return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + 
+    return date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' +
       date.getHours() + ':' + minutes;
+  }
+
+  function sizeFormat(size) {
+    // We'll go up to Gigabytes, but no further. If you have a terabyte SD card...
+    // I'm sorry.
+    var units = ' bytes';
+    if (size > 1024) {
+      size /= 1024;
+      units = ' MB';
+    }
+    if (size > 1024) {
+      size /= 1024;
+      units = ' GB';
+    }
+
+    return size.toFixed(2) + units;
   }
 
   function refreshHistories() {
     var photoUpdatedAt = document.getElementById('photo-hist-date');
     photoUpdatedAt.textContent = dateFormat(options.photos.lastUpdated);
+    var photoSize = document.getElementById('photo-hist-size');
+    photoSize.textContent = sizeFormat(options.photos.size);
 
     var videoUpdatedAt = document.getElementById('video-hist-date');
     videoUpdatedAt.textContent = dateFormat(options.videos.lastUpdated);
+    var videoSize = document.getElementById('video-hist-size');
+    videoSize.textContent = sizeFormat(options.videos.size);
 
     var contactUpdatedAt = document.getElementById('contact-hist-date');
     contactUpdatedAt.textContent = dateFormat(options.contacts.lastUpdated);
+    var contactSize = document.getElementById('contact-hist-size');
+    contactSize.textContent = sizeFormat(options.contacts.size);
 
     var settingsUpdatedAt = document.getElementById('settings-hist-date');
     settingsUpdatedAt.textContent = dateFormat(options.settings.lastUpdated);
+    var settingsSize = document.getElementById('settings-hist-size');
+    settingsSize.textContent = sizeFormat(options.settings.size);
   }
 
   refreshHistories();
