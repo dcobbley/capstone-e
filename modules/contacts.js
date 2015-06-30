@@ -96,12 +96,12 @@ Contacts.prototype.getContactsFromSIM = function() {
 
 	// Array of { MozMobileConnectionArray }
 	var cards = navigator.mozMobileConnections;
-
+    var request = null;
 	for (var i = 0; i < cards.length; ++i) {
 		if (cards[i].iccId) {
 			var id = navigator.mozIccManager.IccIds[i];
 			var icc = navigator.mozIccManager.getIccById(id);
-			var request = icc.readContacts('adn');
+			request = icc.readContacts('adn');
 
 			request.onsuccess = function () {
 				var result = this.result;
