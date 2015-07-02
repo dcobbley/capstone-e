@@ -115,7 +115,7 @@ Contacts.prototype.getContactsFromSIM = function() {
 
 	for (var i = 0; i < cards.length; ++i) {
 		if (cards[i].iccId) {
-			var id = navigator.mozIccManager.IccIds[i];
+			var id = navigator.mozIccManager.iccIds[i];
 			var icc = navigator.mozIccManager.getIccById(id);
 			request = icc.readContacts('adn');
 
