@@ -45,7 +45,8 @@ Temporary Items
 
 # Installed dependencies
 node_modules/
-testrunner/bower_components/
+bower_components/
+*/bower_components/
 
 # Generated files
 FFOSBR.js
