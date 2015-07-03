@@ -15,7 +15,15 @@ function Settings() {
   var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
   if (retrievedOptions !== null) {
-    this.options = JSON.parse(retrievedOptions);
+
+    retrievedOptions = JSON.parse(retrievedOptions);
+
+    if (this.validate(retrievedOptions === true)) {
+      this.options = retrievedOptions;
+    } else {
+      // TODO - should we throw an error? Or just let this slide?
+      console.log('Fetched an invalid options object from local storage');
+    }
   }
 }
 
@@ -71,49 +79,79 @@ Settings.prototype.validate = function(potentialOptions, value) {
   return valid;
 };
 
-Settings.prototype.set = function(newOptions) {
+Settings.prototype.set = function(newOptions, value) {
 
-  if (typeof newOptions === 'undefined') {
-    return;
-  } else if (typeof newOptions !== 'object') {
+  var opts = null;
+
+  if (typeof newOptions === 'object') {
+    opts = newOptions; // validate parameter object
+  } else if (typeof newOptions === 'string') {
+    opts = {}; // single field check
+    if (typeof value === 'undefined') {
+      opts[newOptions] = this.options[newOptions];
+    } else {
+      opts[newOptions] = value;
+    }
+  } else {
     // TODO - replace with ErrorHandler module
-    return console.log('Invalid config object', newOptions);
+    return console.log('Invalid set parameter', field);
   }
 
-  if (this.validate('photos', newOptions.photos)) {
-    this.options.photos = newOptions.photos;
-  }
-
-  if (this.validate('videos', newOptions.videos)) {
-    this.options.videos = newOptions.videos;
-  }
-
-  if (this.validate('contacts', newOptions.contacts)) {
-    this.options.contacts = newOptions.contacts;
-  }
-
-  if (this.validate('text', newOptions.text)) {
-    this.options.text = newOptions.text;
-  }
-
-  if (this.validate('id', newOptions.id)) {
-    this.options.id = newOptions.id;
-  }
-
-  if (this.validate('registeredTimer', newOptions.registeredTimer)) {
-    this.options.registeredTimer = newOptions.registeredTimer;
-  }
-
-  if (this.validate('repeat', newOptions.repeat)) {
-    this.options.repeat = newOptions.repeat;
-  }
-
-  //////pass in the value in hours /////////
-  if (this.validate('intervalTime', newOptions.intervalTime)) {
-    this.options.intervalTime = newOptions.intervalTime;
+  if (this.validate(opts) === true) {
+    for (var field in opts) {
+      this.options[field] = opts[field];
+    }
+  } else {
+    for (var bad in opts) {
+      // Slower, but provides a more useful error message.
+      if (this.validate(bad, opts[bad]) === false) {
+        throw new Error('Cannot set field ' + bad + ' with value ' + opts[bad]);
+      }
+    }
   }
 
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
+
+
+  // if (typeof newOptions === 'undefined') {
+  //   return;
+  // } else if (typeof newOptions !== 'object') {
+  //   // TODO - replace with ErrorHandler module
+  //   return console.log('Invalid config object', newOptions);
+  // }
+
+  // if (this.validate('photos', newOptions.photos)) {
+  //   this.options.photos = newOptions.photos;
+  // }
+
+  // if (this.validate('videos', newOptions.videos)) {
+  //   this.options.videos = newOptions.videos;
+  // }
+
+  // if (this.validate('contacts', newOptions.contacts)) {
+  //   this.options.contacts = newOptions.contacts;
+  // }
+
+  // if (this.validate('text', newOptions.text)) {
+  //   this.options.text = newOptions.text;
+  // }
+
+  // if (this.validate('id', newOptions.id)) {
+  //   this.options.id = newOptions.id;
+  // }
+
+  // if (this.validate('registeredTimer', newOptions.registeredTimer)) {
+  //   this.options.registeredTimer = newOptions.registeredTimer;
+  // }
+
+  // if (this.validate('repeat', newOptions.repeat)) {
+  //   this.options.repeat = newOptions.repeat;
+  // }
+
+  // //////pass in the value in hours /////////
+  // if (this.validate('intervalTime', newOptions.intervalTime)) {
+  //   this.options.intervalTime = newOptions.intervalTime;
+  // }
 };
 
 Settings.prototype.get = function(field) {

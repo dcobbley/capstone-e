@@ -64,7 +64,16 @@ QUnit.test('Settings', function(assert) {
   assert.strictEqual(ffosbr.settings.options.registeredTimer, true, 'registeredTimer is true after setting');
   assert.strictEqual(ffosbr.settings.options.repeat, false, 'repeat is false after setting');
 
-  // Revert changes
+  // Check setting using key-value
+  ffosbr.settings.set('photos', true);
+  assert.strictEqual(ffosbr.settings.options.photos, true, 'Can set using with key-value');
+
+  ffosbr.settings.set({
+    photos: false
+  });
+  assert.strictEqual(ffosbr.settings.options.photos, false, 'Can set using subset of options object');
+
+  // Revert all changes
   ffosbr.settings.options.photos = true;
   ffosbr.settings.options.videos = true;
   ffosbr.settings.options.contacts = true;
