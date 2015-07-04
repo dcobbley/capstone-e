@@ -112,46 +112,6 @@ Settings.prototype.set = function(newOptions, value) {
 
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
 
-
-  // if (typeof newOptions === 'undefined') {
-  //   return;
-  // } else if (typeof newOptions !== 'object') {
-  //   // TODO - replace with ErrorHandler module
-  //   return console.log('Invalid config object', newOptions);
-  // }
-
-  // if (this.validate('photos', newOptions.photos)) {
-  //   this.options.photos = newOptions.photos;
-  // }
-
-  // if (this.validate('videos', newOptions.videos)) {
-  //   this.options.videos = newOptions.videos;
-  // }
-
-  // if (this.validate('contacts', newOptions.contacts)) {
-  //   this.options.contacts = newOptions.contacts;
-  // }
-
-  // if (this.validate('text', newOptions.text)) {
-  //   this.options.text = newOptions.text;
-  // }
-
-  // if (this.validate('id', newOptions.id)) {
-  //   this.options.id = newOptions.id;
-  // }
-
-  // if (this.validate('registeredTimer', newOptions.registeredTimer)) {
-  //   this.options.registeredTimer = newOptions.registeredTimer;
-  // }
-
-  // if (this.validate('repeat', newOptions.repeat)) {
-  //   this.options.repeat = newOptions.repeat;
-  // }
-
-  // //////pass in the value in hours /////////
-  // if (this.validate('intervalTime', newOptions.intervalTime)) {
-  //   this.options.intervalTime = newOptions.intervalTime;
-  // }
 };
 
 Settings.prototype.get = function(field) {
