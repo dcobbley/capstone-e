@@ -11,6 +11,16 @@ function Settings() {
     repeat: true
   };
 
+  // Are these the paths we want?
+  this.backupPaths = {
+    apps: 'backup/apps/',
+    music: 'backup/music/',
+    photos: 'backup/photos/',
+    videos: 'backup/videos/',
+    contacts: 'backup/videos/',
+    settings: 'backup/settings/'
+  };
+
   // Load options if present
   var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
@@ -26,6 +36,14 @@ function Settings() {
     }
   }
 }
+
+Settings.prototype.getBackupDirectoryPaths = function() {
+  var paths = {};
+  for (var field in this.backupPaths) {
+    paths[field] = this.backupPaths[field];
+  }
+  return paths;
+};
 
 Settings.prototype.validate = function(potentialOptions, value) {
 

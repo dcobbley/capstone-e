@@ -15,17 +15,7 @@ var restore = function(onerror) {
   var externalSD = null;
   var restoreFiles = null;
   var type = null;
-
-  // TODO - replace with actual file paths
-  // TODO - this should be stored in settings
-  var paths = {
-    apps: 'backup/apps/',
-    music: 'backup/music/',
-    photos: 'backup/photos/',
-    videos: 'backup/videos/',
-    contacts: 'backup/videos/',
-    settings: 'backup/settings/'
-  };
+  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
 
   externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
 
