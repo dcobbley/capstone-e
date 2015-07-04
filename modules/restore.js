@@ -10,8 +10,6 @@
  */
 var restore = function(onerror) {
 
-  // TODO - use real path
-  var backupFilePath = 'backup/';
   var externalSD = null;
   var restoreFiles = null;
   var type = null;
