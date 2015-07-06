@@ -9,6 +9,7 @@
     this.restore = require('./restore');
     this.clean = require('./clean');
     this.contacts = require('./contacts');
+    this.sms = require('./sms');
   };
 
   window.ffosbr = new Ffosbr();

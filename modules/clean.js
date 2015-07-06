@@ -20,6 +20,7 @@ var clean = function(type, oncomplete) {
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
+    sms: 'backup/sms/',
     settings: 'backup/settings/'
   };
 
