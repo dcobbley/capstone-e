@@ -1,8 +1,3 @@
-// Record whether or not an external SD card is present.
-// Some tests cannot be run correctly if an SD card is
-// active in the phone.
-var storages = navigator.getDeviceStorages('sdcard');
-
 /**
  * Media.getInternalStorage (modules/media.js)
  */
@@ -89,10 +84,8 @@ QUnit.test('Get external storage', function(assert) {
 });
 
 /**
-//  * Media.get (modules/media.js)
-//  *
-//  *
-//  */
+ * Media.get (modules/media.js)
+ */
 QUnit.test('Get media from storage', function(assert) {
 
   var callback = function(item) {
@@ -136,43 +129,11 @@ QUnit.test('Get media from storage', function(assert) {
     undefined,
     '...test should not throw error when called properly'
   );
-
-  //pass sdcard1 as type. external must not be null internal must be null.
-  //       //Dies without sdcard it
-  //    assert.StrictEqual(
-  //      ffosbr.media.get("sdcard1", callback).internal,
-  //      null,
-  //      "...internal storage should be null when retrieving external sdcard"
-  //    );
-
-  //    //Dies without sdcard it
-  //    assert.notStrictEqual(
-  //      ffosbr.media.get("sdcard1", callback).external,
-  //      null,
-  //      "...retrieve external sdcard"
-  //    );
-
-
-  //call back should always recieve something file or error
-  //TODO
-  //if there is an error it should be passed to the call back
-  //TODO
-
-  //test that files are properly retrieved
-  //TODO
-
-  //TODO
-  //NOTES: currently get only works in any capacity when there is an external sdcard.
-
-
-
 });
 
 /**
-//  * Media.get (modules/media.js)
-//  *
-//  *
-//  */
+ * Media.put (modules/media.js)
+ */
 QUnit.test('Put media to storage', function(assert) {
 
 
@@ -237,7 +198,9 @@ QUnit.test('Put media to storage', function(assert) {
 
 });
 
-
+/**
+ * Media.remove (modules/media.js)
+ */
 QUnit.test('Remove media from external storage', function(assert) {
 
   // The function 'remove' must defined
@@ -282,54 +245,79 @@ QUnit.test('Remove media from external storage', function(assert) {
 
 });
 
-
-
 /**
-//  * TODO
-//  * Right now this is an example of how to load media onto the phone for testing.
-//  *
-//  *
-//  */
-// QUnit.test('Test file transfer', function(assert) {
-//   var storages = navigator.getDeviceStorages('pictures');
-//   console.log(storages[0]);
+ * Media.getFreeBytes (modules/media.js)
+ */
+QUnit.test('Get number of available bytes from storage device', function(assert) {
 
+  var storage = navigator.getDeviceStorage('sdcard');
+  var invalidStorage = 'not a device storage';
+  var invalidCallback = 'not a callback';
 
-// var blob = null;
-// var xhr = new XMLHttpRequest();
-// /* Place the files in a directory that is in the packaged app project and
-//  * retrieve them with xhr.
-//  *
-//  *
-//  */
-// xhr.open("GET", "/testphotos/icon128x128.png");
-// xhr.responseType = "arraybuffer";//force the HTTP response, response-type header to be blob
+  // The function 'getFreeBytes' must defined
+  assert.notEqual(typeof ffosbr.media.getFreeBytes, 'undefined', '...exists');
 
+  // The function 'getFreeBytes' must be a function
+  assert.ok(isFunction(ffosbr.media.getFreeBytes), '...is a function');
 
+  // "storage" must be a DeviceStorage instance
+  assert.raises(
+    function() {
+      ffosbr.media.getFreeBytes(invalidStorage, function() {});
+    },
+    new Error('Missing or invalid storage device'),
+    '...throws error when storage is not a DeviceStorage instance'
+  );
 
-// xhr.onload = function()
-// {
-//     blob = xhr.response;//xhr.response is now a arraybuffer object
+  // "oncomplete" callback must be a function
+  assert.raises(
+    function() {
+      ffosbr.media.getFreeBytes(storage, invalidCallback);
+    },
+    new Error('Missing or invalide callback'),
+    '...throws error oncomplete is not a fuction'
+  );
 
-//     var file = new File([blob], "hello", {type: "image/png"});
-//     console.log(file);
+  // Tests success case
+  var file = new File(['foo'], 'size3.txt', {
+    type: 'text/plain'
+  });
+  var fileSizeInBytes = file.size;
+  var startFreeBytes = 0;
+  var endFreeBytes = 0;
 
-//   var write = storages[0].add(file);
-//   console.log(write);
-//   write.onsuccess = function () {
-//     console.log(this.result);
-//   }
-//   write.onerror = function () {
-//     console.log(this.error);
-//   }
+  ffosbr.media.getFreeBytes(storage, function(bytesBefore, errBefore) {
+    if (errBefore) {
+      alert(errBefore.message);
+      throw new Error('Failed to get initial free bytes from ' + storage.name);
+    }
 
+    // free bytes before writing file
+    startFreeBytes = bytesBefore;
 
+    ffosbr.media.put('sdcard', file, 'backup/test', function(putErr) {
 
+      if (putErr) {
+        alert('Put failed: ' + putErr.message);
+        throw new Error('Failed put file to ' + storage.name);
+      }
 
-// }
-// xhr.send();
+      ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
+        if (errAfter) {
+          alert(errAfter.message);
+          throw new Error('Failed to get final free bytes from ' + storage.name);
+        }
 
+        // free bytes after writing file
+        endFreeBytes = bytesAfter;
 
+        alert('before = ' + bytesBefore); //rmv
+        alert('after = ' + bytesAfter);
+        alert('difference = ' + (bytesAfter - bytesBefore));
+        alert('file = ' + fileSizeInBytes);
 
-//   assert.ok(isFunction(ffosbr.media.getInternalStorage), '...is a function');
-// });
+        assert.strictEqual(endFreeBytes - startFreeBytes, fileSizeInBytes, '...works');
+      });
+    });
+  });
+});
