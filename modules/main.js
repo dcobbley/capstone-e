@@ -8,6 +8,7 @@
     this.backup = require('./backup');
     this.restore = require('./restore');
     this.clean = require('./clean');
+    this.settings = require('./settings');
   };
 
   window.ffosbr = new Ffosbr();

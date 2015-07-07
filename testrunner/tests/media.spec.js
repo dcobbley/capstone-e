@@ -122,7 +122,7 @@ QUnit.test('Get media from storage', function(assert) {
   assert.raises(
     function() {
 
-        ffosbr.media.get('sdcard1', callback);
+      ffosbr.media.get('sdcard1', callback);
 
     },
     new Error('Attempt to read from an invalid storage. Abort.'),
@@ -222,7 +222,7 @@ QUnit.test('Put media to storage', function(assert) {
 
   assert.raises(
     function() {
-        ffosbr.media.put('sdcard1', helloFile, 'hello');
+      ffosbr.media.put('sdcard1', helloFile, 'hello');
     },
     new Error('Attempt to write to an invalid storage. Abort.'),
     '...throws error when attempting to write to a missing external sdcard'
@@ -267,7 +267,7 @@ QUnit.test('Remove media from external storage', function(assert) {
   //Must fail if there is not an external sdcard
   assert.raises(
     function() {
-        ffosbr.media.remove('hello');
+      ffosbr.media.remove('hello');
     },
     new Error('Attempt to delete from invalid storage. Abort.'),
     '...throws error when there is not an external sdcard'
