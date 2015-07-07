@@ -2,16 +2,16 @@
  * @access public
  * @description TODO
  */
-var Sms = function() {
+var Messages = function() {
 
-  this.SmsList = [];
+  this.MessagesList = [];
 };
 
 /**
  * @access public
  * @description TODO
  */
-Sms.prototype.backup = function() {
+Messages.prototype.backup = function() {
   //no api
 };
 
@@ -19,7 +19,7 @@ Sms.prototype.backup = function() {
  * @access public
  * @description TODO
  */
-Sms.prototype.restore = function() {
+Messages.prototype.restore = function() {
   //no api
 };
 
@@ -27,15 +27,15 @@ Sms.prototype.restore = function() {
  * @access public
  * @description TODO
  */
-Sms.prototype.clean = function() {
-  ffosbr.media.remove(paths.sms + 'sms.json', oncomplete);
+Messages.prototype.clean = function() {
+  ffosbr.media.remove(paths.messages + 'messages.json', oncomplete);
 };
 
 /**
  * @access public
  * @description TODO
  */
-Sms.prototype.getSms = function() {
+Messages.prototype.getMessages = function() {
   var filter = {};
   filter.read = true;
 
@@ -44,7 +44,7 @@ Sms.prototype.getSms = function() {
   cursor.onsuccess = function() {
 
     if (cursor.result) {
-      this.SmsList.push(cursor.result);
+      this.MessagesList.push(cursor.result);
       cursor.continue();
     }
 
@@ -92,19 +92,19 @@ Sms.prototype.getSms = function() {
 };
 
 
-Sms.prototype.putSmsOnSD = function(smsFile) {
+Messages.prototype.putMessagesOnSD = function(smsFile) {
 
-  ffosbr.clean('sms', function() {
+  ffosbr.clean('messages', function() {
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
     var file = new Blob([JSON.stringify(smsFile)], {
       type: 'application/json'
     });
-    var filename = 'sms.json';
+    var filename = 'messages.json';
     var request = null;
 
 
     if (sdcard.ready === true) {
-      request = sdcard.store.addNamed(file, paths.sms + filename);
+      request = sdcard.store.addNamed(file, paths.messages + filename);
     } else {
       // TODO - handle errors
       alert('external sdcard not ready'); //rmv
@@ -123,4 +123,4 @@ Sms.prototype.putSmsOnSD = function(smsFile) {
 };
 
 // Defines Ffosbr contact
-module.exports = new Sms();
+module.exports = new Messages();
