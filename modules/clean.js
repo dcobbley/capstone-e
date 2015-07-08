@@ -47,6 +47,12 @@ var clean = function(type, oncomplete) {
       oncomplete((error ? error : undefined));
     });
   };
+
+  listFiles.onerror = function() {
+    // Handle no external SD card error...
+    console.log(this.error);
+  };
+
 };
 
 // Defines Ffosbr clean

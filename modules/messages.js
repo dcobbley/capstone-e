@@ -2,17 +2,44 @@
  * @access public
  * @description TODO
  */
-var Messages = function() {
-
-  this.MessagesList = [];
-};
+var Messages = function() {};
 
 /**
  * @access public
  * @description TODO
  */
 Messages.prototype.backup = function() {
-  //no api
+  var that = this;
+
+  this.getMessages(function(msgs) {
+    var msgsJSON = [];
+
+    if (msgs.error) {
+      console.log('error');
+      console.log(msgs.error);
+      return;
+    }
+
+    for (var i = 0; i < msgs.list.length; i++) {
+      var msg = {
+        sms: msgs.list[i].sms,
+        id: msgs.list[i].id,
+        threadId: msgs.list[i].threadId,
+        body: msgs.list[i].body,
+        delivery: msgs.list[i].delivery,
+        deliveryStatus: msgs.list[i].deliveryStatus,
+        read: msgs.list[i].read,
+        receiver: msgs.list[i].receiver,
+        sender: msgs.list[i].sender,
+        timestamp: msgs.list[i].timestamp,
+        messageClass: msgs.list[i].messageClass,
+      };
+
+      msgsJSON.push(JSON.stringify(msg));
+    }
+
+    that.putMessagesOnSD(msgsJSON);
+  });
 };
 
 /**
@@ -20,7 +47,8 @@ Messages.prototype.backup = function() {
  * @description TODO
  */
 Messages.prototype.restore = function() {
-  //no api
+  // **This is not possible**
+  // Firefox OS current exposes no API to restore messages to device!
 };
 
 /**
@@ -28,80 +56,52 @@ Messages.prototype.restore = function() {
  * @description TODO
  */
 Messages.prototype.clean = function() {
-  ffosbr.media.remove(paths.messages + 'messages.json', oncomplete);
+  // THis should not be hard coded
+  ffosbr.media.remove('backup/messages.json');
 };
 
 /**
  * @access public
  * @description TODO
  */
-Messages.prototype.getMessages = function() {
+Messages.prototype.getMessages = function(callback) {
+  var msgs = [];
   var filter = {};
+  // FIlter by date?
   filter.read = true;
 
-  var cursor = window.navigator.mozMobileMessage.getMessages(filter, false);
+  var cursor = navigator.mozMobileMessage.getMessages(filter, false);
 
   cursor.onsuccess = function() {
-
     if (cursor.result) {
-      this.MessagesList.push(cursor.result);
+      msgs.push(cursor.result);
       cursor.continue();
     }
 
     if (cursor.done) {
-      simpleCallBack({
-        list: msgList
+      callback({
+        list: msgs
       });
     }
   };
 
   cursor.onerror = function(event) {
-    simpleCallBack({
-      errorName: event.target.error.name
+    callback({
+      error: event.target.error.name
     });
-  };
-
-  var simpleCallBack = function(obj) {
-    if (obj.errorName) {
-      console.log('error');
-      console.log(obj.errorName);
-    } else {
-      for (var i = 0; i < obj.list.length; i++) {
-        var msgObj = {
-          sms: obj.list[i].sms,
-          id: obj.list[i].id,
-          threadId: obj.list[i].threadId,
-          body: obj.list[i].body,
-          delivery: obj.list[i].delivery,
-          deliveryStatus: obj.list[i].deliveryStatus,
-          read: obj.list[i].read,
-          receiver: obj.list[i].receiver,
-          sender: obj.list[i].sender,
-          timestamp: obj.list[i].timestamp,
-          messageClass: obj.list[i].messageClass,
-        };
-
-        console.log(JSON.stringify(msgObj));
-        var smsFile = JSON.stringify(msgObj);
-
-        putSMS(smsFile);
-
-      }
-    }
   };
 };
 
-
 Messages.prototype.putMessagesOnSD = function(smsFile) {
-
   ffosbr.clean('messages', function() {
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
     var file = new Blob([JSON.stringify(smsFile)], {
-      type: 'application/json'
+      type: 'text/json'
     });
     var filename = 'messages.json';
     var request = null;
 
+    console.log('here');
 
     if (sdcard.ready === true) {
       request = sdcard.store.addNamed(file, paths.messages + filename);
@@ -111,13 +111,18 @@ Messages.prototype.putMessagesOnSD = function(smsFile) {
     }
 
     request.onsuccess = function() {
-      oncomplete();
+      // if (oncomplete) {
+      //   oncomplete();
+      // }
+      console.log('success');
     };
 
     // An error typically occur if a file with the same name already exist
     request.onerror = function() {
-      var error = this.error;
-      oncomplete(error);
+      console.log(this.error);
+      // if (oncomplete) {
+      //   oncomplete(error);
+      // }
     };
   });
 };

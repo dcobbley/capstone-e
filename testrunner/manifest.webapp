@@ -18,7 +18,8 @@
     "device-storage:sdcard": { "access": "readcreate" },
     "device-storage:pictures":{ "access": "readwrite" },
     "contacts": { "description": "Needed to access contacts", "access": "readwrite" },
-    "mobileConnection": { "description": "Access contacts from SIM card" }
+    "mobileConnection": { "description": "Access contacts from SIM card" },
+    "sms": {}
   },
   "installs_allowed_from": [
     "*"
