@@ -2,14 +2,6 @@
 // Some tests cannot be run correctly if an SD card is
 // active in the phone.
 var storages = navigator.getDeviceStorages('sdcard');
-var externalPresent = false;
-
-// Check for an external SD card
-for (var i = 0; i < storages.length; ++i) {
-  if (storages[i].isRemovable === true) {
-    externalPresent = true;
-  }
-}
 
 /**
  * Media.getInternalStorage (modules/media.js)
@@ -46,6 +38,7 @@ QUnit.test('Get internal storage', function(assert) {
     '...returns null from list of only external storages'
   );
 
+  console.log(ffosbr.media.getInternalStorage(storages).store);
   assert.notStrictEqual(
     ffosbr.media.getInternalStorage(storages).store,
     null,
@@ -128,15 +121,9 @@ QUnit.test('Get media from storage', function(assert) {
   // Get sdcard1 without card should throw error.
   assert.raises(
     function() {
-      // BUG - Why is "externalPresent" always true??
 
-      // NOTE: only passes when there is not an external sdcard.
-      if (!externalPresent) {
-        ffosbr.media.get('sdcard1', callback);
-      } else {
-        // Fake the correct behavior is the external SD card is present
-        throw new Error('Attempt to read from an invalid storage. Abort.');
-      }
+      ffosbr.media.get('sdcard1', callback);
+
     },
     new Error('Attempt to read from an invalid storage. Abort.'),
     '...throws error when there is not an external sdcard'
@@ -235,12 +222,7 @@ QUnit.test('Put media to storage', function(assert) {
 
   assert.raises(
     function() {
-      if (!externalPresent) {
-        ffosbr.media.put('sdcard1', helloFile, 'hello');
-      } else {
-        // Fake the correct behavior is the external SD card is present
-        throw new Error('Attempt to write to an invalid storage. Abort.');
-      }
+      ffosbr.media.put('sdcard1', helloFile, 'hello');
     },
     new Error('Attempt to write to an invalid storage. Abort.'),
     '...throws error when attempting to write to a missing external sdcard'
@@ -285,12 +267,7 @@ QUnit.test('Remove media from external storage', function(assert) {
   //Must fail if there is not an external sdcard
   assert.raises(
     function() {
-      if (!externalPresent) {
-        ffosbr.media.remove('hello');
-      } else {
-        // Fake the correct behavior is the external SD card is present
-        throw new Error('Attempt to delete from invalid storage. Abort.');
-      }
+      ffosbr.media.remove('hello');
     },
     new Error('Attempt to delete from invalid storage. Abort.'),
     '...throws error when there is not an external sdcard'

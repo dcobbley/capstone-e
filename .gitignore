@@ -43,11 +43,13 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Installed dependencies
 node_modules/
 bower_components/
-*/bower_components/*
+*/bower_components/
 
 # Generated files
 FFOSBR.js
 FFOSBR.min.js
 */FFOSBR.js
+*/FFOSBR.min.js
