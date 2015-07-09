@@ -15,7 +15,7 @@
   "type": "certified",
   "permissions": {
     "systemXHR": { "description": "Required to load remote content" },
-    "device-storage:sdcard": { "access": "readcreate" },
+    "device-storage:sdcard": { "access": "readwrite" },
     "device-storage:pictures":{ "access": "readwrite" },
     "contacts": { "description": "Needed to access contacts", "access": "readwrite" },
     "mobileConnection": { "description": "Access contacts from SIM card" },

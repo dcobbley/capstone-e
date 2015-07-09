@@ -31,16 +31,16 @@ QUnit.test('Settings', function(assert) {
 
   // Remove and readd ffosbr.js to test persistent storage
   var ffosbrScriptEle = document.getElementById('FFOSBR');
-  ffosbrScriptEle.parentNode.removeChild(ffosbrScriptEle); 
+  ffosbrScriptEle.parentNode.removeChild(ffosbrScriptEle);
 
-  var headID = document.getElementsByTagName('head')[0];         
+  var headID = document.getElementsByTagName('head')[0];
   var newScript = document.createElement('script');
 
   newScript.type = 'text/javascript';
   newScript.src = 'FFOSBR.js';
   headID.appendChild(newScript);
 
-  newScript.onload = function () {
+  newScript.onload = function() {
     assert.equal(ffosbr.settings.options().photos, true, 'photos is true after call');
     assert.equal(ffosbr.settings.options().videos, true, 'videos is true after call');
     assert.equal(ffosbr.settings.options().contacts, true, 'contacts is true after call');
