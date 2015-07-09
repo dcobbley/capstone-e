@@ -15,25 +15,47 @@ Messages.prototype.backup = function(callback) {
     var msgsJSON = [];
 
     if (msgs.error) {
-      console.log('error');
-      console.log(msgs.error);
+      callback(msgs.error);
       return;
     }
 
     for (var i = 0; i < msgs.list.length; i++) {
-      var msg = {
-        sms: msgs.list[i].sms,
-        id: msgs.list[i].id,
-        threadId: msgs.list[i].threadId,
-        body: msgs.list[i].body,
-        delivery: msgs.list[i].delivery,
-        deliveryStatus: msgs.list[i].deliveryStatus,
-        read: msgs.list[i].read,
-        receiver: msgs.list[i].receiver,
-        sender: msgs.list[i].sender,
-        timestamp: msgs.list[i].timestamp,
-        messageClass: msgs.list[i].messageClass,
-      };
+      var msg;
+
+      if (msgs.list[i] instanceof MozSmsMessage) {
+        msg = {
+          type: msgs.list[i].type,
+          id: msgs.list[i].id,
+          threadId: msgs.list[i].threadId,
+          body: msgs.list[i].body,
+          delivery: msgs.list[i].delivery,
+          deliveryStatus: msgs.list[i].deliveryStatus,
+          read: msgs.list[i].read,
+          receiver: msgs.list[i].receiver,
+          sender: msgs.list[i].sender,
+          timestamp: msgs.list[i].timestamp,
+          messageClass: msgs.list[i].messageClass,
+        };
+      } else if (msgs.list[i] instanceof MozMmsMessage) {
+        msg = {
+          type: msgs.list[i].type,
+          id: msgs.list[i].id,
+          threadId: msgs.list[i].threadId,
+          subject: msgs.list[i].subject,
+          smil: msgs.list[i].smil,
+          attachments: msgs.list[i].attachments,
+          expiryDate: msgs.list[i].expiryDate,
+          delivery: msgs.list[i].delivery,
+          deliveryStatus: msgs.list[i].deliveryStatus,
+          read: msgs.list[i].read,
+          receiver: msgs.list[i].receiver,
+          sender: msgs.list[i].sender,
+          timestamp: msgs.list[i].timestamp,
+        };
+      } else {
+        callback('unknown message type');
+        return;
+      }
 
       msgsJSON.push(JSON.stringify(msg));
     }
@@ -58,14 +80,8 @@ Messages.prototype.restore = function() {
 Messages.prototype.clean = function(callback) {
   // THis should not be hard coded
   ffosbr.media.remove('backup/messages/messages.json', function(err) {
-    if (err) {
-      if (callback) {
-        callback(err);
-      }
-    } else {
-      if (callback) {
-        callback();
-      }
+    if (callback) {
+      callback(err ? err : undefined);
     }
   });
 };
@@ -76,11 +92,7 @@ Messages.prototype.clean = function(callback) {
  */
 Messages.prototype.getMessages = function(callback) {
   var msgs = [];
-  var filter = {};
-  // FIlter by date?
-  filter.read = true;
-
-  var cursor = navigator.mozMobileMessage.getMessages(filter, false);
+  var cursor = navigator.mozMobileMessage.getMessages({}, false);
 
   cursor.onsuccess = function() {
     if (cursor.result) {
@@ -117,7 +129,8 @@ Messages.prototype.putMessagesOnSD = function(smsFile, callback) {
       if (sdcard.ready === true) {
         request = sdcard.store.addNamed(file, 'backup/messages/' + filename);
       } else {
-        throw new Error('Attempt to delete from invalid storage. Abort.');
+        callback('Attempt to delete from invalid storage');
+        return;
       }
 
       request.onsuccess = function() {
@@ -126,10 +139,9 @@ Messages.prototype.putMessagesOnSD = function(smsFile, callback) {
         }
       };
 
-      // An error typically occur if a file with the same name already exist
       request.onerror = function() {
         if (callback) {
-          callback(error);
+          callback(this.error);
         }
       };
     }
