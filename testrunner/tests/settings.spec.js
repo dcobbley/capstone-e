@@ -83,45 +83,41 @@ QUnit.test('Settings', function(assert) {
   ffosbr.settings.options.registeredTimer = false;
   ffosbr.settings.options.repeat = true;
 
-  // Remove and readd ffosbr.js to test persistent storage
-  var ffosbrScriptEle = document.getElementById('FFOSBR');
-  var ffosbrParentNode = ffosbrScriptEle.parentNode;
 
-  ffosbrParentNode.removeChild(ffosbrScriptEle);
+  var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
-  var newScript = document.createElement('script');
-  newScript.type = 'text/javascript';
-  newScript.src = 'FFOSBR.js';
+  if (retrievedOptions !== null) {
 
-  ffosbrParentNode.appendChild(newScript);
+    retrievedOptions = JSON.parse(retrievedOptions);
 
-  // !!!
-  // NOTE: This is asynchronous, so tests can't simply be run after this
-  // expecting certain values. Either all Settings tests must be run before
-  // this, or this test needs to be made synchronous. As more tests depend
-  // on the values stored in settings, this test MUST be made synchronous.
-  // !!!
+    console.log('Retrieved ' + JSON.stringify(retrievedOptions));
 
-  newScript.onload = function() {
-    assert.strictEqual(ffosbr.settings.options.photos, false, 'photos is false after reloading');
-    assert.strictEqual(ffosbr.settings.options.videos, false, 'videos is false after reloading');
-    assert.strictEqual(ffosbr.settings.options.contacts, false, 'contacts is false after reloading');
-    assert.strictEqual(ffosbr.settings.options.text, false, 'text is false after reloading');
-    assert.strictEqual(ffosbr.settings.options.intervalTime, 1, 'intervalTime is 1 hour after reloading');
-    assert.strictEqual(ffosbr.settings.options.id, 1, 'id is 1 after reloading');
-    assert.strictEqual(ffosbr.settings.options.registeredTimer, true, 'registeredTimer is true after reloading');
-    assert.strictEqual(ffosbr.settings.options.repeat, false, 'repeat is false after reloading');
+    if (ffosbr.settings.validate(retrievedOptions) === true) {
+      ffosbr.settings.options = retrievedOptions;
+    } else {
+      // TODO - should we throw an error? Or just let this slide?
+      console.log('Fetched an invalid options object from local storage');
+    }
+  }
 
-    // Reset default settings for next test run
-    ffosbr.settings.set({
-      photos: true,
-      videos: true,
-      contacts: true,
-      text: true,
-      intervalTime: 24, // pass in value in hours
-      id: 0,
-      registeredTimer: false,
-      repeat: true
-    });
-  };
+  assert.strictEqual(ffosbr.settings.options.photos, false, 'photos is false after reloading');
+  assert.strictEqual(ffosbr.settings.options.videos, false, 'videos is false after reloading');
+  assert.strictEqual(ffosbr.settings.options.contacts, false, 'contacts is false after reloading');
+  assert.strictEqual(ffosbr.settings.options.text, false, 'text is false after reloading');
+  assert.strictEqual(ffosbr.settings.options.intervalTime, 1, 'intervalTime is 1 hour after reloading');
+  assert.strictEqual(ffosbr.settings.options.id, 1, 'id is 1 after reloading');
+  assert.strictEqual(ffosbr.settings.options.registeredTimer, true, 'registeredTimer is true after reloading');
+  assert.strictEqual(ffosbr.settings.options.repeat, false, 'repeat is false after reloading');
+
+  // Reset default settings for next test run
+  ffosbr.settings.set({
+    photos: true,
+    videos: true,
+    contacts: true,
+    text: true,
+    intervalTime: 24, // pass in value in hours
+    id: 0,
+    registeredTimer: false,
+    repeat: true
+  });
 });

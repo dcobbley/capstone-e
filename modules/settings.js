@@ -28,7 +28,7 @@ function Settings() {
 
     retrievedOptions = JSON.parse(retrievedOptions);
 
-    if (this.validate(retrievedOptions === true)) {
+    if (this.validate(retrievedOptions) === true) {
       this.options = retrievedOptions;
     } else {
       // TODO - should we throw an error? Or just let this slide?
