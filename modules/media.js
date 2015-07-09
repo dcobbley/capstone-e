@@ -181,11 +181,11 @@ Media.prototype.getStorageByName = function(type) {
  * @access public
  * @description Fetches files from both internal and external storages
  *   via DOMRequest. The type of files fetched (e.g. pictures, music) is
- *   specified by the "type" parameter. Each file fetched will be passed
- *   to the provided "forEach" handler as a File object. If the "type"
- *   parameter is "sdcard1" and a "directory" parameter is provided, only
+ *   specified by the 'type' parameter. Each file fetched will be passed
+ *   to the provided 'forEach' handler as a File object. If the 'type'
+ *   parameter is 'sdcard1' and a 'directory' parameter is provided, only
  *   files found in the specified directory will be returned.
- *   (Note: "directory" must not have a trailing "/")
+ *   (Note: 'directory' must not have a trailing '/')
  *   (Note: File extends Blob)
  * @param {String} type
  * @param {String} directory (optional)
@@ -207,8 +207,8 @@ Media.prototype.get = function(type, directory, forEach) {
 
   if (typeof(directory) !== 'string') {
     if (window.ffosbr.utils.isFunction(directory)) {
-      // Parameter "directory" was not provided, and the
-      // second parameter is really the "forEach" function
+      // Parameter 'directory' was not provided, and the
+      // second parameter is really the 'forEach' function
       forEach = directory;
     } else if (window.ffosbr.utils.isFunction(forEach)) {
       throw new Error('Missing or invalid directory');
@@ -236,7 +236,7 @@ Media.prototype.get = function(type, directory, forEach) {
     throw new Error('Attempt to read from an invalid storage. Abort.');
   } else if (internal.ready === true || external.ready === true) {
     // Fall back to empty objects to avoid errors providing
-    // "onsuccess" callbacks to null variables.
+    // 'onsuccess' callbacks to null variables.
     internalFiles = (internal.ready ? internal.store.enumerate() : {});
     externalFiles = (external.ready ? external.store.enumerate() : {});
   } else {
@@ -368,7 +368,10 @@ Media.prototype.remove = function(filename, oncomplete) {
   }
 
   if (externalSD.ready === true) {
+    console.log('remove from sd:');
+    console.log(filename);
     remove = externalSD.store.delete(filename);
+    console.log(remove);
   } else {
     throw new Error('Attempt to delete from invalid storage. Abort.');
   }
