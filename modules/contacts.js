@@ -25,7 +25,7 @@ Contacts.prototype.backup = function() {
  */
 Contacts.prototype.restore = function() {
 
-  var dirname = paths.contacts.substr(0, paths.contacts.lastIndexOf('/'));
+  var dirname = "/backups/contacts/".substr(0, "/backups/contacts/".lastIndexOf('/'));
   var reader = new FileReader();
 
   reader.onloadend = function() {
@@ -51,7 +51,12 @@ Contacts.prototype.restore = function() {
  * @description TODO
  */
 Contacts.prototype.clean = function() {
-  ffosbr.media.remove(paths.contacts + 'contacts.json', oncomplete);
+  console.log("remove");
+  console.log("/backups/contacts/");
+  ffosbr.media.remove("/backups/contacts/" + 'contacts.json', function (err) {
+    if (err) alert('I have errored!');
+    alert('I am calling back');
+  });
 };
 
 /**
@@ -59,7 +64,7 @@ Contacts.prototype.clean = function() {
  * @description TODO
  */
 Contacts.prototype.getContactsFromOS = function() {
-
+  console.log('getContactsFromOS');
   var that = this;
 
   var allContactsCursor;
@@ -73,6 +78,8 @@ Contacts.prototype.getContactsFromOS = function() {
     var contact = this.result;
     if (contact) {
       that.contacts.push(contact);
+      that.requestsFinished += 1;
+
       allContactsCursor.continue();
     } else {
       if (that.requestsFinished === that.requestsNeeded) {
@@ -84,6 +91,8 @@ Contacts.prototype.getContactsFromOS = function() {
   allContactsCursor.onerror = function() {
     alert('Error getting contacts');
   };
+
+  that.requestsFinished += 1;
 };
 
 /**
@@ -91,6 +100,7 @@ Contacts.prototype.getContactsFromOS = function() {
  * @description TODO
  */
 Contacts.prototype.getContactsFromSIM = function() {
+  console.log("getContactsFromSIM");
 
   var that = this;
 
@@ -123,6 +133,7 @@ Contacts.prototype.getContactsFromSIM = function() {
 
     }
   }
+  that.requestsFinished += 1;
 };
 
 /**
@@ -130,7 +141,7 @@ Contacts.prototype.getContactsFromSIM = function() {
  * @description TODO
  */
 Contacts.prototype.putContactsOnSD = function() {
-
+  console.log('putContactsOnSD');
   var that = this;
 
   ffosbr.clean('contacts', function() {
@@ -143,7 +154,8 @@ Contacts.prototype.putContactsOnSD = function() {
 
 
     if (sdcard.ready === true) {
-      request = sdcard.store.addNamed(file, paths.contacts + filename);
+      console.log("/backups/contacts/");
+      request = sdcard.store.addNamed(file, "/backups/contacts/" + filename);
     } else {
       // TODO - handle errors
       alert('external sdcard not ready'); //rmv
