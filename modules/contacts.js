@@ -25,7 +25,7 @@ Contacts.prototype.backup = function() {
  */
 Contacts.prototype.restore = function() {
 
-  var dirname = "/backups/contacts/".substr(0, "/backups/contacts/".lastIndexOf('/'));
+  var dirname = '/backups/contacts/'.substr(0, '/backups/contacts/'.lastIndexOf('/'));
   var reader = new FileReader();
 
   reader.onloadend = function() {
@@ -51,11 +51,8 @@ Contacts.prototype.restore = function() {
  * @description TODO
  */
 Contacts.prototype.clean = function() {
-  console.log("remove");
-  console.log("/backups/contacts/");
-  ffosbr.media.remove("/backups/contacts/" + 'contacts.json', function (err) {
-    if (err) alert('I have errored!');
-    alert('I am calling back');
+  ffosbr.media.remove('/backups/contacts/' + 'contacts.json', function(err) {
+
   });
 };
 
@@ -64,7 +61,6 @@ Contacts.prototype.clean = function() {
  * @description TODO
  */
 Contacts.prototype.getContactsFromOS = function() {
-  console.log('getContactsFromOS');
   var that = this;
 
   var allContactsCursor;
@@ -100,7 +96,6 @@ Contacts.prototype.getContactsFromOS = function() {
  * @description TODO
  */
 Contacts.prototype.getContactsFromSIM = function() {
-  console.log("getContactsFromSIM");
 
   var that = this;
 
@@ -141,10 +136,11 @@ Contacts.prototype.getContactsFromSIM = function() {
  * @description TODO
  */
 Contacts.prototype.putContactsOnSD = function() {
-  console.log('putContactsOnSD');
+
+  console.log('Begin debugging here');
   var that = this;
 
-  ffosbr.clean('contacts', function() {
+  ffosbr.clean('contacts', function(err) {
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
     var file = new Blob([JSON.stringify(that.contacts)], {
       type: 'text/json'
@@ -154,8 +150,7 @@ Contacts.prototype.putContactsOnSD = function() {
 
 
     if (sdcard.ready === true) {
-      console.log("/backups/contacts/");
-      request = sdcard.store.addNamed(file, "/backups/contacts/" + filename);
+      request = sdcard.store.addNamed(file, '/backups/contacts/' + filename);
     } else {
       // TODO - handle errors
       alert('external sdcard not ready'); //rmv
