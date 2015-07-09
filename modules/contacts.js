@@ -27,6 +27,7 @@ Contacts.prototype.restore = function() {
 
   var dirname = 'backup/contacts/'.substr(0, '/backup/contacts/'.lastIndexOf('/'));
   console.log('dirname is: ' + dirname);
+
   var reader = new FileReader();
 
   reader.onloadend = function() {
@@ -61,6 +62,7 @@ JSON.parse
  * @access public
  * @description TODO
  */
+
 Contacts.prototype.clean = function(oncomplete) {
   console.log('remove');
   console.log('/backup/contacts/');
@@ -73,6 +75,7 @@ Contacts.prototype.clean = function(oncomplete) {
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete();
     }
+
   });
 };
 
@@ -82,7 +85,6 @@ Contacts.prototype.clean = function(oncomplete) {
  * @description TODO
  */
 Contacts.prototype.getContactsFromOS = function() {
-  console.log('getContactsFromOS');
   var that = this;
 
   var allContactsCursor;
@@ -118,7 +120,9 @@ Contacts.prototype.getContactsFromOS = function() {
  * @description TODO
  */
 Contacts.prototype.getContactsFromSIM = function() {
+
   console.log('getContactsFromSIM');
+
 
   var that = this;
 
@@ -158,11 +162,13 @@ Contacts.prototype.getContactsFromSIM = function() {
  * @access public
  * @description TODO
  */
+
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
   console.log('putContactsOnSD');
+
   var that = this;
 
-  ffosbr.clean('contacts', function() {
+  ffosbr.clean('contacts', function(err) {
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
     var file = new Blob([JSON.stringify(that.contacts)], {
       type: 'text/json'
@@ -172,8 +178,10 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
 
 
     if (sdcard.ready === true) {
+
       console.log('/backup/contacts/');
       request = sdcard.store.addNamed(file, '/backup/contacts/' + filename);
+
     } else {
       // TODO - handle errors
       alert('external sdcard not ready'); //rmv
