@@ -48,9 +48,9 @@ var clean = function(type, oncomplete) {
     });
   };
 
-  listFiles.onerror = function() {
+  listFiles.onerror = function(event) {
     // Handle no external SD card error...
-    console.log(this.error);
+    oncomplete(event.target.error.name);
   };
 
 };

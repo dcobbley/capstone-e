@@ -93,15 +93,18 @@ Messages.prototype.getMessages = function(callback) {
 };
 
 Messages.prototype.putMessagesOnSD = function(smsFile) {
-  ffosbr.clean('messages', function() {
+  ffosbr.clean('messages', function(error) {
+    if (error) {
+      console.log(error);
+      return;
+    }
+
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
     var file = new Blob([JSON.stringify(smsFile)], {
       type: 'text/json'
     });
     var filename = 'messages.json';
     var request = null;
-
-    console.log('here');
 
     if (sdcard.ready === true) {
       request = sdcard.store.addNamed(file, paths.messages + filename);

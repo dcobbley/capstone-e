@@ -1,28 +1,28 @@
 /**
  * @access public
  * @description TODO
-*/
-var Contacts = function () {
+ */
+var Contacts = function() {
 
-	this.requestsFinished = 0;
-	this.requestsNeeded = 2; // getContactsFromOS and getContactsFromSIM
+  this.requestsFinished = 0;
+  this.requestsNeeded = 2; // getContactsFromOS and getContactsFromSIM
 
-	this.contacts = [];
+  this.contacts = [];
 };
 
 /**
  * @access public
  * @description TODO
-*/
+ */
 Contacts.prototype.backup = function() {
-	this.getContactsFromOS();
-	this.getContactsFromSIM();
+  this.getContactsFromOS();
+  this.getContactsFromSIM();
 };
 
 /**
  * @access public
  * @description TODO
-*/
+ */
 Contacts.prototype.restore = function() {
 
   var dirname = paths.contacts.substr(0, paths.contacts.lastIndexOf('/'));
@@ -49,18 +49,18 @@ Contacts.prototype.restore = function() {
 /**
  * @access public
  * @description TODO
-*/
+ */
 Contacts.prototype.clean = function() {
-	ffosbr.media.remove(paths.contacts + 'contacts.json', oncomplete);
+  ffosbr.media.remove(paths.contacts + 'contacts.json', oncomplete);
 };
 
 /**
  * @access public
  * @description TODO
-*/
+ */
 Contacts.prototype.getContactsFromOS = function() {
 
-	var that = this;
+  var that = this;
 
   var allContactsCursor;
 
@@ -75,9 +75,9 @@ Contacts.prototype.getContactsFromOS = function() {
       that.contacts.push(contact);
       allContactsCursor.continue();
     } else {
-    	if (that.requestsFinished === that.requestsNeeded) {
-    		that.putContacts();
-    	}
+      if (that.requestsFinished === that.requestsNeeded) {
+        that.putContacts();
+      }
     }
   };
 
@@ -89,50 +89,50 @@ Contacts.prototype.getContactsFromOS = function() {
 /**
  * @access public
  * @description TODO
-*/
+ */
 Contacts.prototype.getContactsFromSIM = function() {
 
-	var that = this;
+  var that = this;
 
-	// Array of { MozMobileConnectionArray }
-	var cards = navigator.mozMobileConnections;
-    var request = null;
-	var onSuccessFunction = function () {
-				var result = this.result;
-				if (result) {
-					++that.requestsFinished;
-					// do something with it!
-				} else {
-					if (that.requestsFinished === that.requestsNeeded) {
-    				that.putContacts();
-    			}
-				}
-			};
+  // Array of { MozMobileConnectionArray }
+  var cards = navigator.mozMobileConnections;
+  var request = null;
+  var onSuccessFunction = function() {
+    var result = this.result;
+    if (result) {
+      ++that.requestsFinished;
+      // do something with it!
+    } else {
+      if (that.requestsFinished === that.requestsNeeded) {
+        that.putContacts();
+      }
+    }
+  };
 
-			var onErrorFunction = function (err) {
-				throw err;
-			};
+  var onErrorFunction = function(err) {
+    throw err;
+  };
 
-	for (var i = 0; i < cards.length; ++i) {
-		if (cards[i].iccId) {
-			var id = navigator.mozIccManager.iccIds[i];
-			var icc = navigator.mozIccManager.getIccById(id);
-			request = icc.readContacts('adn');
+  for (var i = 0; i < cards.length; ++i) {
+    if (cards[i].iccId) {
+      var id = navigator.mozIccManager.iccIds[i];
+      var icc = navigator.mozIccManager.getIccById(id);
+      request = icc.readContacts('adn');
 
-			request.onsuccess = onSuccessFunction;
-			request.onerror = onErrorFunction;
+      request.onsuccess = onSuccessFunction;
+      request.onerror = onErrorFunction;
 
-				}
-	}
+    }
+  }
 };
 
 /**
  * @access public
  * @description TODO
-*/
+ */
 Contacts.prototype.putContactsOnSD = function() {
 
-	var that = this;
+  var that = this;
 
   ffosbr.clean('contacts', function() {
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
