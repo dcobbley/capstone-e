@@ -85,11 +85,6 @@ Settings.prototype.validate = function(potentialOptions, value) {
     } else if (typeof opts[field] !== validTypes[field]) {
       // TODO - replace with ErrorHandler module
       console.log('Invalid type for settings option', field);
-
-
-      // alert(field + ': ' + typeof opts[field] + ' vs ' + typeof validTypes[field]); //rmv
-
-
       valid = false;
     }
   }
@@ -138,7 +133,7 @@ Settings.prototype.get = function(field) {
     return this.options;
   } else if (typeof field !== 'string') {
     // TODO - replace with ErrorHandler module
-    return console.log('Invalid settings field', newOptions);
+    return console.log('Invalid settings field', field);
   }
 
   return this.options[field];
