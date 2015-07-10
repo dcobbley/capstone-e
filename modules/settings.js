@@ -73,7 +73,7 @@ Settings.prototype.validate = function(potentialOptions, value) {
     opts = this.options; // validate current options
   } else {
     // TODO - replace with ErrorHandler module
-    return console.log('Invalid validate parameter', field);
+    return console.log('Invalid validate parameter', potentialOptions);
   }
 
   // Support partial validation
