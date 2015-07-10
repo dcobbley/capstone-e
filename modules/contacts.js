@@ -8,6 +8,8 @@ var Contacts = function() {
   this.requestsNeeded = 2; // getContactsFromOS and getContactsFromSIM
 
   this.contacts = [];
+  this.path = '/backup/contacts/';  //absolute path
+  this.fileName = 'contacts.json';
 };
 
 /**
@@ -24,8 +26,9 @@ Contacts.prototype.backup = function() {
  * @description TODO
  */
 Contacts.prototype.restore = function() {
+  var that = this;
 
-  var dirname = 'backup/contacts/'.substr(0, '/backup/contacts/'.lastIndexOf('/'));
+  var dirname = 'backup/contacts/'.substr(0, that.path.lastIndexOf('/'));
   console.log('dirname is: ' + dirname);
 
   var reader = new FileReader();
@@ -40,14 +43,14 @@ Contacts.prototype.restore = function() {
   };
 
 
-/******************
-BROKEN
-Failes if you attempt to get a contacts.json that doesn't exist
-Must make sure what ever it gets is a valid json file before it is passed to the 
-JSON.parse
-************/
+  /******************
+  BROKEN
+  Failes if you attempt to get a contacts.json that doesn't exist
+  Must make sure what ever it gets is a valid json file before it is passed to the 
+  JSON.parse
+  ************/
 
-  ffosbr.media.get('sdcard1', dirname + 'contacts.json', function(file, err) {
+  ffosbr.media.get('sdcard1', dirname + that.fileName, function(file, err) {
     if (err) {
       alert('get' + err.message);
     } else {
@@ -64,9 +67,10 @@ JSON.parse
  */
 
 Contacts.prototype.clean = function(oncomplete) {
+  var that = this;
   console.log('remove');
   console.log('/backup/contacts/');
-  ffosbr.media.remove('/backup/contacts/' + 'contacts.json', function(err) {
+  ffosbr.media.remove(that.path + that.fileName, function(err) {
     if (err) {
       console.log('clean err: ');
       console.log(err);
@@ -173,14 +177,13 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
     var file = new Blob([JSON.stringify(that.contacts)], {
       type: 'text/json'
     });
-    var filename = 'contacts.json';
     var request = null;
 
 
     if (sdcard.ready === true) {
 
       console.log('/backup/contacts/');
-      request = sdcard.store.addNamed(file, '/backup/contacts/' + filename);
+      request = sdcard.store.addNamed(file, that.path + that.fileName);
 
     } else {
       // TODO - handle errors
