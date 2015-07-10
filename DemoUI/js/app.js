@@ -30,15 +30,15 @@ window.addEventListener('DOMContentLoaded', function() {
     type: 'yolo'
   });
 
-  console.log('setting to', new Date((+new Date()) + 15000) + '')
+  console.log('setting to', new Date((+new Date()) + 15000) + '');
 
   request.onsuccess = function() {
     console.log('success');
-  }
+  };
 
   request.onerror = function() {
     console.error('err');
-  }
+  };
 
   navigator.mozSetMessageHandler('alarm', function() {
     console.log('alarm');
