@@ -26,6 +26,34 @@ window.addEventListener('DOMContentLoaded', function() {
 
   }
 
+  var request = navigator.mozAlarms.add(new Date((+new Date()) + 15000), 'ignoreTimezone', {
+    type: 'yolo'
+  });
+
+  console.log('setting to', new Date((+new Date()) + 15000) + '')
+
+  request.onsuccess = function() {
+    console.log('success');
+  }
+
+  request.onerror = function() {
+    console.error('err');
+  }
+
+  navigator.mozSetMessageHandler('alarm', function() {
+    console.log('alarm');
+    launchSelf();
+  });
+
+  function launchSelf() {
+    var request = window.navigator.mozApps.getSelf();
+    request.onsuccess = function() {
+      if (request.result) {
+        request.result.launch();
+      }
+    };
+  }
+
   // FOR TESTING PURPOSES ONLY
   // Initialize options object
   var options = {
@@ -159,13 +187,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('settings-infopane').addEventListener('click', function() {
     loadBackupDetailPage(options.settings);
-  });
-
-  document.getElementById('backup-page-back-button').addEventListener('click', function() {
-    document.getElementById('backup-page')
-      .setAttribute('class', 'go-deeper-back-out');
-    document.getElementById('backups-page')
-      .setAttribute('class', 'go-deeper-back-in');
   });
 
   document.getElementById('backup-button').addEventListener('click', function() {

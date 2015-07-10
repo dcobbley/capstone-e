@@ -16,7 +16,13 @@
   "permissions": {
     "systemXHR": {
       "description": "Required to load remote content"
+    },
+    "alarms": {
+      "description": "Required for incremental backups"
     }
+  },
+  "messages": {
+    "alarm": "/index.html"
   },
   "installs_allowed_from": [
     "*"
