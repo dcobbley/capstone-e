@@ -11,17 +11,7 @@ var clean = function(type, oncomplete) {
 
   var externalSD = null;
   var listFiles = null;
-
-  // TODO - replace with actual file paths
-  // TODO - this should be stored in settings
-  var paths = {
-    apps: 'backup/apps/',
-    music: 'backup/music/',
-    photos: 'backup/photos/',
-    videos: 'backup/videos/',
-    contacts: 'backup/videos/',
-    settings: 'backup/settings/'
-  };
+  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
 
   if (typeof(paths[type]) === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
