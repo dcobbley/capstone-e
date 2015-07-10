@@ -24,35 +24,33 @@ function History() {
     }
   };
 
-  this.loadHistory = function() {
-    var retrievedHistory = localStorage.getItem('ffosbrHistory');
-
-    if (retrievedHistory !== null) {
-      retrievedHistory = JSON.parse(retrievedHistory);
-
-      if (this.validate(retrievedHistory) === true) {
-        this.history = retrievedHistory;
-      } else {
-        localStorage.removeItem('ffosbrHistory');
-        console.log('Fetched invalid history from local storage.');
-      }
-    }
-  });
   this.loadHistory();
+}
 
-  History.prototype.validate = function(potentialHistory, value) {
-    
-    var valid = true;
-    var hist = null;
-    var validTypes = {
-      photos: 'Object',
-      videos: 'Object',
-      contacts: 'Object',
-      sms: 'Object',
-      lastBackupDate: 'Date',
-      backupSize: int
-    };
-  };
+
+History.prototype.loadHistory = function() {
+  var retrievedHistory = localStorage.getItem('ffosbrHistory');
+
+  if (retrievedHistory !== null) {
+    retrievedHistory = JSON.parse(retrievedHistory);
+
+    if (this.validate(retrievedHistory) === true) {
+      this.history = retrievedHistory;
+    } else {
+      localStorage.removeItem('ffosbrHistory');
+      console.log('Fetched invalid history from local storage.');
+    }
+  }
+};
+
+History.prototype.get = function(field) {
+  if (typeof field === 'undefined') {
+    return this.history;
+  } else if (typeof field !== 'string') {
+    return console.log('Invalid history field', field);
+  }
+
+  return this.history[field];
 };
 
 module.exports = new History();
