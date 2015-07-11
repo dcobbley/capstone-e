@@ -1,78 +1,3 @@
-function HistoryEntry() {
-  var lastUpdated = new Date();
-  var backupSize = 0;
-}
-
-function HistoryEntry(lastUpdatedVal, backupSizeVal) {
-  var lastUpdated = new Date();
-  var backupSize = 0;
-
-  if (typeof lastUpdatedVal === 'date') {
-    lastUpdated = lastUpdatedVal;
-  }
-  if (typeof backupSizeVal === 'number') {
-    backupSize = backupSizeVal;
-  }
-}
-
-HistoryEntry.prototype.validateAll = function(potentialHistoryEntry) {
-  var hist = null;
-  // If potentialHistoryEntry was null, validate this object
-  if (typeof potentialHistoryEntry === 'undefined') {
-    hist = this;
-  } else if (typeof potentialHistoryEntry === object) {
-    hist = potentialHistoryEntry;
-  } else {
-    return false;
-  }
-  
-  // Validate individual fields
-  if (!this.validate('lastUpdated', hist['lastUpdated'])) {
-    return false;
-  }
-  if (!this.validate('backupSize', hist['backupSize'])) {
-    return false;
-  }
-
-  // Ensure that we don't have extra fields
-  if (!Object.keys(this).length == 2) {
-    return false;
-  }
-
-  return true;
-};
-
-HistoryEntry.prototype.validate = function(field, value) {
-  if (field === 'lastUpdated') {
-    return Date.parse(value) != NaN;
-  }
-  if (field === 'backupSize') {
-    return typeof value === 'number' && value >= 0;
-  }
-
-  return false;
-};
-
-HistoryEntry.prototype.set = function(field, value) {
-  // If we were passed an object, try and set its fields
-  if (typeof field === 'object' && this.validateAll(field)) {
-    this.lastUpdated = field['lastUpdated'];
-    this.backupSize = field['backupSize'];
-  } else if (typeof field === 'string' && this.validate(field, value)) {
-    this[field] = value;
-  }
-};
-
-HistoryEntry.prototype.get = function(field) {
-  // If field is undefined, return the whole object
-  if (typeof field === 'undefined') {
-    return this;
-  }
-
-  // Return the given field
-  return this[field];
-}
-
 function History() {
   // Default values, which should be overwritten if we had a valid
   // history on disk
@@ -109,7 +34,7 @@ History.prototype.loadHistory = function() {
   if (retrievedHistory !== null) {
     retrievedHistory = JSON.parse(retrievedHistory);
 
-    if (this.validate(retrievedHistory) === true) {
+    if (this.validateAll(retrievedHistory) === true) {
       this.history = retrievedHistory;
     } else {
       localStorage.removeItem('ffosbrHistory');
@@ -118,14 +43,91 @@ History.prototype.loadHistory = function() {
   }
 };
 
-History.prototype.get = function(field) {
+History.prototype.get = function(field, subfield) {
   if (typeof field === 'undefined') {
     return this.history;
   } else if (typeof field !== 'string') {
     return console.log('Invalid history field', field);
   }
 
+  if (typeof subfield === 'string') {
+    var o1 = this.history[field];
+    if (typeof o1 === 'string') {
+      return o1[field];
+    }
+  }
+
   return this.history[field];
+};
+
+History.prototype.validateAll = function(potentialHistoryObject) {
+  var hist = null;
+  // If potentialHistoryObject was null, validate this object
+  if (typeof potentialHistoryObject === 'undefined') {
+    hist = this.history;
+  } else if (typeof potentialHistoryObject === 'object') {
+    hist = potentialHistoryObject;
+  } else {
+    return false;
+  }
+
+  // Validate individual fields
+  if (!this.validateEntry(hist.photos) ||
+    !this.validateEntry(hist.videos) ||
+    !this.validateEntry(hist.music) ||
+    !this.validateEntry(hist.contacts) ||
+    !this.validateEntry(hist.sms)) {
+    return false;
+  }
+
+  // Ensure that we don't have extra fields
+  if (Object.keys(potentialHistoryEntry).length !== 5) {
+    return false;
+  }
+
+  return true;
+};
+
+History.prototype.validateEntry = function(potentialHistoryEntry) {
+  if (typeof potentialHistoryEntry !== 'object') {
+    return false;
+  }
+
+  // Validate individual fields
+  if (!this.validateEntryField('lastUpdated', potentialHistoryEntry.lastUpdated)) {
+    return false;
+  }
+  if (!this.validateEntryField('backupSize', potentialHistoryEntry.backupSize)) {
+    return false;
+  }
+
+  // Ensure that we don't have extra fields
+  if (Object.keys(potentialHistoryEntry).length !== 2) {
+    return false;
+  }
+
+  return true;
+};
+
+History.prototype.validateEntryField = function(field, value) {
+  if (field === 'lastUpdated') {
+    return !isNan(Date.parse(value));
+  }
+  if (field === 'backupSize') {
+    return typeof value === 'number' && value >= 0;
+  }
+
+  return false;
+};
+
+History.prototype.get = function(field, subfield) {
+  // If field is undefined, return the whole object
+  if (typeof field === 'undefined') {
+    return this;
+  }
+
+  // Return the given field
+  return this[field];
 };
 
 module.exports = new History();
