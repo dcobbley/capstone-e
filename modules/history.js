@@ -1,7 +1,12 @@
 function History() {
-  // Default values, which should be overwritten if we had a valid
-  // history on disk
-  this.history = {
+  // Initialize history to either the stored values or defaults
+  if (!this.loadHistory()) {
+    this.set(this.getDefault());
+  }
+}
+
+History.prototype.getDefault = function() {
+  return {
     photos: {
       title: 'Photos',
       lastBackupDate: '2015-06-20T19:00-0700',
@@ -28,10 +33,7 @@ function History() {
       backupSize: 0
     }
   };
-
-  this.loadHistory();
-}
-
+};
 
 History.prototype.loadHistory = function() {
   var retrievedHistory = localStorage.getItem('ffosbrHistory');
@@ -41,11 +43,13 @@ History.prototype.loadHistory = function() {
 
     if (this.validateAll(retrievedHistory) === true) {
       this.history = retrievedHistory;
+      return true;
     } else {
-      localStorage.removeItem('ffosbrHistory');
       console.log('Fetched invalid history from local storage.');
     }
   }
+
+  return false;
 };
 
 History.prototype.get = function(field, subfield) {
@@ -126,6 +130,24 @@ History.prototype.validateEntryField = function(field, value) {
   }
   if (field === 'backupSize') {
     return typeof value === 'number' && value >= 0;
+  }
+
+  return false;
+};
+
+History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
+  // Is the first argument a field name or a full history object?
+  if (typeof fieldNameOrHistoryObject === 'string') {
+    if (this.validateEntry(fieldNameOrHistoryObject, historyValue)) {
+      this.history[fieldNameOrHistoryObject] = historyValue;
+      localStorage.setItem('ffosbrHistory', JSON.stringify(this.history));
+      return true;
+    }
+  } else if (typeof fieldNameOrHistoryObject === 'object' &&
+    this.validateAll(fieldNameOrHistoryObject)) {
+    this.history = fieldNameOrHistoryObject;
+    localStorage.setItem('ffosbrHistory', JSON.stringify(this.history));
+    return true;
   }
 
   return false;
