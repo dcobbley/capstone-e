@@ -1,25 +1,30 @@
 function History() {
   // Default values, which should be overwritten if we had a valid
   // history on disk
-  var history = {
+  this.history = {
     photos: {
       title: 'Photos',
-      lastBackupDate: null,
+      lastBackupDate: '2015-06-20T19:00-0700',
       backupSize: 0
     },
     videos: {
       title: 'Videos',
-      lastBackupDate: null,
+      lastBackupDate: '2015-06-20T19:00-0700',
+      backupSize: 0
+    },
+    music: {
+      title: 'Music',
+      lastBackupDate: '2015-06-20T19:00-0700',
       backupSize: 0
     },
     contacts: {
       title: 'Contacts',
-      lastBackupDate: null,
+      lastBackupDate: '2015-06-20T19:00-0700',
       backupSize: 0
     },
     sms: {
       title: 'SMS',
-      lastBackupDate: null,
+      lastBackupDate: '2015-06-20T19:00-0700',
       backupSize: 0
     }
   };
@@ -81,7 +86,7 @@ History.prototype.validateAll = function(potentialHistoryObject) {
   }
 
   // Ensure that we don't have extra fields
-  if (Object.keys(potentialHistoryEntry).length !== 5) {
+  if (Object.keys(hist).length !== 5) {
     return false;
   }
 
@@ -94,7 +99,10 @@ History.prototype.validateEntry = function(potentialHistoryEntry) {
   }
 
   // Validate individual fields
-  if (!this.validateEntryField('lastUpdated', potentialHistoryEntry.lastUpdated)) {
+  if (!this.validateEntryField('title', potentialHistoryEntry.title)) {
+    return false;
+  }
+  if (!this.validateEntryField('lastBackupDate', potentialHistoryEntry.lastBackupDate)) {
     return false;
   }
   if (!this.validateEntryField('backupSize', potentialHistoryEntry.backupSize)) {
@@ -102,7 +110,7 @@ History.prototype.validateEntry = function(potentialHistoryEntry) {
   }
 
   // Ensure that we don't have extra fields
-  if (Object.keys(potentialHistoryEntry).length !== 2) {
+  if (Object.keys(potentialHistoryEntry).length !== 3) {
     return false;
   }
 
@@ -110,8 +118,11 @@ History.prototype.validateEntry = function(potentialHistoryEntry) {
 };
 
 History.prototype.validateEntryField = function(field, value) {
-  if (field === 'lastUpdated') {
-    return !isNan(Date.parse(value));
+  if (field === 'title') {
+    return typeof value === 'string';
+  }
+  if (field === 'lastBackupDate') {
+    return !isNaN(Date.parse(value));
   }
   if (field === 'backupSize') {
     return typeof value === 'number' && value >= 0;
