@@ -21,6 +21,11 @@ function Settings() {
     settings: 'backup/settings/'
   };
 
+  // Load persistent settings from local storage, if they exist
+  this.load();
+}
+
+Settings.prototype.load = function() {
   // Load options if present
   var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
@@ -35,7 +40,7 @@ function Settings() {
       console.log('Fetched an invalid options object from local storage');
     }
   }
-}
+};
 
 Settings.prototype.getBackupDirectoryPaths = function() {
   var paths = {};

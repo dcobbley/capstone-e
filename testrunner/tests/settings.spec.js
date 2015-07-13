@@ -84,21 +84,8 @@ QUnit.test('Settings', function(assert) {
   ffosbr.settings.options.repeat = true;
 
 
-  var retrievedOptions = localStorage.getItem('ffosbrOptions');
-
-  if (retrievedOptions !== null) {
-
-    retrievedOptions = JSON.parse(retrievedOptions);
-
-    console.log('Retrieved ' + JSON.stringify(retrievedOptions));
-
-    if (ffosbr.settings.validate(retrievedOptions) === true) {
-      ffosbr.settings.options = retrievedOptions;
-    } else {
-      // TODO - should we throw an error? Or just let this slide?
-      console.log('Fetched an invalid options object from local storage');
-    }
-  }
+  // reload settings from local storage
+  ffosbr.settings.load();
 
   assert.strictEqual(ffosbr.settings.options.photos, false, 'photos is false after reloading');
   assert.strictEqual(ffosbr.settings.options.videos, false, 'videos is false after reloading');
