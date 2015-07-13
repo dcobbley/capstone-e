@@ -1,17 +1,19 @@
 /**
- * @access public
- * @description TODO
+ * Manages backup, clean and restore of device SMS and MMS messages.
  */
 var Messages = function() {};
 
 /**
  * @access public
- * @description TODO
+ * @description Backups the current SMS and MMS messages on the device
+ *   to external storage. Callback is invoked upon completion. If an error
+ *   occurred, it will be passed as the first parameter to the callback.
+ * @param {callback} callback
  */
 Messages.prototype.backup = function(callback) {
   var that = this;
 
-  this.getMessages(function(msgs) {
+  this._getMessages(function(msgs) {
     var msgsJSON = [];
 
     if (msgs.error) {
@@ -60,25 +62,29 @@ Messages.prototype.backup = function(callback) {
       msgsJSON.push(JSON.stringify(msg));
     }
 
-    that.putMessagesOnSD(msgsJSON, callback);
+    that._putMessagesOnSD(msgsJSON, callback);
   });
 };
 
 /**
  * @access public
- * @description TODO
+ * @description Firefox OS current exposes no API to 
+ *  restore messages to the device so this function is a noop.
  */
 Messages.prototype.restore = function() {
   // **This is not possible**
   // Firefox OS current exposes no API to restore messages to device!
 };
 
-/**
+ /**
  * @access public
- * @description TODO
+ * @description Deletes the messages file from external storage. 
+ *   Callback is invoked upon completion. If an error occurred, 
+ *   it will be passed as the first parameter to the callback.
+ * @param {callback} callback
  */
 Messages.prototype.clean = function(callback) {
-  // THis should not be hard coded
+  // This should not be hard coded
   ffosbr.media.remove('backup/messages/messages.json', function(err) {
     if (callback) {
       callback(err ? err : undefined);
@@ -87,10 +93,15 @@ Messages.prototype.clean = function(callback) {
 };
 
 /**
- * @access public
- * @description TODO
+ * @access private
+ * @description Retrieves the current messages from the device. 
+ *   Callback is invoked upon completion. If an error occurred, 
+ *   it will be passed as the first parameter to the callback.
+ *   If no error occured then the a list of messages will be passed
+ *   to the callback.
+ * @param {callback} callback
  */
-Messages.prototype.getMessages = function(callback) {
+Messages.prototype._getMessages = function(callback) {
   var msgs = [];
   var cursor = navigator.mozMobileMessage.getMessages({}, false);
 
@@ -114,13 +125,21 @@ Messages.prototype.getMessages = function(callback) {
   };
 };
 
-Messages.prototype.putMessagesOnSD = function(smsFile, callback) {
+/**
+ * @access private
+ * @description Stores the pasted in messages to external storage. 
+ *   Callback is invoked upon completion. If an error occurred, 
+ *   it will be passed as the first parameter to the callback.
+ * @param {messageData} list of message data
+ * @param {callback} callback
+ */
+Messages.prototype._putMessagesOnSD = function(messageData, callback) {
   this.clean(function(err) {
     if (err) {
       callback(err);
     } else {
       var sdcard = ffosbr.media.getStorageByName('sdcard').external;
-      var file = new Blob([JSON.stringify(smsFile)], {
+      var file = new Blob([JSON.stringify(messageData)], {
         type: 'text/json'
       });
       var filename = 'messages.json';
@@ -148,5 +167,5 @@ Messages.prototype.putMessagesOnSD = function(smsFile, callback) {
   });
 };
 
-// Defines Ffosbr contact
+// Export Messages object
 module.exports = new Messages();
