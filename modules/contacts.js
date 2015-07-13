@@ -8,8 +8,6 @@ var Contacts = function() {
   this.requestsNeeded = 2; // getContactsFromOS and getContactsFromSIM
 
   this.contacts = [];
-  this.path = '/backup/contacts/';  //absolute path
-  this.fileName = 'contacts.json';
 };
 
 /**
@@ -26,36 +24,23 @@ Contacts.prototype.backup = function() {
  * @description TODO
  */
 Contacts.prototype.restore = function() {
-  var that = this;
 
-  var dirname = 'backup/contacts/'.substr(0, that.path.lastIndexOf('/'));
-  console.log('dirname is: ' + dirname);
-
+  var dirname = paths.contacts.substr(0, paths.contacts.lastIndexOf('/'));
   var reader = new FileReader();
 
   reader.onloadend = function() {
     var contents = this.result;
-    console.log(typeof contents);
     var data = JSON.parse(contents);
     for (var i = 0; i < data.length; ++i) {
       navigator.mozContacts.save(data[i]);
     }
   };
 
-
-  /******************
-  BROKEN
-  Failes if you attempt to get a contacts.json that doesn't exist
-  Must make sure what ever it gets is a valid json file before it is passed to the 
-  JSON.parse
-  ************/
-
-  ffosbr.media.get('sdcard1', dirname + that.fileName, function(file, err) {
+  ffosbr.media.get('sdcard1', dirname, function(file, err) {
     if (err) {
-      alert('get' + err.message);
+      alert(err.message);
     } else {
-      console.log('got file');
-      console.log(file);
+      alert(file.name); //rmv
       reader.readAsText(file);
     }
   });
@@ -65,30 +50,16 @@ Contacts.prototype.restore = function() {
  * @access public
  * @description TODO
  */
-
-Contacts.prototype.clean = function(oncomplete) {
-  var that = this;
-  console.log('remove');
-  console.log('/backup/contacts/');
-  ffosbr.media.remove(that.path + that.fileName, function(err) {
-    if (err) {
-      console.log('clean err: ');
-      console.log(err);
-    }
-    console.log('clean success');
-    if (window.ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete();
-    }
-
-  });
+Contacts.prototype.clean = function() {
+  ffosbr.media.remove(paths.contacts + 'contacts.json', oncomplete);
 };
 
 /**
-
  * @access public
  * @description TODO
  */
 Contacts.prototype.getContactsFromOS = function() {
+
   var that = this;
 
   var allContactsCursor;
@@ -102,12 +73,10 @@ Contacts.prototype.getContactsFromOS = function() {
     var contact = this.result;
     if (contact) {
       that.contacts.push(contact);
-      that.requestsFinished += 1;
-
       allContactsCursor.continue();
     } else {
       if (that.requestsFinished === that.requestsNeeded) {
-        that.putContactsOnSD();
+        that.putContacts();
       }
     }
   };
@@ -115,8 +84,6 @@ Contacts.prototype.getContactsFromOS = function() {
   allContactsCursor.onerror = function() {
     alert('Error getting contacts');
   };
-
-  that.requestsFinished += 1;
 };
 
 /**
@@ -124,9 +91,6 @@ Contacts.prototype.getContactsFromOS = function() {
  * @description TODO
  */
 Contacts.prototype.getContactsFromSIM = function() {
-
-  console.log('getContactsFromSIM');
-
 
   var that = this;
 
@@ -136,10 +100,11 @@ Contacts.prototype.getContactsFromSIM = function() {
   var onSuccessFunction = function() {
     var result = this.result;
     if (result) {
-      that.contacts = that.contacts.concat(result);
-
+      ++that.requestsFinished;
+      // do something with it!
+    } else {
       if (that.requestsFinished === that.requestsNeeded) {
-        that.putContactsOnSD();
+        that.putContacts();
       }
     }
   };
@@ -159,49 +124,40 @@ Contacts.prototype.getContactsFromSIM = function() {
 
     }
   }
-  that.requestsFinished += 1;
 };
 
 /**
  * @access public
  * @description TODO
  */
-
-Contacts.prototype.putContactsOnSD = function(oncomplete) {
-  console.log('putContactsOnSD');
+Contacts.prototype.putContactsOnSD = function() {
 
   var that = this;
 
-  ffosbr.clean('contacts', function(err) {
+  ffosbr.clean('contacts', function() {
     var sdcard = ffosbr.media.getStorageByName('sdcard').external;
     var file = new Blob([JSON.stringify(that.contacts)], {
       type: 'text/json'
     });
+    var filename = 'contacts.json';
     var request = null;
 
 
     if (sdcard.ready === true) {
-
-      console.log('/backup/contacts/');
-      request = sdcard.store.addNamed(file, that.path + that.fileName);
-
+      request = sdcard.store.addNamed(file, paths.contacts + filename);
     } else {
       // TODO - handle errors
       alert('external sdcard not ready'); //rmv
     }
 
     request.onsuccess = function() {
-      if (window.ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete();
-      }
+      oncomplete();
     };
 
     // An error typically occur if a file with the same name already exist
     request.onerror = function() {
       var error = this.error;
-      if (window.ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete(error);
-      }
+      oncomplete(error);
     };
   });
 };
