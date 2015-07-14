@@ -8,7 +8,6 @@
     "disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-"],
     "disallowSpaceBeforePostfixUnaryOperators": ["++", "--"],
     "maximumLineLength": 420,
-    "requireCapitalizedConstructors": true,
     "requireCurlyBraces": ["if", "else", "for", "while", "do"],
     "requireLineFeedAtFileEnd": true,
     "requireSpaceAfterKeywords": ["if", "else", "for", "while", "do", "switch", "return"],
