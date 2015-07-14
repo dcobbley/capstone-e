@@ -22,38 +22,28 @@ Messages.prototype.backup = function(callback) {
     }
 
     for (var i = 0; i < msgs.list.length; i++) {
-      var msg;
+      var msg = {
+        type: msgs.list[i].type,
+        id: msgs.list[i].id,
+        threadId: msgs.list[i].threadId,
+        delivery: msgs.list[i].delivery,
+        deliveryStatus: msgs.list[i].deliveryStatus,
+        read: msgs.list[i].read,
+        receiver: msgs.list[i].receiver,
+        sender: msgs.list[i].sender,
+        timestamp: msgs.list[i].timestamp,
+      };
 
       if (msgs.list[i] instanceof MozSmsMessage) {
-        msg = {
-          type: msgs.list[i].type,
-          id: msgs.list[i].id,
-          threadId: msgs.list[i].threadId,
-          body: msgs.list[i].body,
-          delivery: msgs.list[i].delivery,
-          deliveryStatus: msgs.list[i].deliveryStatus,
-          read: msgs.list[i].read,
-          receiver: msgs.list[i].receiver,
-          sender: msgs.list[i].sender,
-          timestamp: msgs.list[i].timestamp,
-          messageClass: msgs.list[i].messageClass,
-        };
+        msg.body = msgs.list[i].body;
+        msg.messageClass = messageClass: msgs.list[i].messageClass;
+
       } else if (msgs.list[i] instanceof MozMmsMessage) {
-        msg = {
-          type: msgs.list[i].type,
-          id: msgs.list[i].id,
-          threadId: msgs.list[i].threadId,
-          subject: msgs.list[i].subject,
-          smil: msgs.list[i].smil,
-          attachments: msgs.list[i].attachments,
-          expiryDate: msgs.list[i].expiryDate,
-          delivery: msgs.list[i].delivery,
-          deliveryStatus: msgs.list[i].deliveryStatus,
-          read: msgs.list[i].read,
-          receiver: msgs.list[i].receiver,
-          sender: msgs.list[i].sender,
-          timestamp: msgs.list[i].timestamp,
-        };
+        msg.subject = msgs.list[i].subject;
+        msg.smil = msgs.list[i].smil;
+        msg.attachments = msgs.list[i].attachments;
+        msg.expiryDate = msgs.list[i].expiryDate;
+
       } else {
         callback('unknown message type');
         return;
