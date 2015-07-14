@@ -18,8 +18,8 @@
       "description": "Required to load remote content"
     },
     "device-storage:sdcard": {"access": "readcreate"},
-    "device-storage:pictures":{ "access": "readwrite" }
-
+    "device-storage:pictures":{ "access": "readwrite" },
+    "sms": {}
   },
   "installs_allowed_from": [
     "*"
