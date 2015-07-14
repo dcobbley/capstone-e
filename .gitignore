@@ -51,4 +51,5 @@ bower_components/
 # Generated files
 FFOSBR.js
 FFOSBR.min.js
-testrunner/FFOSBR.js
+*/FFOSBR.js
+*/FFOSBR.min.js
