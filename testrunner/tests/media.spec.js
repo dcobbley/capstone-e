@@ -288,40 +288,45 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
   );
 
   // Tests success case
-  var file = new File(['foo'], 'size3.txt', {
+  var file = new File(['foopi'], 'size5.txt', {
     type: 'text/plain'
   });
   var fileSizeInBytes = file.size;
   var startFreeBytes = 0;
   var endFreeBytes = 0;
 
+  // alert('file size = ' + fileSizeInBytes); //rmv
+
   // TODO - this test is failing because the asynch script removal ruins
   // all other tests using ffosbr, since ffosbr will be undefined during
   // that test. This test must be finished after merging.
 
-  // ffosbr.media.getFreeBytes(storage, function(bytesBefore, errBefore) {
-  //   if (errBefore) {
-  //     alert(errBefore.message);
-  //     throw new Error('Failed to get initial free bytes from ' + storage.name);
-  //   }
+  ffosbr.media.getFreeBytes(storage, function(bytesBefore, errBefore) {
+    if (errBefore) {
+      // alert(errBefore.message);
+      throw new Error('Failed to get initial free bytes from ' + storage.storageName);
+    }
 
-  //   // free bytes before writing file
-  //   startFreeBytes = bytesBefore;
+    // free bytes before writing file
+    startFreeBytes = bytesBefore;
 
-  //   ffosbr.media.put('sdcard', file, 'backup/test', function(putErr) {
-  //     if (putErr) {
-  //       throw new Error('Failed put file to ' + storage.name);
-  //     }
+    ffosbr.media.put('sdcard', file, 'backup/test' + file.name, function(putErr) {
+      if (putErr) {
+        throw new Error('Failed put file to ' + storage.storageName);
+      }
 
-  //     ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
-  //       if (errAfter) {
-  //         alert(errAfter.message);
-  //         throw new Error('Failed to get final free bytes from ' + storage.name);
-  //       }
-  //       // free bytes after writing file
-  //       endFreeBytes = bytesAfter;
-  //       assert.strictEqual(endFreeBytes - startFreeBytes, fileSizeInBytes, '...works');
-  //     });
-  //   });
-  // });
+      ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
+        if (errAfter) {
+          // alert(errAfter.message);
+          throw new Error('Failed to get final free bytes from ' + storage.storageName);
+        }
+        // free bytes after writing file
+        endFreeBytes = bytesAfter;
+
+        // alert('difference ' + (startFreeBytes - endFreeBytes)); //rmv
+
+        assert.strictEqual(startFreeBytes - endFreeBytes, fileSizeInBytes, '...works');
+      });
+    });
+  });
 });
