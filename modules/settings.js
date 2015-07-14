@@ -18,7 +18,8 @@ function Settings() {
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/videos/',
-    settings: 'backup/settings/'
+    settings: 'backup/settings/',
+    messages: 'backup/messages/'
   };
 
   // Load options if present

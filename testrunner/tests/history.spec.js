@@ -40,15 +40,15 @@ var checkDefaults = function(assert) {
     0,
     'contacts backupSize set to 0');
 
-  assert.strictEqual(ffosbr.history.history.sms.title,
-    'SMS',
-    'sms title set to \"Contacts\"');
-  assert.strictEqual(ffosbr.history.history.sms.lastBackupDate,
+  assert.strictEqual(ffosbr.history.history.messages.title,
+    'Messages',
+    'messages title set to \"Messages\"');
+  assert.strictEqual(ffosbr.history.history.messages.lastBackupDate,
     '2015-06-20T19:00-0700',
-    'sms lastBackupDate set to \"2015-06-20T19:00-0700\"');
-  assert.strictEqual(ffosbr.history.history.sms.backupSize,
+    'messages lastBackupDate set to \"2015-06-20T19:00-0700\"');
+  assert.strictEqual(ffosbr.history.history.messages.backupSize,
     0,
-    'sms backupSize set to 0');
+    'messages backupSize set to 0');
 };
 
 QUnit.test('History', function(assert) {

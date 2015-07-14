@@ -35,6 +35,10 @@ var clean = function(type, oncomplete) {
       }
     });
   };
+
+  listFiles.onerror = function(event) {
+    oncomplete(event.target.error.name);
+  };
 };
 
 // Defines Ffosbr clean

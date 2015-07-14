@@ -10,6 +10,7 @@
     this.clean = require('./clean');
     this.settings = require('./settings');
     this.history = require('./history');
+    this.messages = require('./messages');
   };
 
   window.ffosbr = new Ffosbr();

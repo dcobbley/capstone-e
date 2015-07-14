@@ -27,8 +27,8 @@ History.prototype.getDefault = function() {
       lastBackupDate: '2015-06-20T19:00-0700',
       backupSize: 0
     },
-    sms: {
-      title: 'SMS',
+    messages: {
+      title: 'Messages',
       lastBackupDate: '2015-06-20T19:00-0700',
       backupSize: 0
     }
@@ -85,7 +85,7 @@ History.prototype.validateAll = function(potentialHistoryObject) {
     !this.validateEntry(hist.videos) ||
     !this.validateEntry(hist.music) ||
     !this.validateEntry(hist.contacts) ||
-    !this.validateEntry(hist.sms)) {
+    !this.validateEntry(hist.messages)) {
     return false;
   }
 

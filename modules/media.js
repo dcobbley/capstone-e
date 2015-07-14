@@ -1,4 +1,3 @@
-
 // TODO - define a basic "Storage" class to simplify/add functionality to
 // the internal/external collections of objects which containt DeviceStorage
 // instances as well as flags, etc. I could see these growing in complexity
