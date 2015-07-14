@@ -74,7 +74,6 @@ Messages.prototype.restore = function() {
  * @param {callback} callback
  */
 Messages.prototype.clean = function(callback) {
-  // This should not be hard coded
   var path = ffosbr.settings.backupPaths.messages;
 
   ffosbr.media.remove(path + 'messages.json', function(err) {
