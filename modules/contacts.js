@@ -4,12 +4,9 @@
  */
 var Contacts = function() {
 
-  this.requestsFinished = 0;
-  this.requestsNeeded = 2; // getContactsFromOS and getContactsFromSIM
 
   this.contacts = [];
-  this.path = '/backup/contacts/';  //absolute path
-  this.fileName = 'contacts.json';
+
 };
 
 /**
@@ -26,39 +23,36 @@ Contacts.prototype.backup = function() {
  * @description TODO
  */
 Contacts.prototype.restore = function() {
+  console.log('Restoring contacts.');
   var that = this;
 
-  var dirname = 'backup/contacts/'.substr(0, that.path.lastIndexOf('/'));
-  console.log('dirname is: ' + dirname);
-
   var reader = new FileReader();
-
   reader.onloadend = function() {
     var contents = this.result;
     console.log(typeof contents);
     var data = JSON.parse(contents);
+    console.log('Data: ');
+    console.log(data);
     for (var i = 0; i < data.length; ++i) {
-      navigator.mozContacts.save(data[i]);
+      navigator.mozContacts.save(new mozContact(data[i]));
     }
   };
 
+  var sdcard = navigator.getDeviceStorages('sdcard')[1];
 
-  /******************
-  BROKEN
-  Failes if you attempt to get a contacts.json that doesn't exist
-  Must make sure what ever it gets is a valid json file before it is passed to the 
-  JSON.parse
-  ************/
+  var request = sdcard.get('/sdcard1/backup/contacts/contacts.json');
+  request.onsuccess = function() {
+    console.log('got file');
+    console.log(this.result);
+    reader.readAsText(this.result);
+  };
 
-  ffosbr.media.get('sdcard1', dirname + that.fileName, function(file, err) {
-    if (err) {
-      alert('get' + err.message);
-    } else {
-      console.log('got file');
-      console.log(file);
-      reader.readAsText(file);
-    }
-  });
+  request.onerror = function() {
+    console.log('error orccured in restore');
+    console.log(err);
+  };
+
+
 };
 
 /**
@@ -68,19 +62,28 @@ Contacts.prototype.restore = function() {
 
 Contacts.prototype.clean = function(oncomplete) {
   var that = this;
-  console.log('remove');
-  console.log('/backup/contacts/');
-  ffosbr.media.remove(that.path + that.fileName, function(err) {
-    if (err) {
-      console.log('clean err: ');
-      console.log(err);
-    }
-    console.log('clean success');
-    if (window.ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete();
-    }
+  console.log('removing: /sdcard1/backup/contacts/contacts.json');
 
-  });
+  var sdcard = navigator.getDeviceStorages('sdcard')[1];
+  var remove = sdcard.delete('/sdcard1/backup/contacts/contacts.json');
+
+
+  remove.onsuccess = function() {
+    console.log('Remove success');
+    if (window.ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete('Clean success');
+    }
+  };
+
+  remove.onerror = function() {
+    console.log('Remove error');
+    if (window.ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(remove.error);
+    }
+  };
+
+
+
 };
 
 /**
@@ -91,6 +94,7 @@ Contacts.prototype.clean = function(oncomplete) {
 Contacts.prototype.getContactsFromOS = function() {
   var that = this;
 
+  console.log('getContactsFromOS');
   var allContactsCursor;
 
   allContactsCursor = navigator.mozContacts.getAll({
@@ -102,21 +106,51 @@ Contacts.prototype.getContactsFromOS = function() {
     var contact = this.result;
     if (contact) {
       that.contacts.push(contact);
-      that.requestsFinished += 1;
+
 
       allContactsCursor.continue();
     } else {
-      if (that.requestsFinished === that.requestsNeeded) {
-        that.putContactsOnSD();
-      }
+      console.log('Contacts list: ', that.contacts);
+      that.putContactsOnSD(function() {
+        //------Log what is written to the sdcard--------//
+        var sdcard = navigator.getDeviceStorages('sdcard')[1];
+        var cursor = sdcard.enumerate();
+        cursor.onsuccess = function() {
+
+          if (this.result) {
+            var file = this.result;
+            if (file.name === '/sdcard1/backup/contacts/contacts.json') {
+              console.log('sdcard contents: ', file);
+            }
+
+            //----------------------------------------------//
+          }
+        };
+      });
+
     }
   };
 
   allContactsCursor.onerror = function() {
-    alert('Error getting contacts');
+    console.log('Error getting contacts');
+    that.putContactsOnSD(function() {
+      //------Log what is written to the sdcard--------//
+      var sdcard = navigator.getDeviceStorages('sdcard')[1];
+      var cursor = sdcard.enumerate();
+      cursor.onsuccess = function() {
+
+        if (this.result) {
+          var file = this.result;
+          if (file.name === '/sdcard1/backup/contacts/contacts.json') {
+            console.log('sdcard contents: ', file);
+          }
+
+          //----------------------------------------------//
+        }
+      };
+    });
   };
 
-  that.requestsFinished += 1;
 };
 
 /**
@@ -133,23 +167,30 @@ Contacts.prototype.getContactsFromSIM = function() {
   // Array of { MozMobileConnectionArray }
   var cards = navigator.mozMobileConnections;
   var request = null;
+
   var onSuccessFunction = function() {
-    var result = this.result;
-    if (result) {
-      that.contacts = that.contacts.concat(result);
-
-      if (that.requestsFinished === that.requestsNeeded) {
-        that.putContactsOnSD();
-      }
+    console.log('Sim success');
+    var contact = this.result;
+    if (contact) {
+      console.log('Got from sim');
+      console.log(contact);
+      that.contacts = that.contacts.concat(contact);
     }
+    that.getContactsFromOS();
+
   };
 
-  var onErrorFunction = function(err) {
-    throw err;
+  var onErrorFunction = function() {
+    console.log('Error getting contacts');
+    that.getContactsFromOS();
+
   };
 
+  var presentCards = 0;
   for (var i = 0; i < cards.length; ++i) {
     if (cards[i].iccId) {
+      console.log('Sim card: ' + i);
+      presentCards += 1;
       var id = navigator.mozIccManager.iccIds[i];
       var icc = navigator.mozIccManager.getIccById(id);
       request = icc.readContacts('adn');
@@ -159,7 +200,14 @@ Contacts.prototype.getContactsFromSIM = function() {
 
     }
   }
-  that.requestsFinished += 1;
+
+  console.log('cards: ', presentCards);
+  if (presentCards === 0) {
+    this.getContactsFromOS();
+  }
+
+
+
 };
 
 /**
@@ -168,41 +216,49 @@ Contacts.prototype.getContactsFromSIM = function() {
  */
 
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
-  console.log('putContactsOnSD');
-
   var that = this;
+  console.log('Putting on SDcard');
+  this.clean(function(err) {
+    var sdcard = navigator.getDeviceStorages('sdcard')[1];
 
-  ffosbr.clean('contacts', function(err) {
-    var sdcard = ffosbr.media.getStorageByName('sdcard').external;
-    var file = new Blob([JSON.stringify(that.contacts)], {
+
+    //var sdcard = ffosbr.media.getStorageByName('sdcard').external;   
+    file = new Blob([JSON.stringify(that.contacts)], {
       type: 'text/json'
     });
-    var request = null;
 
+    var sdcardAvailable = sdcard.available();
 
-    if (sdcard.ready === true) {
+    sdcardAvailable.onsuccess = function() {
+      if (this.result == 'available') {
+        var request = sdcard.addNamed(file, 'backup/contacts/contacts.json');
+        request.onsuccess = function() {
+          if (window.ffosbr.utils.isFunction(oncomplete)) {
+            oncomplete();
+          }
+        };
 
-      console.log('/backup/contacts/');
-      request = sdcard.store.addNamed(file, that.path + that.fileName);
-
-    } else {
-      // TODO - handle errors
-      alert('external sdcard not ready'); //rmv
-    }
-
-    request.onsuccess = function() {
-      if (window.ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete();
+        // An error typically occur if a file with the same name already exist
+        request.onerror = function() {
+          console.log('error in putcontactsonSD');
+          console.log(request);
+          var error = this.error;
+          if (window.ffosbr.utils.isFunction(oncomplete)) {
+            oncomplete(error);
+          }
+        };
+      } else if (this.result == 'unavailable') {
+        console.log('The SDcard on your device is not available');
+      } else {
+        console.log('The SDCard on your device is shared and thus not available');
       }
     };
 
-    // An error typically occur if a file with the same name already exist
-    request.onerror = function() {
-      var error = this.error;
-      if (window.ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete(error);
-      }
+    sdcardAvailable.onerror = function() {
+      console.warn('SDcard Error');
     };
+
+
   });
 };
 
