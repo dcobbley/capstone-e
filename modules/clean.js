@@ -20,6 +20,7 @@ var clean = function(type, oncomplete) {
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
+    messages: 'backup/messages/',
     settings: 'backup/settings/'
   };
 
@@ -46,6 +47,12 @@ var clean = function(type, oncomplete) {
       oncomplete((error ? error : undefined));
     });
   };
+
+  listFiles.onerror = function(event) {
+    // Handle no external SD card error...
+    oncomplete(event.target.error.name);
+  };
+
 };
 
 // Defines Ffosbr clean

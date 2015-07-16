@@ -23,12 +23,16 @@ Contacts.prototype.backup = function() {
  * @description TODO
  */
 Contacts.prototype.restore = function() {
+  console.log('Restoring contacts.');
   var that = this;
 
   var reader = new FileReader();
   reader.onloadend = function() {
     var contents = this.result;
+    console.log(typeof contents);
     var data = JSON.parse(contents);
+    console.log('Data: ');
+    console.log(data);
     for (var i = 0; i < data.length; ++i) {
       navigator.mozContacts.save(new mozContact(data[i]));
     }
@@ -38,6 +42,8 @@ Contacts.prototype.restore = function() {
 
   var request = sdcard.get('/sdcard1/backup/contacts/contacts.json');
   request.onsuccess = function() {
+    console.log('got file');
+    console.log(this.result);
     reader.readAsText(this.result);
   };
 
@@ -56,12 +62,14 @@ Contacts.prototype.restore = function() {
 
 Contacts.prototype.clean = function(oncomplete) {
   var that = this;
+  console.log('removing: /sdcard1/backup/contacts/contacts.json');
 
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
   var remove = sdcard.delete('/sdcard1/backup/contacts/contacts.json');
 
 
   remove.onsuccess = function() {
+    console.log('Remove success');
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete('Clean success');
     }
@@ -86,6 +94,7 @@ Contacts.prototype.clean = function(oncomplete) {
 Contacts.prototype.getContactsFromOS = function() {
   var that = this;
 
+  console.log('getContactsFromOS');
   var allContactsCursor;
 
   allContactsCursor = navigator.mozContacts.getAll({
@@ -101,6 +110,7 @@ Contacts.prototype.getContactsFromOS = function() {
 
       allContactsCursor.continue();
     } else {
+      console.log('Contacts list: ', that.contacts);
       that.putContactsOnSD(function() {
         //------Log what is written to the sdcard--------//
         var sdcard = navigator.getDeviceStorages('sdcard')[1];
@@ -149,6 +159,9 @@ Contacts.prototype.getContactsFromOS = function() {
  */
 Contacts.prototype.getContactsFromSIM = function() {
 
+  console.log('getContactsFromSIM');
+
+
   var that = this;
 
   // Array of { MozMobileConnectionArray }
@@ -156,8 +169,11 @@ Contacts.prototype.getContactsFromSIM = function() {
   var request = null;
 
   var onSuccessFunction = function() {
+    console.log('Sim success');
     var contact = this.result;
     if (contact) {
+      console.log('Got from sim');
+      console.log(contact);
       that.contacts = that.contacts.concat(contact);
     }
     that.getContactsFromOS();
@@ -173,6 +189,7 @@ Contacts.prototype.getContactsFromSIM = function() {
   var presentCards = 0;
   for (var i = 0; i < cards.length; ++i) {
     if (cards[i].iccId) {
+      console.log('Sim card: ' + i);
       presentCards += 1;
       var id = navigator.mozIccManager.iccIds[i];
       var icc = navigator.mozIccManager.getIccById(id);
@@ -184,6 +201,7 @@ Contacts.prototype.getContactsFromSIM = function() {
     }
   }
 
+  console.log('cards: ', presentCards);
   if (presentCards === 0) {
     this.getContactsFromOS();
   }
@@ -199,6 +217,7 @@ Contacts.prototype.getContactsFromSIM = function() {
 
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
   var that = this;
+  console.log('Putting on SDcard');
   this.clean(function(err) {
     var sdcard = navigator.getDeviceStorages('sdcard')[1];
 

@@ -17,6 +17,7 @@ var backup = function(type, oncomplete) {
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
+    messages: 'backup/messages/',
     settings: 'backup/settings/'
   };
 
