@@ -34,7 +34,9 @@ Contacts.prototype.restore = function() {
     console.log('Data: ');
     console.log(data);
     for (var i = 0; i < data.length; ++i) {
-      navigator.mozContacts.save(new mozContact(data[i]));
+      var myContact = new mozContact(data[i]);
+      myContact.givenName = [data[i].name];
+      navigator.mozContacts.save(myContact);
     }
   };
 
