@@ -1,12 +1,9 @@
 /**
  * @access public
- * @description TODO
+ * @description this contact backup and restore functionality has the ability to look on your device and the contacts that are stored on the SIM or ICC card(s) as well as internal contacts, and back them up to a JSON file on an external SD card.
  */
 var Contacts = function() {
-
-
   this.contacts = [];
-
 };
 
 /**
@@ -16,11 +13,12 @@ var Contacts = function() {
 Contacts.prototype.backup = function() {
   this.getContactsFromOS();
   this.getContactsFromSIM();
+  console.log('SHOULDNT EVER GET CALLED?');
 };
 
 /**
  * @access public
- * @description TODO
+ * @description The Restore function will look for a contacts JSON file existing on an extenal SD card under the directory /backup/contacts/contacts.json. It will parse all the data in that file and transfer them back onto the internal memory in mozContacts
  */
 Contacts.prototype.restore = function() {
   console.log('Restoring contacts.');
@@ -59,7 +57,7 @@ Contacts.prototype.restore = function() {
 
 /**
  * @access public
- * @description TODO
+ * @description The clean function looks for a previous backup contacts.json file and will delete it if it exists as to not let the contacts functionality break when it tries to write its new backup to the external SD card
  */
 
 Contacts.prototype.clean = function(oncomplete) {
@@ -91,7 +89,7 @@ Contacts.prototype.clean = function(oncomplete) {
 /**
 
  * @access public
- * @description TODO
+ * @description This function gets contacts from the main memory where mozContacts are stored. It should only be called by the getContactsFromSIM function to avoid a race condition. Once all the contacts have been fetched by this function, it will call putContactsOnSD which stores the contacts from the SIM card and the internal memory to an external SD card.
  */
 Contacts.prototype.getContactsFromOS = function() {
   var that = this;
@@ -157,7 +155,7 @@ Contacts.prototype.getContactsFromOS = function() {
 
 /**
  * @access public
- * @description TODO
+ * @description This functionality gets contacts from one or more SIM or ICC cards if they exist. The functions are chained as to avoid a race condition when writing contacts back to the internal memory. Make sure to use the mobileconnections permission. This function calls getContactsFromOS upon completion.
  */
 Contacts.prototype.getContactsFromSIM = function() {
 
@@ -193,7 +191,7 @@ Contacts.prototype.getContactsFromSIM = function() {
     if (cards[i].iccId) {
       console.log('Sim card: ' + i);
       presentCards += 1;
-      var id = navigator.mozIccManager.iccIds[i];
+      var id = cards[i].iccId;
       var icc = navigator.mozIccManager.getIccById(id);
       request = icc.readContacts('adn');
 
@@ -214,9 +212,8 @@ Contacts.prototype.getContactsFromSIM = function() {
 
 /**
  * @access public
- * @description TODO
+ * @description Once all the contacts have been gathered from the SIM and internal memory, this function is called and will look for an existing backup contacts.json file, if it exists it will try to delete it before writing the new set of contacts to the external SD card.
  */
-
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
   var that = this;
   console.log('Putting on SDcard');

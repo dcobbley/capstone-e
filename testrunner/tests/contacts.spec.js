@@ -22,15 +22,15 @@ QUnit.test('Contacts', function(assert) {
 
 
   //  ffosbr.contacts.clean( function(err){console.log(err);} );
-  ffosbr.contacts.getContactsFromSIM();
+ // ffosbr.contacts.getContactsFromSIM();
 
 
   //  console.log(ffosbr.contacts.contacts);
 
-  //ffosbr.contacts.restore();
+  ffosbr.contacts.restore();
 
 
-  //   ffosbr.contacts.putContactsOnSD(function(err) {
+ //    ffosbr.contacts.putContactsOnSD(function(err) {
   //     console.log('Put Results: ' + err);
   //     var cursor = sdcard.enumerate();
   //     cursor.onsuccess = function() {
