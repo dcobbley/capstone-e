@@ -31,12 +31,13 @@ Messages.prototype.backup = function(callback) {
         read: msgs.list[i].read,
         receiver: msgs.list[i].receiver,
         sender: msgs.list[i].sender,
-        timestamp: msgs.list[i].timestamp,
-        messageClass: msgs.list[i].messageClass
+        timestamp: msgs.list[i].timestamp
       };
 
       if (msgs.list[i] instanceof MozSmsMessage) {
         msg.body = msgs.list[i].body;
+        msg.messageClass = msgs.list[i].messageClass;
+
       } else if (msgs.list[i] instanceof MozMmsMessage) {
         msg.subject = msgs.list[i].subject;
         msg.smil = msgs.list[i].smil;
