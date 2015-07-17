@@ -3,7 +3,6 @@
 // That makes the app more responsive and perceived as faster.
 // https://developer.mozilla.org/Web/Reference/Events/DOMContentLoaded
 window.addEventListener('DOMContentLoaded', function() {
-
   // We'll ask the browser to use strict code to help us catch errors earlier.
   // https://developer.mozilla.org/Web/JavaScript/Reference/Functions_and_function_scope/Strict_mode
   'use strict';
@@ -26,35 +25,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
   }
 
-  // FOR TESTING PURPOSES ONLY
-  // Initialize options object
-  var options = {
-    photos: {
-      dataType: 'Photos',
-      lastUpdated: new Date('2015-06-20T19:00-0700'),
-      size: 123
-    },
-    videos: {
-      dataType: 'Videos',
-      lastUpdated: new Date('2015-06-20T19:00-0700'),
-      size: 1234
-    },
-    contacts: {
-      dataType: 'Contacts',
-      lastUpdated: new Date('2015-06-20T19:00-0700'),
-      size: 12345
-    },
-    settings: {
-      dataType: 'Settings',
-      lastUpdated: new Date('2015-06-20T19:00-0700'),
-      size: 123456
-    }
-  };
-
   function loadBackupDetailPage(detailOptions) {
     // Load the title of the detail page from options
     var detailPageDataTypeTitle = document.getElementById('detail-page-title');
-    detailPageDataTypeTitle.textContent = detailOptions.dataType;
+    detailPageDataTypeTitle.textContent = detailOptions.title;
 
     // Slide the backup detail page onto the screen
     var backupDetailPage = document.getElementById('backup-detail-page');
@@ -67,6 +41,10 @@ window.addEventListener('DOMContentLoaded', function() {
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   function dateFormat(date) {
+    if (date === null) {
+      return 'Never';
+    }
+
     var minutes = date.getMinutes();
     if (minutes < 10) {
       minutes = '0' + minutes;
@@ -93,24 +71,24 @@ window.addEventListener('DOMContentLoaded', function() {
 
   function refreshHistories() {
     var photoUpdatedAt = document.getElementById('photo-hist-date');
-    photoUpdatedAt.textContent = dateFormat(options.photos.lastUpdated);
+    photoUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('photos', 'lastBackupDate'));
     var photoSize = document.getElementById('photo-hist-size');
-    photoSize.textContent = sizeFormat(options.photos.size);
+    photoSize.textContent = sizeFormat(ffosbr.history.getValue('photos', 'backupSize'));
 
     var videoUpdatedAt = document.getElementById('video-hist-date');
-    videoUpdatedAt.textContent = dateFormat(options.videos.lastUpdated);
+    videoUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('videos', 'lastBackupDate'));
     var videoSize = document.getElementById('video-hist-size');
-    videoSize.textContent = sizeFormat(options.videos.size);
+    videoSize.textContent = sizeFormat(ffosbr.history.getValue('videos', 'backupSize'));
 
     var contactUpdatedAt = document.getElementById('contact-hist-date');
-    contactUpdatedAt.textContent = dateFormat(options.contacts.lastUpdated);
+    contactUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('contacts', 'lastBackupDate'));
     var contactSize = document.getElementById('contact-hist-size');
-    contactSize.textContent = sizeFormat(options.contacts.size);
+    contactSize.textContent = sizeFormat(ffosbr.history.getValue('contacts', 'backupSize'));
 
-    var settingsUpdatedAt = document.getElementById('settings-hist-date');
-    settingsUpdatedAt.textContent = dateFormat(options.settings.lastUpdated);
-    var settingsSize = document.getElementById('settings-hist-size');
-    settingsSize.textContent = sizeFormat(options.settings.size);
+    var messagesUpdatedAt = document.getElementById('messages-hist-date');
+    messagesUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('messages', 'lastBackupDate'));
+    var messagesSize = document.getElementById('messages-hist-size');
+    messagesSize.textContent = sizeFormat(ffosbr.history.getValue('messages', 'backupSize'));
   }
 
   refreshHistories();
@@ -146,27 +124,28 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 
   document.getElementById('photo-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(options.photos);
+    loadBackupDetailPage(ffosbr.history.getValue('photos'));
   });
 
   document.getElementById('video-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(options.videos);
+    loadBackupDetailPage(ffosbr.history.getValue('videos'));
   });
 
   document.getElementById('contact-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(options.contacts);
+    loadBackupDetailPage(ffosbr.history.getValue('contacts'));
   });
 
-  document.getElementById('settings-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(options.settings);
+  document.getElementById('messages-infopane').addEventListener('click', function() {
+    loadBackupDetailPage(ffosbr.history.getValue('messages'));
   });
 
+  /*
   document.getElementById('backup-page-back-button').addEventListener('click', function() {
     document.getElementById('backup-page')
       .setAttribute('class', 'go-deeper-back-out');
     document.getElementById('backups-page')
       .setAttribute('class', 'go-deeper-back-in');
-  });
+  });*/
 
   document.getElementById('backup-button').addEventListener('click', function() {
     var backupName = 'Backup ' + Math.floor((Math.random() * 100) + 1);

@@ -52,17 +52,18 @@ History.prototype.loadHistory = function() {
   return false;
 };
 
-History.prototype.get = function(field, subfield) {
+History.prototype.getValue = function(field, subfield) {
   if (typeof field === 'undefined') {
     return this.history;
   } else if (typeof field !== 'string') {
-    return console.log('Invalid history field', field);
+    console.log('Invalid history field', field);
+    return;
   }
 
   if (typeof subfield === 'string') {
     var o1 = this.history[field];
-    if (typeof o1 === 'string') {
-      return o1[field];
+    if (typeof o1 !== 'undefined') {
+      return o1[subfield];
     }
   }
 
