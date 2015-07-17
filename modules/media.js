@@ -1,3 +1,8 @@
+// TODO - define a basic "Storage" class to simplify/add functionality to
+// the internal/external collections of objects which containt DeviceStorage
+// instances as well as flags, etc. I could see these growing in complexity
+// slightly in the future. This will also allow for easier default values.
+
 /**
  * Manages internal and external storages, or handles to storage
  * devices, and their various data sets, including apps, music,
@@ -380,6 +385,40 @@ Media.prototype.remove = function(filename, oncomplete) {
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete(this.error);
     }
+  };
+};
+
+/**
+ * @access public
+ * @description Calculates free space on the provided DeviceStorage instance
+ *   and then invokes a callback with the result (in bytes).
+     (Note: a second "error" parameter will be passed to the callback if the
+     request fails)
+ * @param {DeviceStorage} storage
+ * @param {requestCallback} oncomplete
+ */
+Media.prototype.getFreeBytes = function(storage, oncomplete) {
+
+  var getFreeBytes = null;
+
+  if ((storage instanceof DeviceStorage) === false) {
+    throw new Error('Missing or invalid storage device');
+  }
+
+  if (!window.ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Missing or invalide callback');
+  }
+
+  getFreeBytes = storage.freeSpace();
+
+  getFreeBytes.onsuccess = function() {
+    var size = this.result;
+    oncomplete(size);
+  };
+
+  getFreeBytes.onerror = function() {
+    var error = this.error;
+    oncomplete(null, new Error('Failed to get available space: ' + error.message));
   };
 };
 
