@@ -9,27 +9,27 @@ History.prototype.getDefault = function() {
   return {
     photos: {
       title: 'Photos',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     videos: {
       title: 'Videos',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     music: {
       title: 'Music',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     contacts: {
       title: 'Contacts',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     messages: {
       title: 'Messages',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     }
   };
@@ -126,7 +126,7 @@ History.prototype.validateEntryField = function(field, value) {
     return typeof value === 'string';
   }
   if (field === 'lastBackupDate') {
-    return !isNaN(Date.parse(value));
+    return !isNaN(Date.parse(value)) || value === null;
   }
   if (field === 'backupSize') {
     return typeof value === 'number' && value >= 0;
