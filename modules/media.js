@@ -69,8 +69,8 @@ Storage.prototype.fileExists = function(fname, oncomplete) {
 };
 
 /**
- * @description Enumerates all files on storage and adds thems
- *   to the "files" object. This is used for tracking what files
+ * @description Enumerates all files on storage and adds them to
+ *   the "files" object. This is used for tracking what files
  *   exist in the storage at all times.
  */
 Storage.prototype.populate = function() {
@@ -284,15 +284,11 @@ Media.prototype.get = function(type, directory, forEach) {
 
   var onsuccess = function() {
     var file = this.result;
-    if (ffosbr.utils.isFunction(forEach)) {
-      forEach(file);
-    }
+    forEach(file);
   };
 
   var onerror = function() {
-    if (ffosbr.utils.isFunction(forEach)) {
-      forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
-    }
+    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
   };
 
   internalFiles.onsuccess = onsuccess;

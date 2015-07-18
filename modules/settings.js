@@ -31,13 +31,17 @@ Settings.prototype.load = function() {
 
   if (retrievedOptions !== null) {
 
-    retrievedOptions = JSON.parse(retrievedOptions);
+    try {
+      retrievedOptions = JSON.parse(retrievedOptions);
+    } catch (err) {
+      throw new Error('Fetched an invalid options object from local storage');
+    }
+
 
     if (this.validate(retrievedOptions) === true) {
       this.options = retrievedOptions;
     } else {
-      // TODO - should we throw an error? Or just let this slide?
-      console.log('Fetched an invalid options object from local storage');
+      throw new Error('Fetched an invalid options object from local storage');
     }
   }
 };
