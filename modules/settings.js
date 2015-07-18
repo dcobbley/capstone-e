@@ -22,7 +22,13 @@ function Settings() {
   };
 
   // Load persistent settings from local storage, if they exist
-  this.load();
+  try {
+    this.load();
+  } catch (err) {
+    // If load failed, the local storage "options" object
+    // was malformed. It has now been cleared and Settings
+    // options holds default values.
+  }
 }
 
 Settings.prototype.load = function() {
@@ -34,6 +40,7 @@ Settings.prototype.load = function() {
     try {
       retrievedOptions = JSON.parse(retrievedOptions);
     } catch (err) {
+      localStorage.setItem('ffosbrOptions', null);
       throw new Error('Fetched an invalid options object from local storage');
     }
 
@@ -133,7 +140,6 @@ Settings.prototype.set = function(newOptions, value) {
   }
 
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
-
 };
 
 Settings.prototype.get = function(field) {
