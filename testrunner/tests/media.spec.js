@@ -22,20 +22,19 @@ QUnit.test('Get internal storage', function(assert) {
   }
 
   assert.strictEqual(
-    ffosbr.media.getInternalStorage(emptyStorage).store,
+    ffosbr.media.getInternalStorage(emptyStorage),
     null,
-    '...returns null from empty list'
+    '...returns null given an empty list'
   );
 
   assert.strictEqual(
-    ffosbr.media.getInternalStorage(onlyExternalStorages).store,
+    ffosbr.media.getInternalStorage(onlyExternalStorages),
     null,
-    '...returns null from list of only external storages'
+    '...returns null given a list of only external storages'
   );
 
-  console.log(ffosbr.media.getInternalStorage(storages).store);
   assert.notStrictEqual(
-    ffosbr.media.getInternalStorage(storages).store,
+    ffosbr.media.getInternalStorage(storages),
     null,
     '...returns DeviceStorage instance from storage list'
   );
@@ -65,19 +64,19 @@ QUnit.test('Get external storage', function(assert) {
   }
 
   assert.strictEqual(
-    ffosbr.media.getExternalStorage(emptyStorage).store,
+    ffosbr.media.getExternalStorage(emptyStorage),
     null,
     '...returns null from empty list'
   );
 
   assert.strictEqual(
-    ffosbr.media.getExternalStorage(onlyInternalStorages).store,
+    ffosbr.media.getExternalStorage(onlyInternalStorages),
     null,
     '...returns null from list of only external storages'
   );
 
   assert.notStrictEqual(
-    ffosbr.media.getExternalStorage(storages).store,
+    ffosbr.media.getExternalStorage(storages),
     null,
     '...returns DeviceStorage instance from storage list'
   );
@@ -112,23 +111,26 @@ QUnit.test('Get media from storage', function(assert) {
   );
 
   // Get sdcard1 without card should throw error.
-  assert.raises(
-    function() {
-
-      ffosbr.media.get('sdcard1', callback);
-
-    },
-    new Error('Attempt to read from an invalid storage. Abort.'),
-    '...throws error when there is not an external sdcard'
-  );
+  // Note: When the result of the unit test is "SDCARD1 PRESENT",
+  // it indicates that the test cannot be truly run because there
+  // is an external sdcard, and there's no use faking it.
+  ffosbr.media.get('sdcard1', function(file, err) {
+    assert.strictEqual(
+      (err ? err.message : 'SDCARD1 PRESENT'),
+      'Attempt to read from an invalid storage. Abort.',
+      '...throws error when there is not an external sdcard'
+    );
+  });
 
   // NOTE: Media.get() as no return value, so if it worked and doesn't
   // throw an error, the return value should be "undefined".
-  assert.strictEqual(
-    ffosbr.media.get('pictures', callback),
-    undefined,
-    '...test should not throw error when called properly'
-  );
+  ffosbr.media.get('sdcard1', function(file, err) {
+    assert.strictEqual(
+      err,
+      undefined,
+      '...test should not throw error when called properly'
+    );
+  });
 });
 
 /**
@@ -181,15 +183,13 @@ QUnit.test('Put media to storage', function(assert) {
     '...throws error when oncomplete is not a function'
   );
 
-  assert.raises(
-    function() {
-      ffosbr.media.put('sdcard1', helloFile, 'hello');
-    },
-    new Error('Attempt to write to an invalid storage. Abort.'),
-    '...throws error when attempting to write to a missing external sdcard'
-  );
-
-
+  ffosbr.media.put('sdcard1', helloFile, 'hello', function(err) {
+    assert.strictEqual(
+      (err ? err.message : 'SDCARD1 PRESENT'),
+      'Attempt to write to an invalid storage. Abort.',
+      '...throws error when there is not an external sdcard'
+    );
+  });
 
   //TODO
   //destination is ignored unless type is sdcard1 make sure it's ignored
@@ -228,13 +228,22 @@ QUnit.test('Remove media from external storage', function(assert) {
   );
 
   //Must fail if there is not an external sdcard
-  assert.raises(
-    function() {
-      ffosbr.media.remove('hello');
-    },
-    new Error('Attempt to delete from invalid storage. Abort.'),
-    '...throws error when there is not an external sdcard'
-  );
+  // assert.raises(
+  //   function() {
+  //     ffosbr.media.remove('hello');
+  //   },
+  //   new Error('Attempt to delete from invalid storage. Abort.'),
+  //   '...throws error when there is not an external sdcard'
+  // );
+
+
+  ffosbr.media.remove('hello', function(err) {
+    assert.strictEqual(
+      (err ? err.message : 'SDCARD1 PRESENT'),
+      'Attempt to delete from invalid storage. Abort.',
+      '...throws error when there is not an external sdcard'
+    );
+  });
 
 
   //TODO
@@ -279,44 +288,44 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
   );
 
   // Tests success case
-  var file = new File(['foo'], 'size3.txt', {
+  var file = new File(['foopi'], 'size5.txt', {
     type: 'text/plain'
   });
   var fileSizeInBytes = file.size;
   var startFreeBytes = 0;
   var endFreeBytes = 0;
 
+  // alert('file size = ' + fileSizeInBytes); //rmv
+
+  // TODO - this test is failing because the asynch script removal ruins
+  // all other tests using ffosbr, since ffosbr will be undefined during
+  // that test. This test must be finished after merging.
+
   ffosbr.media.getFreeBytes(storage, function(bytesBefore, errBefore) {
     if (errBefore) {
-      alert(errBefore.message);
-      throw new Error('Failed to get initial free bytes from ' + storage.name);
+      // alert(errBefore.message);
+      throw new Error('Failed to get initial free bytes from ' + storage.storageName);
     }
 
     // free bytes before writing file
     startFreeBytes = bytesBefore;
 
-    ffosbr.media.put('sdcard', file, 'backup/test', function(putErr) {
-
+    ffosbr.media.put('sdcard', file, 'backup/test' + file.name, function(putErr) {
       if (putErr) {
-        alert('Put failed: ' + putErr.message);
-        throw new Error('Failed put file to ' + storage.name);
+        throw new Error('Failed put file to ' + storage.storageName);
       }
 
       ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
         if (errAfter) {
-          alert(errAfter.message);
-          throw new Error('Failed to get final free bytes from ' + storage.name);
+          // alert(errAfter.message);
+          throw new Error('Failed to get final free bytes from ' + storage.storageName);
         }
-
         // free bytes after writing file
         endFreeBytes = bytesAfter;
 
-        alert('before = ' + bytesBefore); //rmv
-        alert('after = ' + bytesAfter);
-        alert('difference = ' + (bytesAfter - bytesBefore));
-        alert('file = ' + fileSizeInBytes);
+        // alert('difference ' + (startFreeBytes - endFreeBytes)); //rmv
 
-        assert.strictEqual(endFreeBytes - startFreeBytes, fileSizeInBytes, '...works');
+        assert.strictEqual(startFreeBytes - endFreeBytes, fileSizeInBytes, '...works');
       });
     });
   });

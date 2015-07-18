@@ -2,6 +2,9 @@
 
   var Ffosbr = function() {
 
+    // To be included after dependency refactor
+    // require('./storage');
+
     /* Import modules */
     this.utils = require('./utils');
     this.media = require('./media');

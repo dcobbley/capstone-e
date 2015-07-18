@@ -22,21 +22,37 @@ function Settings() {
     messages: 'backup/messages/'
   };
 
+  // Load persistent settings from local storage, if they exist
+  try {
+    this.load();
+  } catch (err) {
+    // If load failed, the local storage "options" object
+    // was malformed. It has now been cleared and Settings
+    // options holds default values.
+  }
+}
+
+Settings.prototype.load = function() {
   // Load options if present
   var retrievedOptions = localStorage.getItem('ffosbrOptions');
 
   if (retrievedOptions !== null) {
 
-    retrievedOptions = JSON.parse(retrievedOptions);
+    try {
+      retrievedOptions = JSON.parse(retrievedOptions);
+    } catch (err) {
+      localStorage.setItem('ffosbrOptions', null);
+      throw new Error('Fetched an invalid options object from local storage');
+    }
 
-    if (this.validate(retrievedOptions === true)) {
+
+    if (this.validate(retrievedOptions) === true) {
       this.options = retrievedOptions;
     } else {
-      // TODO - should we throw an error? Or just let this slide?
-      console.log('Fetched an invalid options object from local storage');
+      throw new Error('Fetched an invalid options object from local storage');
     }
   }
-}
+};
 
 Settings.prototype.getBackupDirectoryPaths = function() {
   var paths = {};
@@ -74,7 +90,7 @@ Settings.prototype.validate = function(potentialOptions, value) {
     opts = this.options; // validate current options
   } else {
     // TODO - replace with ErrorHandler module
-    return console.log('Invalid validate parameter', field);
+    return console.log('Invalid validate parameter', potentialOptions);
   }
 
   // Support partial validation
@@ -86,11 +102,6 @@ Settings.prototype.validate = function(potentialOptions, value) {
     } else if (typeof opts[field] !== validTypes[field]) {
       // TODO - replace with ErrorHandler module
       console.log('Invalid type for settings option', field);
-
-
-      // alert(field + ': ' + typeof opts[field] + ' vs ' + typeof validTypes[field]); //rmv
-
-
       valid = false;
     }
   }
@@ -130,7 +141,6 @@ Settings.prototype.set = function(newOptions, value) {
   }
 
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
-
 };
 
 Settings.prototype.get = function(field) {
@@ -139,7 +149,7 @@ Settings.prototype.get = function(field) {
     return this.options;
   } else if (typeof field !== 'string') {
     // TODO - replace with ErrorHandler module
-    return console.log('Invalid settings field', newOptions);
+    return console.log('Invalid settings field', field);
   }
 
   return this.options[field];
