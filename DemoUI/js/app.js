@@ -29,11 +29,31 @@ window.addEventListener('DOMContentLoaded', function() {
     // Load the title of the detail page from options
     var detailPageDataTypeTitle = document.getElementById('detail-page-title');
     detailPageDataTypeTitle.textContent = detailOptions.title;
+    // set the subtitle for the backup slider
+    var detailPageDataTypeTitle2 = document.getElementById('detail-page-title-2');
+    detailPageDataTypeTitle2.textContent = detailOptions.title;
+
+    //get current status of settings
+    var key = detailOptions.title.toLowerCase();
+    var currStatus = ffosbr.settings.get(key);
+
+    //load the slider based on current state of settings
+    var sliderStatus = document.getElementById('backupStatus');
+
+    if (currStatus === false) {
+      sliderStatus.checked = false;
+    } else {
+      sliderStatus.checked = true;
+    }
+
+    ffosbr.settings.set(key, sliderStatus.checked);
 
     // Slide the backup detail page onto the screen
     var backupDetailPage = document.getElementById('backup-detail-page');
     backupDetailPage.style.zIndex = '100';
     backupDetailPage.setAttribute('class', 'go-deeper-in');
+
+
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -98,6 +118,17 @@ window.addEventListener('DOMContentLoaded', function() {
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   // Settings page listeners
+
+  //add a listener to the backupStatus slider
+  document.getElementById('backupStatus').addEventListener('click', function() {
+    //set the ffosbr setting when slider is clicked    
+    var key = document.getElementById('detail-page-title').textContent.toLowerCase();
+    var value = document.getElementById('backupStatus').checked;
+    console.log(key);
+    console.log(value);
+    ffosbr.settings.set(key, value);
+  });
+
 
   document.getElementById('settings-button').addEventListener('click', function() {
     var settingsPage = document.getElementById('settings-page');

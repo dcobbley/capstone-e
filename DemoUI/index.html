@@ -49,6 +49,13 @@
     -->
     <link rel="prefetch" type="application/l10n" href="data/locales.ini" />
     <script type="text/javascript" src="js/libs/l10n.js" defer></script>
+    <style>
+    table, td {
+       padding: 0.5px;
+       table-layout: fixed;
+       border: "1";
+    }
+    </style>
   </head>
   <body style='overflow: scroll;'>
       <section role='region' class='vbox fit' style='position: absolute'>
@@ -187,12 +194,43 @@
           <i class='fa fa-angle-left backbutton' id='backup-detail-done-button'></i>
         </menu>
         <h1 id='detail-page-title'>EMPTY !!</h1>
-      </header>
+
+</header>
+
+
+      
 
       <section class='gaia-list fit scroll sticky' id='main-page' style='margin-top: 5rem; position: absolute'>
         <div data-type='list' style="overflow-y: scroll; height: calc(100% - 10rem); padding: 0">
-        </div>
+  
+
+  
+    
+  <table>
+    <tr>
+      <td style="width: 25%" id='detail-page-title-2'>EMPTY</td>
+      <td style="width: 25%"> Backup: </td>
+      <td style= "width: 70px">
+        <label class="pack-switch">
+        <input type="checkbox" data-type="switch" id="backupStatus">
+        <span></span>
+        </label>
+      </td>
+
+    </tr>
+  </table>
+  
+      </div>      
       </section>
-    </section>
+</section>
+
+
+
+
+
+      
+
+
+    
   </body>
 </html>
