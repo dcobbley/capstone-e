@@ -61,7 +61,7 @@ Storage.prototype.fileExists = function(fname, oncomplete) {
     return;
   }
 
-  if (this.files[this.sanatizeFilename(fname)] === true) {
+  if (this.files[this.sanitizeFilename(fname)] === true) {
     oncomplete(true);
   } else {
     oncomplete(false);
@@ -90,7 +90,7 @@ Storage.prototype.populate = function() {
   listFiles.onsuccess = function() {
     var file = this.result;
     if (file) {
-      var name = that.sanatizeFilename(file.name);
+      var name = that.sanitizeFilename(file.name);
       that.files[name] = true;
     } else {
       that.updating = false;
@@ -103,12 +103,12 @@ Storage.prototype.populate = function() {
 };
 
 /**
- * @description Santizes file names such that they are valid
+ * @description Sanitizes file names such that they are valid
  *   object keys.
- * @fname File name to sanatize.
+ * @fname File name to sanitize.
  * @returns {string}
  */
-Storage.prototype.sanatizeFilename = function(fname) {
+Storage.prototype.sanitizeFilename = function(fname) {
   // TODO - This is not legit.
   fname = fname.replace(/-/g, 'x');
   fname = fname.replace(/\./g, 'y');
