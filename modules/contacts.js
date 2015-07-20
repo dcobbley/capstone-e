@@ -22,15 +22,13 @@ Contacts.prototype.backup = function() {
  */
 Contacts.prototype.restore = function() {
   console.log('Restoring contacts.');
-  var that = this;
 
+  var that = this;
   var reader = new FileReader();
+
   reader.onloadend = function() {
     var contents = this.result;
-    console.log(typeof contents);
     var data = JSON.parse(contents);
-    console.log('Data: ');
-    console.log(data);
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
       myContact.givenName = [data[i].name];
@@ -39,11 +37,9 @@ Contacts.prototype.restore = function() {
   };
 
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-
   var request = sdcard.get('/sdcard1/backup/contacts/contacts.json');
+
   request.onsuccess = function() {
-    console.log('got file');
-    console.log(this.result);
     reader.readAsText(this.result);
   };
 
@@ -51,25 +47,19 @@ Contacts.prototype.restore = function() {
     console.log('error orccured in restore');
     console.log(err);
   };
-
-
 };
 
 /**
  * @access public
  * @description The clean function looks for a previous backup contacts.json file and will delete it if it exists as to not let the contacts functionality break when it tries to write its new backup to the external SD card
  */
-
 Contacts.prototype.clean = function(oncomplete) {
   var that = this;
-  console.log('removing: /sdcard1/backup/contacts/contacts.json');
-
+  console.log('cleaning contacts');
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
   var remove = sdcard.delete('/sdcard1/backup/contacts/contacts.json');
 
-
   remove.onsuccess = function() {
-    console.log('Remove success');
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete('Clean success');
     }
@@ -81,9 +71,6 @@ Contacts.prototype.clean = function(oncomplete) {
       oncomplete(remove.error);
     }
   };
-
-
-
 };
 
 /**
@@ -93,9 +80,9 @@ Contacts.prototype.clean = function(oncomplete) {
  */
 Contacts.prototype.getContactsFromOS = function() {
   var that = this;
+  var allContactsCursor;
 
   console.log('getContactsFromOS');
-  var allContactsCursor;
 
   allContactsCursor = navigator.mozContacts.getAll({
     sortBy: 'name',
@@ -106,28 +93,21 @@ Contacts.prototype.getContactsFromOS = function() {
     var contact = this.result;
     if (contact) {
       that.contacts.push(contact);
-
-
       allContactsCursor.continue();
     } else {
-      console.log('Contacts list: ', that.contacts);
       that.putContactsOnSD(function() {
         //------Log what is written to the sdcard--------//
         var sdcard = navigator.getDeviceStorages('sdcard')[1];
         var cursor = sdcard.enumerate();
         cursor.onsuccess = function() {
-
           if (this.result) {
             var file = this.result;
             if (file.name === '/sdcard1/backup/contacts/contacts.json') {
-              console.log('sdcard contents: ', file);
+              //           console.log('sdcard contents: ', file);
             }
-
-            //----------------------------------------------//
           }
         };
       });
-
     }
   };
 
@@ -138,19 +118,15 @@ Contacts.prototype.getContactsFromOS = function() {
       var sdcard = navigator.getDeviceStorages('sdcard')[1];
       var cursor = sdcard.enumerate();
       cursor.onsuccess = function() {
-
         if (this.result) {
           var file = this.result;
           if (file.name === '/sdcard1/backup/contacts/contacts.json') {
             console.log('sdcard contents: ', file);
           }
-
-          //----------------------------------------------//
         }
       };
     });
   };
-
 };
 
 /**
@@ -158,56 +134,53 @@ Contacts.prototype.getContactsFromOS = function() {
  * @description This functionality gets contacts from one or more SIM or ICC cards if they exist. The functions are chained as to avoid a race condition when writing contacts back to the internal memory. Make sure to use the mobileconnections permission. This function calls getContactsFromOS upon completion.
  */
 Contacts.prototype.getContactsFromSIM = function() {
-
   console.log('getContactsFromSIM');
 
-
   var that = this;
-
-  // Array of { MozMobileConnectionArray }
   var cards = navigator.mozMobileConnections;
   var request = null;
+  var numSIMCards = 0; // NEW
+  var numHandlersCalled = 0; // NEW
 
   var onSuccessFunction = function() {
-    console.log('Sim success');
     var contact = this.result;
+    ++numHandlersCalled; // NEW
     if (contact) {
-      console.log('Got from sim');
-      console.log(contact);
       that.contacts = that.contacts.concat(contact);
     }
-    that.getContactsFromOS();
-
+    if (numHandlersCalled === numSIMCards) {
+      that.getContactsFromOS();
+    }
   };
 
   var onErrorFunction = function() {
     console.log('Error getting contacts');
-    that.getContactsFromOS();
-
+    ++numHandlersCalled; // NEW
+    if (numHandlersCalled === numSIMCards) {
+      that.getContactsFromOS();
+    }
   };
+
+  for (var x = 0; x < cards.length; ++x) {
+    if (cards[x].iccId) {
+      ++numSIMCards;
+    }
+  }
 
   var presentCards = 0;
   for (var i = 0; i < cards.length; ++i) {
     if (cards[i].iccId) {
-      console.log('Sim card: ' + i);
       presentCards += 1;
       var id = cards[i].iccId;
       var icc = navigator.mozIccManager.getIccById(id);
       request = icc.readContacts('adn');
-
       request.onsuccess = onSuccessFunction;
       request.onerror = onErrorFunction;
-
     }
   }
-
-  console.log('cards: ', presentCards);
   if (presentCards === 0) {
     this.getContactsFromOS();
   }
-
-
-
 };
 
 /**
@@ -219,9 +192,6 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
   console.log('Putting on SDcard');
   this.clean(function(err) {
     var sdcard = navigator.getDeviceStorages('sdcard')[1];
-
-
-    //var sdcard = ffosbr.media.getStorageByName('sdcard').external;   
     file = new Blob([JSON.stringify(that.contacts)], {
       type: 'text/json'
     });
@@ -256,8 +226,6 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
     sdcardAvailable.onerror = function() {
       console.warn('SDcard Error');
     };
-
-
   });
 };
 
