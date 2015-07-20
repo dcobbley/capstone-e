@@ -325,7 +325,7 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
 
         // alert('difference ' + (startFreeBytes - endFreeBytes)); //rmv
         var blockSize = 4096;
-        assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes/blockSize)*blockSize, '...works');
+        assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
       });
     });
   });

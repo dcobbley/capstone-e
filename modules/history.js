@@ -1,9 +1,14 @@
-function History() {
+function History() {}
+
+/**
+ * @description History constructor
+ */
+History.prototype.initialize = function() {
   // Initialize history to either the stored values or defaults
   if (!this.loadHistory()) {
     this.set(this.getDefault());
   }
-}
+};
 
 History.prototype.getDefault = function() {
   return {
