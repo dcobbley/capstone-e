@@ -259,7 +259,7 @@ QUnit.test('Remove media from external storage', function(assert) {
  */
 QUnit.test('Get number of available bytes from storage device', function(assert) {
 
-  var storage = navigator.getDeviceStorage('sdcard');
+  var storage = navigator.getDeviceStorages('sdcard')[1];
   var invalidStorage = 'not a device storage';
   var invalidCallback = 'not a callback';
 
@@ -310,7 +310,7 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
     // free bytes before writing file
     startFreeBytes = bytesBefore;
 
-    ffosbr.media.put('sdcard', file, 'backup/test' + file.name, function(putErr) {
+    ffosbr.media.put('sdcard1', file, 'backup/test' + file.name, function(putErr) {
       if (putErr) {
         throw new Error('Failed put file to ' + storage.storageName);
       }
@@ -324,8 +324,8 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
         endFreeBytes = bytesAfter;
 
         // alert('difference ' + (startFreeBytes - endFreeBytes)); //rmv
-
-        assert.strictEqual(startFreeBytes - endFreeBytes, fileSizeInBytes, '...works');
+        var blockSize = 4096;
+        assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes/blockSize)*blockSize, '...works');
       });
     });
   });
