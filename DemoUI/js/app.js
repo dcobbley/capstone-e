@@ -31,7 +31,7 @@ window.addEventListener('DOMContentLoaded', function() {
     detailPageDataTypeTitle.textContent = detailOptions.title;
     // set the subtitle for the backup slider
     var detailPageDataTypeTitle2 = document.getElementById('detail-page-title-2');
-    detailPageDataTypeTitle2.textContent = detailOptions.title;
+    detailPageDataTypeTitle2.textContent = detailOptions.title + ' Backup: ';
 
     //get current status of settings
     var key = detailOptions.title.toLowerCase();
