@@ -11,6 +11,8 @@
  */
 function Storage(type, store) {
 
+  var that = this;
+
   this.type = null;
   this.store = null;
   this.files = {};
@@ -25,6 +27,14 @@ function Storage(type, store) {
 
   this.type = type;
   this.store = store;
+
+  this.store.onchange = function () {
+    // TODO - this is a working, but inefficient way
+    // of updating our file records. Test "reason"
+    // values and manually update the records accordingly.
+    that.populate();
+  };
+
   this.populate();
 }
 
