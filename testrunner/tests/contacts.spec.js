@@ -7,7 +7,7 @@ QUnit.test('Contacts', function(assert) {
 
 
 
-  ffosbr.contacts.getContactsFromSIM();
+ // ffosbr.contacts.getContactsFromSIM();
 
   //ffosbr.contacts.restore();
 
