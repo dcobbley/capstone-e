@@ -67,17 +67,14 @@ Storage.prototype.populate = function() {
   this.updating = true; // files are in flux
   this.files = {}; // erase record of current files
 
-  try {
-    listFiles = this.store.enumerate();
-  } catch (e) {
-    throw e;
-  }
+  listFiles = this.store.enumerate();
 
   listFiles.onsuccess = function() {
     var file = this.result;
     if (file) {
       var name = that.sanitizeFilename(file.name);
       that.files[name] = true;
+      this.continue();
     } else {
       that.updating = false;
     }
@@ -96,6 +93,7 @@ Storage.prototype.populate = function() {
  */
 Storage.prototype.sanitizeFilename = function(fname) {
   // TODO - This is not legit.
+  // Also, this might not be necessary
   fname = fname.replace(/-/g, 'x');
   fname = fname.replace(/\./g, 'y');
   return fname;
