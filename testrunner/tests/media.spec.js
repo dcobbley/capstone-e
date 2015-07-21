@@ -302,56 +302,56 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
       throw new Error('Failed to get initial free bytes from ' + storage.storageName);
     }
 
-   //  var mutableSize = 4097; 
-   //  var content = ''; 
-   //  for(var i = 0 ; i < mutableSize; i++ ) {
-   //    content += '1';  
-   //  }
-    
+    //  var mutableSize = 4097; 
+    //  var content = ''; 
+    //  for(var i = 0 ; i < mutableSize; i++ ) {
+    //    content += '1';  
+    //  }
+
     var content = '1234567890';
-    
-    var file = new File([content], 'Size'+content.length+'.txt', {
-        type: 'text/plain'
+
+    var file = new File([content], 'Size' + content.length + '.txt', {
+      type: 'text/plain'
     });
-    
+
     // free bytes before writing file
     startFreeBytes = bytesBefore;
-    
+
     //delete last generated test*size.txt file before testing.
-    
+
     var resource = navigator.getDeviceStorages('sdcard')[1];
     var request = resource.delete('backup/test' + file.name);
-    
+
     request.onerror = function() {
-      alert(this.error.name + 'Failed to remove last generated test file' );
-    }
-    
+      alert(this.error.name + 'Failed to remove last generated test file');
+    };
+
     request.onsuccess = function() {
       // Tests success case
       var storage = resource;
-      
+
       var fileSizeInBytes = file.size;
-      
+
       ffosbr.media.put('sdcard1', file, 'backup/test' + file.name, function(putErr) {
-      if (putErr) {
-        throw new Error('Failed put file to ' + storage.storageName);
-      }
-
-      ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
-        if (errAfter) {
-          throw new Error('Failed to get final free bytes from ' + storage.storageName);
+        if (putErr) {
+          throw new Error('Failed put file to ' + storage.storageName);
         }
-        // free bytes after writing file
-        endFreeBytes = bytesAfter;
 
-        // blockSize is the value be setted when formatting SD card
-        // default value is 4KB
-        var blockSize = 4096;
-        assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
+        ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
+          if (errAfter) {
+            throw new Error('Failed to get final free bytes from ' + storage.storageName);
+          }
+          // free bytes after writing file
+          endFreeBytes = bytesAfter;
+
+          // blockSize is the value be setted when formatting SD card
+          // default value is 4KB
+          var blockSize = 4096;
+          assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
+        });
       });
-     });
-    }
-    
-    
+    };
+
+
   });
 });

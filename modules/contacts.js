@@ -11,9 +11,7 @@ var Contacts = function() {
  * @description TODO
  */
 Contacts.prototype.backup = function() {
-  this.getContactsFromOS();
   this.getContactsFromSIM();
-  console.log('SHOULDNT EVER GET CALLED?');
 };
 
 /**
