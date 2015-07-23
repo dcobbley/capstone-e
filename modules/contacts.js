@@ -8,7 +8,8 @@ var Contacts = function() {
 
 /**
  * @access public
- * @description TODO
+ * @description The backup function is responsible for setting off the chain of functions that effectively backs up all of the contacts from internal memory to an external SD card.
+ * There is no need to call getContactsFromOS, this function calls it upon success as to avoid any asynchronous issues.
  */
 Contacts.prototype.backup = function() {
   this.getContactsFromSIM();
@@ -19,8 +20,6 @@ Contacts.prototype.backup = function() {
  * @description The Restore function will look for a contacts JSON file existing on an extenal SD card under the directory /backup/contacts/contacts.json. It will parse all the data in that file and transfer them back onto the internal memory in mozContacts
  */
 Contacts.prototype.restore = function() {
-  console.log('Restoring contacts.');
-
   var that = this;
   var reader = new FileReader();
 
@@ -42,8 +41,6 @@ Contacts.prototype.restore = function() {
   };
 
   request.onerror = function() {
-    console.log('error orccured in restore');
-    console.log(err);
   };
 };
 
@@ -53,7 +50,6 @@ Contacts.prototype.restore = function() {
  */
 Contacts.prototype.clean = function(oncomplete) {
   var that = this;
-  console.log('cleaning contacts');
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
   var remove = sdcard.delete('/sdcard1/backup/contacts/contacts.json');
 
@@ -64,7 +60,6 @@ Contacts.prototype.clean = function(oncomplete) {
   };
 
   remove.onerror = function() {
-    console.log('Remove error');
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete(remove.error);
     }
@@ -79,8 +74,6 @@ Contacts.prototype.clean = function(oncomplete) {
 Contacts.prototype.getContactsFromOS = function() {
   var that = this;
   var allContactsCursor;
-
-  console.log('getContactsFromOS');
 
   allContactsCursor = navigator.mozContacts.getAll({
     sortBy: 'name',
@@ -101,7 +94,6 @@ Contacts.prototype.getContactsFromOS = function() {
           if (this.result) {
             var file = this.result;
             if (file.name === '/sdcard1/backup/contacts/contacts.json') {
-              //           console.log('sdcard contents: ', file);
             }
           }
         };
@@ -110,7 +102,6 @@ Contacts.prototype.getContactsFromOS = function() {
   };
 
   allContactsCursor.onerror = function() {
-    console.log('Error getting contacts');
     that.putContactsOnSD(function() {
       //------Log what is written to the sdcard--------//
       var sdcard = navigator.getDeviceStorages('sdcard')[1];
@@ -119,7 +110,7 @@ Contacts.prototype.getContactsFromOS = function() {
         if (this.result) {
           var file = this.result;
           if (file.name === '/sdcard1/backup/contacts/contacts.json') {
-            console.log('sdcard contents: ', file);
+            //Used for debugging purposes.
           }
         }
       };
@@ -132,8 +123,6 @@ Contacts.prototype.getContactsFromOS = function() {
  * @description This functionality gets contacts from one or more SIM or ICC cards if they exist. The functions are chained as to avoid a race condition when writing contacts back to the internal memory. Make sure to use the mobileconnections permission. This function calls getContactsFromOS upon completion.
  */
 Contacts.prototype.getContactsFromSIM = function() {
-  console.log('getContactsFromSIM');
-
   var that = this;
   var cards = navigator.mozMobileConnections;
   var request = null;
@@ -152,7 +141,6 @@ Contacts.prototype.getContactsFromSIM = function() {
   };
 
   var onErrorFunction = function() {
-    console.log('Error getting contacts');
     ++numHandlersCalled; // NEW
     if (numHandlersCalled === numSIMCards) {
       that.getContactsFromOS();
@@ -187,7 +175,6 @@ Contacts.prototype.getContactsFromSIM = function() {
  */
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
   var that = this;
-  console.log('Putting on SDcard');
   this.clean(function(err) {
     var sdcard = navigator.getDeviceStorages('sdcard')[1];
     file = new Blob([JSON.stringify(that.contacts)], {
@@ -207,17 +194,15 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
 
         // An error typically occur if a file with the same name already exist
         request.onerror = function() {
-          console.log('error in putcontactsonSD');
-          console.log(request);
           var error = this.error;
           if (window.ffosbr.utils.isFunction(oncomplete)) {
             oncomplete(error);
           }
         };
       } else if (this.result == 'unavailable') {
-        console.log('The SDcard on your device is not available');
+        //Device unavaliable
       } else {
-        console.log('The SDCard on your device is shared and thus not available');
+        //device is currently being used by something else
       }
     };
 
