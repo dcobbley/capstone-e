@@ -330,6 +330,11 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
       // Tests success case
       var storage = resource;
 
+      ffosbr.media.getFreeBytes(storage, function(sizeAfterDelete) {
+        // free bytes after deleting test file
+        startFreeBytes = sizeAfterDelete;
+      });
+
       var fileSizeInBytes = file.size;
 
       ffosbr.media.put('sdcard1', file, 'backup/test' + file.name, function(putErr) {
