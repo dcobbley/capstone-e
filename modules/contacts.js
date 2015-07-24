@@ -143,10 +143,9 @@ Contacts.prototype.getContactsFromSIM = function() {
     }
   }
 
-  var presentCards = 0;
+
   for (var i = 0; i < cards.length; ++i) {
     if (cards[i].iccId) {
-      presentCards += 1;
       var id = cards[i].iccId;
       var icc = navigator.mozIccManager.getIccById(id);
       request = icc.readContacts('adn');
@@ -154,7 +153,7 @@ Contacts.prototype.getContactsFromSIM = function() {
       request.onerror = onErrorFunction;
     }
   }
-  if (presentCards === 0) {
+  if (numSIMCards === 0) {
     this.getContactsFromOS();
   }
 };
