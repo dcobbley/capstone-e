@@ -33,25 +33,28 @@ Contacts.prototype.restore = function() {
     }
   };
 
+
+  var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
+
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-  var request = sdcard.get('/sdcard1/backup/contacts/contacts.json');
+  var request = sdcard.get(path);
 
   request.onsuccess = function() {
     reader.readAsText(this.result);
   };
 
-  request.onerror = function() {
-  };
+  request.onerror = function() {};
 };
 
 /**
- * @access public
+ * @access private
  * @description The clean function looks for a previous backup contacts.json file and will delete it if it exists as to not let the contacts functionality break when it tries to write its new backup to the external SD card
  */
 Contacts.prototype.clean = function(oncomplete) {
+  var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
   var that = this;
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-  var remove = sdcard.delete('/sdcard1/backup/contacts/contacts.json');
+  var remove = sdcard.delete(path);
 
   remove.onsuccess = function() {
     if (window.ffosbr.utils.isFunction(oncomplete)) {
@@ -68,7 +71,7 @@ Contacts.prototype.clean = function(oncomplete) {
 
 /**
 
- * @access public
+ * @access private
  * @description This function gets contacts from the main memory where mozContacts are stored. It should only be called by the getContactsFromSIM function to avoid a race condition. Once all the contacts have been fetched by this function, it will call putContactsOnSD which stores the contacts from the SIM card and the internal memory to an external SD card.
  */
 Contacts.prototype.getContactsFromOS = function() {
@@ -90,13 +93,7 @@ Contacts.prototype.getContactsFromOS = function() {
         //------Log what is written to the sdcard--------//
         var sdcard = navigator.getDeviceStorages('sdcard')[1];
         var cursor = sdcard.enumerate();
-        cursor.onsuccess = function() {
-          if (this.result) {
-            var file = this.result;
-            if (file.name === '/sdcard1/backup/contacts/contacts.json') {
-            }
-          }
-        };
+        cursor.onsuccess = function() {};
       });
     }
   };
@@ -106,32 +103,25 @@ Contacts.prototype.getContactsFromOS = function() {
       //------Log what is written to the sdcard--------//
       var sdcard = navigator.getDeviceStorages('sdcard')[1];
       var cursor = sdcard.enumerate();
-      cursor.onsuccess = function() {
-        if (this.result) {
-          var file = this.result;
-          if (file.name === '/sdcard1/backup/contacts/contacts.json') {
-            //Used for debugging purposes.
-          }
-        }
-      };
+      cursor.onsuccess = function() {};
     });
   };
 };
 
 /**
- * @access public
+ * @access private
  * @description This functionality gets contacts from one or more SIM or ICC cards if they exist. The functions are chained as to avoid a race condition when writing contacts back to the internal memory. Make sure to use the mobileconnections permission. This function calls getContactsFromOS upon completion.
  */
 Contacts.prototype.getContactsFromSIM = function() {
   var that = this;
   var cards = navigator.mozMobileConnections;
   var request = null;
-  var numSIMCards = 0; // NEW
-  var numHandlersCalled = 0; // NEW
+  var numSIMCards = 0;
+  var numHandlersCalled = 0;
 
   var onSuccessFunction = function() {
     var contact = this.result;
-    ++numHandlersCalled; // NEW
+    ++numHandlersCalled;
     if (contact) {
       that.contacts = that.contacts.concat(contact);
     }
@@ -141,7 +131,7 @@ Contacts.prototype.getContactsFromSIM = function() {
   };
 
   var onErrorFunction = function() {
-    ++numHandlersCalled; // NEW
+    ++numHandlersCalled;
     if (numHandlersCalled === numSIMCards) {
       that.getContactsFromOS();
     }
@@ -170,7 +160,7 @@ Contacts.prototype.getContactsFromSIM = function() {
 };
 
 /**
- * @access public
+ * @access private
  * @description Once all the contacts have been gathered from the SIM and internal memory, this function is called and will look for an existing backup contacts.json file, if it exists it will try to delete it before writing the new set of contacts to the external SD card.
  */
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
@@ -185,7 +175,9 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
 
     sdcardAvailable.onsuccess = function() {
       if (this.result == 'available') {
-        var request = sdcard.addNamed(file, 'backup/contacts/contacts.json');
+
+        var path = ffosbr.settings.backupPaths.contacts + '/contacts.json';
+        var request = sdcard.addNamed(file, path);
         request.onsuccess = function() {
           if (window.ffosbr.utils.isFunction(oncomplete)) {
             oncomplete();
@@ -199,10 +191,6 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
             oncomplete(error);
           }
         };
-      } else if (this.result == 'unavailable') {
-        //Device unavaliable
-      } else {
-        //device is currently being used by something else
       }
     };
 
