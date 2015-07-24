@@ -2,19 +2,33 @@
 
   var Ffosbr = function() {
 
-    // To be included after dependency refactor
-    // require('./storage');
-
     /* Import modules */
-    this.utils = require('./utils');
-    this.media = require('./media');
+    this._modules = {
+      'utils': require('./utils'),
+      'media': require('./media'),
+      'settings': require('./settings'),
+      'history': require('./history'),
+      'messages': require('./messages')
+    };
+
+    /* Import classes */
+    this.Storage = require('./storage');
+
+    /* Import methods */
     this.backup = require('./backup');
     this.restore = require('./restore');
     this.clean = require('./clean');
-    this.settings = require('./settings');
-    this.history = require('./history');
-    this.messages = require('./messages');
+  };
+
+  Ffosbr.prototype.initialize = function() {
+    for (var module in this._modules) {
+      // Expose module to public scope
+      this[module] = this._modules[module];
+      // Invoke module constructor
+      this[module].initialize();
+    }
   };
 
   window.ffosbr = new Ffosbr();
+  window.ffosbr.initialize();
 })();
