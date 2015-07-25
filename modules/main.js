@@ -8,7 +8,8 @@
       'media': require('./media'),
       'settings': require('./settings'),
       'history': require('./history'),
-      'messages': require('./messages')
+      'messages': require('./messages'),
+      'contacts': require('./contacts')
     };
 
     /* Import classes */
