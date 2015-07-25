@@ -1,6 +1,7 @@
 /**
  * @access public
- * @description this contact backup and restore functionality has the ability to look on your device and the contacts that are stored on the SIM or ICC card(s) as well as internal contacts, and back them up to a JSON file on an external SD card.
+ * @description Takes contacts stored on the device and SIM or ICC card(s) and saves them
+ * to a JSON file on an external SD card.
  */
 var Contacts = function() {
   this.contacts = [];
@@ -8,8 +9,8 @@ var Contacts = function() {
 
 /**
  * @access public
- * @description The backup function is responsible for setting off the chain of functions that effectively backs up all of the contacts from internal memory to an external SD card.
- * There is no need to call getContactsFromOS, this function calls it upon success as to avoid any asynchronous issues.
+ * @description Saves all contacts from the device and SIM/ICC cards to a JSON file on the SD card.
+ * Note: Calls getContactsFromSIM() calls getContactsFromOS() on completion.
  */
 Contacts.prototype.backup = function() {
   this.getContactsFromSIM();
@@ -17,7 +18,7 @@ Contacts.prototype.backup = function() {
 
 /**
  * @access public
- * @description The Restore function will look for a contacts JSON file existing on an extenal SD card under the directory /backup/contacts/contacts.json. It will parse all the data in that file and transfer them back onto the internal memory in mozContacts
+ * @description Loads contacts from a JSON file on the SD card onto the phone.
  */
 Contacts.prototype.restore = function() {
   var that = this;
@@ -25,7 +26,13 @@ Contacts.prototype.restore = function() {
 
   reader.onloadend = function() {
     var contents = this.result;
-    var data = JSON.parse(contents);
+    var data;
+    try {
+      data = JSON.parse(contents);
+    } catch (SyntaxError) {
+      alert('Invalid contacts.');
+      return;
+    }
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
       myContact.givenName = [data[i].name];
@@ -48,7 +55,7 @@ Contacts.prototype.restore = function() {
 
 /**
  * @access private
- * @description The clean function looks for a previous backup contacts.json file and will delete it if it exists as to not let the contacts functionality break when it tries to write its new backup to the external SD card
+ * @description Deletes contacts.json from the SD card if it exists.
  */
 Contacts.prototype.clean = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
@@ -70,9 +77,9 @@ Contacts.prototype.clean = function(oncomplete) {
 };
 
 /**
-
  * @access private
- * @description This function gets contacts from the main memory where mozContacts are stored. It should only be called by the getContactsFromSIM function to avoid a race condition. Once all the contacts have been fetched by this function, it will call putContactsOnSD which stores the contacts from the SIM card and the internal memory to an external SD card.
+ * @description Gets contacts from main memory.
+ * Calls putContactsOnSD() on completion.
  */
 Contacts.prototype.getContactsFromOS = function() {
   var that = this;
@@ -110,7 +117,8 @@ Contacts.prototype.getContactsFromOS = function() {
 
 /**
  * @access private
- * @description This functionality gets contacts from one or more SIM or ICC cards if they exist. The functions are chained as to avoid a race condition when writing contacts back to the internal memory. Make sure to use the mobileconnections permission. This function calls getContactsFromOS upon completion.
+ * @description Gets contacts from SIM or ICC cards.
+ * Calls getContactsFromOS upon completion.
  */
 Contacts.prototype.getContactsFromSIM = function() {
   var that = this;
@@ -160,7 +168,8 @@ Contacts.prototype.getContactsFromSIM = function() {
 
 /**
  * @access private
- * @description Once all the contacts have been gathered from the SIM and internal memory, this function is called and will look for an existing backup contacts.json file, if it exists it will try to delete it before writing the new set of contacts to the external SD card.
+ * @description Writes the resulting JSON file to the SD card, removing any preexisting
+ * file with the same name.
  */
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
   var that = this;
@@ -183,7 +192,7 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
           }
         };
 
-        // An error typically occur if a file with the same name already exist
+        // An error typically occurs if a file with the same name already exists
         request.onerror = function() {
           var error = this.error;
           if (window.ffosbr.utils.isFunction(oncomplete)) {
