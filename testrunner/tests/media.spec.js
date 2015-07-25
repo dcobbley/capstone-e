@@ -302,12 +302,6 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
       throw new Error('Failed to get initial free bytes from ' + storage.storageName);
     }
 
-    //  var mutableSize = 4097; 
-    //  var content = ''; 
-    //  for(var i = 0 ; i < mutableSize; i++ ) {
-    //    content += '1';  
-    //  }
-
     var content = '1234567890';
 
     var file = new File([content], 'Size' + content.length + '.txt', {
@@ -329,6 +323,11 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
     request.onsuccess = function() {
       // Tests success case
       var storage = resource;
+
+      ffosbr.media.getFreeBytes(storage, function(sizeAfterDelete) {
+        // free bytes after deleting test file
+        startFreeBytes = sizeAfterDelete;
+      });
 
       var fileSizeInBytes = file.size;
 

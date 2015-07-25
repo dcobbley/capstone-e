@@ -17,7 +17,7 @@ function Settings() {
     music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
-    contacts: 'backup/videos/',
+    contacts: 'backup/contacts/',
     settings: 'backup/settings/',
     messages: 'backup/messages/'
   };

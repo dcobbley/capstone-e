@@ -351,6 +351,94 @@ Media.prototype.getFreeBytes = function(storage, oncomplete) {
     oncomplete(null, new Error('Failed to get available space: ' + error.message));
   };
 };
+/**
+ * @access public
+ * @description 
+      Check the block size of SD card.
+      pass in a 1 byte file and then return how many space has been occupied.
+
+      ffosbr.media.checkBlockSize(navigator.getDeviceStorages('sdcard')[1],function(size){alert(size);})
+      using above line to get block size in console 
+ * @param {DeviceStorage} storage
+ * @param {requestCallback} oncomplete
+ */
+Media.prototype.checkBlockSize = function(storage, oncomplete) {
+
+  if ((storage instanceof DeviceStorage) === false) {
+    throw new Error('Missing or invalid storage device');
+  }
+
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Missing or invalide callback');
+  }
+  //create test file
+  var content = 'a';
+
+  var file = new File([content], Date.now() + '.txt', {
+    type: 'text/plain'
+  });
+
+
+  ffosbr.media.getFreeBytes(storage, function(size) {
+    // free bytes after deleting test file
+    var startFreeBytes = size;
+    ///////////////////////////////
+    var request = storage.addNamed(file, file.name);
+    request.onsuccess = function() {
+      var endFreeBytes = 0;
+      ffosbr.media.getFreeBytes(storage, function(size) {
+        // free bytes after creating test file
+        endFreeBytes = size;
+        var blockSize = startFreeBytes - endFreeBytes;
+        console.log('startFreeBytes ' + startFreeBytes + ' bytes' + '\nendFreeBytes: ' + endFreeBytes + ' bytes');
+        console.log('block size: ' + blockSize + ' bytes');
+        oncomplete(blockSize);
+
+        /////////delete test file////////////////////////
+        var deleteRequest = storage.delete(file.name);
+
+        deleteRequest.onerror = function() {
+          alert(this.error.name + 'Failed to remove last generated test file');
+        };
+
+        deleteRequest.onsuccess = function() {
+          console.log('successfully delete test file!');
+        };
+        //////////end delete//////////////////////////////
+      });
+
+      request.onerror = function() {
+        console.log(this.error.name);
+        throw new Error('Cannot add blocksize test file!');
+      };
+    };
+    ////////////////////////
+  });
+
+};
+
+/**
+ * @access public
+ * @description 
+      Check if there is enough space for next backup file.
+ * @param {DeviceStorage} storage
+ * @param {requestCallback} oncomplete
+ */
+Media.prototype.isEnoughSpace = function(storage, oncomplete) {
+
+};
+
+/**
+ * @access public
+ * @description 
+      Check if there is file name collision for next backup file in same directory.
+ * @param {DeviceStorage} storage
+ * @param {requestCallback} oncomplete
+ */
+Media.prototype.isNameCollision = function(storage, oncomplete) {
+
+};
+
 
 // Extend Ffosbr library
 module.exports = new Media();
