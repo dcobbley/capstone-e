@@ -21,7 +21,12 @@ function Settings() {
     settings: 'backup/settings/',
     messages: 'backup/messages/'
   };
+}
 
+/**
+ * @description Settings constructor
+ */
+Settings.prototype.initialize = function() {
   // Load persistent settings from local storage, if they exist
   try {
     this.load();
@@ -30,7 +35,7 @@ function Settings() {
     // was malformed. It has now been cleared and Settings
     // options holds default values.
   }
-}
+};
 
 Settings.prototype.load = function() {
   // Load options if present

@@ -3,7 +3,13 @@
  * @description Takes contacts stored on the device and SIM or ICC card(s) and saves them
  * to a JSON file on an external SD card.
  */
-var Contacts = function() {
+var Contacts = function() {};
+
+/**
+ * @access public
+ * @description Contacts initializer.
+ */
+Contacts.prototype.initialize = function() {
   this.contacts = [];
 };
 
