@@ -11,7 +11,7 @@ var backup = function(type, oncomplete) {
 
   var paths = window.ffosbr.settings.getBackupDirectoryPaths();
 
-  if (typeof(ffosbr.settings.getPath(type)) === undefined) {
+  if (typeof(paths[type]) === undefined) {
     throw new Error('Invalid data type. Cannot restore type ' + type);
   }
 
@@ -20,8 +20,8 @@ var backup = function(type, oncomplete) {
       return;
     }
 
-    var filename = paths[type] + photo.name;
-    window.ffosbr.media.put('sdcard1', photo, filename, function() {
+    var filename = paths[type] + file.name;
+    window.ffosbr.media.put('sdcard1', file, filename, function() {
       oncomplete();
     });
   });

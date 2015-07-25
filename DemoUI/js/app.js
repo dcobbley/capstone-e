@@ -113,9 +113,19 @@ window.addEventListener('DOMContentLoaded', function() {
 
   refreshHistories();
 
+  function backup() {
+    if (ffosbr.settings.get('contacts')) {
+      // TODO
+    }
+  }
+
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    * EVENT LISTENERS                                                               *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+  document.getElementById('backup-button').addEventListener('click', function() {
+    backup();
+  });
 
   // Settings page listeners
 
@@ -178,41 +188,5 @@ window.addEventListener('DOMContentLoaded', function() {
       .setAttribute('class', 'go-deeper-back-in');
   });*/
 
-  document.getElementById('backup-button').addEventListener('click', function() {
-    var backupName = 'Backup ' + Math.floor((Math.random() * 100) + 1);
-    var backupDate = new Date();
-    var backupList = document.getElementById('backup-list');
-
-    var newItem = document.createElement('LI');
-
-    var linkNode = document.createElement('A');
-    linkNode.setAttribute('href', '#');
-
-    var firstP = document.createElement('P');
-    var titleNode = document.createTextNode(backupName);
-    firstP.appendChild(titleNode);
-
-    var secondP = document.createElement('P');
-    var subtitleNode = document.createTextNode(backupDate);
-    secondP.appendChild(subtitleNode);
-
-    linkNode.appendChild(firstP);
-    linkNode.appendChild(secondP);
-
-    newItem.appendChild(linkNode);
-
-    backupList.insertBefore(newItem, backupList.childNodes[0]);
-
-    linkNode.addEventListener('click', function() {
-      var backupPage = document.getElementById('backup-page');
-      var backupsPage = document.getElementById('backups-page');
-
-      document.getElementById('backup-page-backup-name').innerHTML = backupName;
-      document.getElementById('backup-page-backup-date').innerHTML = backupDate;
-
-      backupPage.setAttribute('class', 'go-deeper-in');
-      backupsPage.setAttribute('class', 'go-deeper-out');
-    });
-  });
 
 });
