@@ -224,7 +224,7 @@ QUnit.test('Remove media from external storage', function(assert) {
       ffosbr.media.remove('hello', true);
     },
     new Error('Callback is not a function'),
-    '...throws error oncomplete is not a fuction'
+    '...throws error oncomplete is not a function'
   );
 
   //Must fail if there is not an external sdcard
@@ -284,7 +284,7 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
       ffosbr.media.getFreeBytes(storage, invalidCallback);
     },
     new Error('Missing or invalide callback'),
-    '...throws error oncomplete is not a fuction'
+    '...throws error oncomplete is not a function'
   );
 
   var startFreeBytes = 0;
