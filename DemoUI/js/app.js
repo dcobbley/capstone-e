@@ -115,7 +115,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   function backup() {
     if (ffosbr.settings.get('contacts')) {
-      // TODO
+      ffosbr.contacts.backup();
     }
   }
 
