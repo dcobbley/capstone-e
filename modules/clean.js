@@ -8,37 +8,32 @@
  * @param {callback} oncomplete
  */
 var clean = function(type, oncomplete) {
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  var externalSD = null;
-  var listFiles = null;
-  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
-
-  if (typeof(paths[type]) === undefined) {
+  if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
   }
 
-  externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
-
-  if (externalSD.ready === true) {
-    listFiles = externalSD.store.enumerate(paths[type]);
-  }
-
-  listFiles.onsuccess = function(file) {
+  ffosbr.media.get('sdcard1', paths[type], function(file) {
     if (!file) {
       return;
     }
 
     var filename = paths[type] + file.name;
-    window.ffosbr.media.remove(filename, function(error) {
+    alert(file.name);
+    window.ffosbr.media.remove(file.name, function(error) {
       if (error) {
         throw error;
       }
     });
-  };
+  }, function(error) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(error);
+    } else {
+      throw error;
+    }
+  });
 
-  listFiles.onerror = function(event) {
-    oncomplete(event.target.error.name);
-  };
 };
 
 // Defines Ffosbr clean

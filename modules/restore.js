@@ -11,8 +11,6 @@
  */
 var restore = function(type, oncomplete) {
 
-  var externalSD = null;
-  var restoreFiles = null;
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
   ffosbr.media.get('sdcard1', '/' + paths[type], function(file) {
