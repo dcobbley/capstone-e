@@ -172,7 +172,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
     var file = this.result;
     forEach(file);
     if (!file || this.done) {
-      if (oncomplete) {
+      if (oncomplete !== undefined) {
         oncomplete();
       }
       return;
@@ -242,7 +242,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
     if (storages.external !== null) {
       targetStorage = storages.external;
     } else {
-      throw new Error('Attempt to write to an invalid storage. Abort.');
+      throw new Error('Unable to locate SD card. Abort.');
     }
   } else {
     targetStorage = (storages.internal === null ? storages.external : storages.internal);
@@ -275,7 +275,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       if (error.message.length > 0) {
         oncomplete(error);
       } else {
-        oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+        throw new Error('Attempt to write to an invalid storage. Abort.');
       }
     }
   };

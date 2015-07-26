@@ -10,7 +10,7 @@ function Photos() {}
 Photos.prototype.initialize = function() {};
 
 /**
- * @description Wrapper that calls ffosbr.backup('pictures').
+ * @description Wrapper that calls ffosbr.backup('photos').
  *  Oncomplete callback is invoked upon completion; if an error occurred,
  *  it will be passed as the first parameter to the callback.
  * @param {callback} oncomplete
@@ -22,23 +22,23 @@ Photos.prototype.backup = function(oncomplete) {
 };
 
 /**
- * @description Wrapper for ffosbr.restore('pictures').
+ * @description Wrapper for ffosbr.restore('photos').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete
  */
 Photos.prototype.restore = function(oncomplete) {
-  ffosbr.restore('pictures', function() {
+  ffosbr.restore('photos', function() {
     oncomplete();
   });
 };
 
 /**
- * @description Wrapper for ffosbr.clean('pictures').
+ * @description Wrapper for ffosbr.clean('photos').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete
  */
 Photos.prototype.clean = function(oncomplete) {
-  ffosbr.clean('pictures', oncomplete);
+  ffosbr.clean('photos', oncomplete);
 };
 
 module.exports = new Photos();

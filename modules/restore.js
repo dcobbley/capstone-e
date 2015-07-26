@@ -4,60 +4,33 @@
  *   to Firefox OS. The contents restored depends on the
  *   backup present. Valid data types are: apps, music, photos,
  *   videos, contacts, and settings.
- *   If an error occurs, restore tries to call the "onerror"
+ *   If an error occurs, restore tries to call the "oncomplete"
  *   handler.
- * @param {callback} onerror
+ * @param {string} type
+ * @param {callback} oncomplete
  */
-var restore = function(onerror) {
+var restore = function(type, oncomplete) {
 
   var externalSD = null;
   var restoreFiles = null;
-  var type = null;
-  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
-
-  if (externalSD.ready === true) {
-    restoreFiles = externalSD.store.enumerate(paths[type]);
-  }
-
-  restoreFiles.onsuccess = function(file) {
+  ffosbr.media.get('sdcard1', '/' + paths[type], function(file) {
     if (!file) {
       return;
     }
 
     var fn = file.name;
-    var filepath = fn.substr(0, fn.lastIndexOf('/') + 1);
     var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
 
-    for (var i in paths) {
-      if (filepath === paths[i]) {
-        type = i;
-        break;
+    ffosbr.media.put(type === 'photos' ? 'pictures' : type, file, filename, function(error) {
+      if (error) {
+        oncomplete(error);
       }
-    }
-
-    // The following data types are passed to the OS
-    // in the same fashion. Contacts and settings have
-    // to be handled individually.
-    if (filepath === paths.apps ||
-      filepath === paths.music ||
-      filepath === paths.photos ||
-      filepath === paths.videos) {
-
-      window.ffosbr.media.put(type, file, '', function(error) {
-        if (error) {
-          throw error;
-        }
-      });
-    } else if (filepath === paths.contacts) {
-      // TODO - backup contacts
-    } else if (filepath === paths.settings) {
-      // TODO - backup settings
-    } else {
-      throw new Error('Failed to determine data type of ' + fn);
-    }
-  };
+    });
+  }, function() {
+    oncomplete();
+  });
 };
 
 // Defines Ffosbr restore
