@@ -160,25 +160,31 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   external = storages.external;
 
   if (type === 'sdcard1') {
-    externalFiles = external.store.enumerate(directory);
+    externalFiles = external.store.enumerate();
+    if (directory && !directory.startsWith('/sdcard1/')) {
+      directory = '/sdcard1/' + directory;
+    }
   } else {
     // Fall back to empty objects to avoid errors providing
     // "onsuccess" callbacks to null variables.
+    directory = null;
     internalFiles = internal.store.enumerate();
     externalFiles = external.store.enumerate();
   }
 
   var onsuccess = function() {
     var file = this.result;
-    forEach(file);
     if (!file || this.done) {
       if (oncomplete !== undefined) {
         oncomplete();
       }
       return;
-    } else {
-      this.continue();
     }
+
+    if (!directory || file.name.startsWith(directory)) {
+      forEach(file);
+    }
+    this.continue();
   };
 
   var onerror = function() {
