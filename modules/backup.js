@@ -11,19 +11,23 @@ var backup = function(type, oncomplete) {
 
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  if (typeof paths[type] === undefined) {
+  if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot restore type ' + type);
   }
 
-  ffosbr.media.get(type, function(file) {
+  ffosbr.media.get(type === 'photos' ? 'pictures' : type, function(file) {
     if (!file) {
       return;
     }
 
-    var filename = paths[type] + file.name;
-    ffosbr.media.put('sdcard1', file, filename, function() {
+    var fn = file.name;
+    fn = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
+    var dest = paths[type] + fn;
+    ffosbr.media.put('sdcard1', file, dest, function() {
       // Report progress?
-    }, oncomplete);
+    });
+  }, function() {
+    oncomplete();
   });
 };
 

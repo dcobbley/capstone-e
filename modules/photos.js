@@ -16,7 +16,9 @@ Photos.prototype.initialize = function() {};
  * @param {callback} oncomplete
  */
 Photos.prototype.backup = function(oncomplete) {
-  ffosbr.backup('pictures', oncomplete);
+  ffosbr.backup('photos', function() {
+    oncomplete();
+  });
 };
 
 /**
@@ -25,7 +27,9 @@ Photos.prototype.backup = function(oncomplete) {
  * @param {callback} oncomplete
  */
 Photos.prototype.restore = function(oncomplete) {
-  ffosbr.restore('pictures', oncomplete);
+  ffosbr.restore('pictures', function() {
+    oncomplete();
+  });
 };
 
 /**

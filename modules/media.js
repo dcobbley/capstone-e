@@ -171,13 +171,20 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   var onsuccess = function() {
     var file = this.result;
     forEach(file);
-    if (this.done && oncomplete) {
-      oncomplete();
+    if (!file || this.done) {
+      if (oncomplete) {
+        oncomplete();
+      }
+      return;
+    } else {
+      this.continue();
     }
   };
 
   var onerror = function() {
-    oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+    if (oncomplete) {
+      oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+    }
   };
 
   internalFiles.onsuccess = onsuccess;
