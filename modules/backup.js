@@ -9,21 +9,21 @@
  */
 var backup = function(type, oncomplete) {
 
-  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  if (typeof(ffosbr.settings.getPath(type)) === undefined) {
+  if (typeof paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot restore type ' + type);
   }
 
-  window.ffosbr.media.get(type, function(file) {
+  ffosbr.media.get(type, function(file) {
     if (!file) {
       return;
     }
 
-    var filename = paths[type] + photo.name;
-    window.ffosbr.media.put('sdcard1', photo, filename, function() {
-      oncomplete();
-    });
+    var filename = paths[type] + file.name;
+    ffosbr.media.put('sdcard1', file, filename, function() {
+      // Report progress?
+    }, oncomplete);
   });
 };
 

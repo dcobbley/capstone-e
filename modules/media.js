@@ -119,8 +119,9 @@ Media.prototype.getStorageByName = function(type) {
  * @param {String} type
  * @param {String} directory (optional)
  * @param {callback} forEach
+ * @param {callback} oncomplete
  */
-Media.prototype.get = function(type, directory, forEach) {
+Media.prototype.get = function(type, directory, forEach, oncomplete) {
 
   var storages = null;
   var internal = null;
@@ -138,17 +139,19 @@ Media.prototype.get = function(type, directory, forEach) {
     if (ffosbr.utils.isFunction(directory)) {
       // Parameter "directory" was not provided, and the
       // second parameter is really the "forEach" function
+      oncomplete = forEach;
       forEach = directory;
     } else if (ffosbr.utils.isFunction(forEach)) {
       throw new Error('Missing or invalid directory');
-    } else {
-      throw new Error('Missing or invalid callback');
     }
     directory = null;
   }
 
   if (!ffosbr.utils.isFunction(forEach)) {
     throw new Error('Missing or invalid callback');
+  }
+  if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Invalid oncomplete callback');
   }
 
   storages = this.getStorageByName(type === 'sdcard1' ? 'sdcard' : type);
@@ -168,10 +171,13 @@ Media.prototype.get = function(type, directory, forEach) {
   var onsuccess = function() {
     var file = this.result;
     forEach(file);
+    if (this.done && oncomplete) {
+      oncomplete();
+    }
   };
 
   var onerror = function() {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
+    oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
   };
 
   internalFiles.onsuccess = onsuccess;
