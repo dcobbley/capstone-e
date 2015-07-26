@@ -4,12 +4,13 @@
 
     /* Import modules */
     this._modules = {
-      'utils': require('./utils'),
-      'media': require('./media'),
-      'settings': require('./settings'),
-      'history': require('./history'),
-      'messages': require('./messages'),
-      'contacts': require('./contacts')
+      // 'utils': require('./utils'),
+      // 'media': require('./media'),
+      // 'settings': require('./settings'),
+      // 'history': require('./history'),
+      // 'messages': require('./messages'),
+      // 'contacts': require('./contacts'),
+      'systemSettings': require('./systemSettings')
     };
 
     /* Import classes */

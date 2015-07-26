@@ -21,7 +21,8 @@
     "device-storage:pictures":{ "access": "readwrite" },
     "contacts": { "access": "readwrite" },
     "mobileconnection":{},
-    "sms":{}
+    "sms":{},
+    "settings":{"access": "readwrite"}
 
   },
   "installs_allowed_from": [
