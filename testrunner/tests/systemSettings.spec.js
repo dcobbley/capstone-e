@@ -1,6 +1,11 @@
 QUnit.test('systemSettings', function(assert) {
 
-  ffosbr.systemSettings.loadFromDevice();
+  console.log(ffosbr.systemSettings.loadFromDevice());
+
+  ffosbr.systemSettings.writeToLocalStorage();
+
   ffosbr.systemSettings.writeSettingsToDevice();
+
+  console.log(ffosbr.systemSettings.loadFromDevice());
 
 });

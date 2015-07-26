@@ -151,9 +151,49 @@ SystemSettings.prototype.initialize = function() {
   try {
     this.loadFromDevice();
   } catch (err) {
-
+    console.log('cannot initialize');
   }
 };
+
+
+/**
+ *@description: helper function to be used in update field.
+ *  Needed to allow access to this.systemsettings
+ *
+ *@params: pass in the name of the setting (field) and 
+ *  the result from the lock.get (settingResult).
+ */
+
+SystemSettings.prototype.onsuccess = function(field, settingResult) {
+  this.systemsettings[field] = settingResult[field];
+};
+
+
+/**
+ *@description: helper function to be used in load settings. 
+ * Given one setting entry from the system settings, we acquire the lock on that setting, and
+ * copy it to our local copy of settings.
+ *@access: public
+ *@params: field is the name of the given setting
+ *
+ */
+
+SystemSettings.prototype.updateField = function(field) {
+  var lock = navigator.mozSettings.createLock();
+
+  var setting = lock.get(field);
+
+  setting.onsuccess = function() {
+    ffosbr.systemSettings.onsuccess(field, setting.result);
+  };
+
+  setting.onerror = function() {
+    console.warn('An error occured');
+  };
+
+};
+
+
 
 /**
  *@description: load System Settings from device storage
@@ -161,44 +201,104 @@ SystemSettings.prototype.initialize = function() {
  *@access: public, requires 'settings' in manifest
  */
 SystemSettings.prototype.loadFromDevice = function() {
-  updateField = function(field) {
-    var lock = navigator.mozSettings.createLock();
-    var setting = lock.get(field);
 
-    setting.onsuccess = function() {
-      ffosbr.systemSettings.systemsettings[field] = setting.result[field];
-      console.log('success: ' + JSON.stringify(setting.result));
-    };
-
-    setting.onerror = function() {
-      console.warn('An error occured: ' + JSON.stringify(setting.result));
-    };
-
-  };
-
-
-  // for (var field in this.systemsettings) {
-  var count = 0;
-  for (var field in ffosbr.systemSettings.systemsettings) {
-    console.log(field);
-    count++;
-    updateField(field);
+  for (var field in this.systemsettings) {
+    ffosbr.systemSettings.updateField(field);
   }
 
-  console.log(count);
+  return this.systemsettings;
 
-  localStorage.setItem('ffosbrSystemSettings', JSON.stringify(ffosbr.systemSettings.systemsettings));
 };
+
+
+/**
+ *@description: After the settings have been loaded, call this function
+ *  to write to local storage.
+ *
+ */
+
+SystemSettings.prototype.writeToLocalStorage = function() {
+  localStorage.setItem('ffosbrSystemSettings', JSON.stringify(this.systemsettings));
+};
+
+
+/**
+ *@description: helper function to be used in write settings to device.
+ * given one setting entry, this function gets the lock on that setting and updates 
+ * the system setting based on our local copy.
+ *
+ */
+
+SystemSettings.prototype.setField = function(settingName, settingValue) {
+  var lock = navigator.mozSettings.createLock();
+  var settingString = settingName + ': ' + settingValue;
+  var settingObj = {
+    settingName: settingValue
+  };
+  var result = lock.set(settingObj);
+
+  result.onsuccess = function() {
+    console.log('successfully updated setting');
+  };
+  result.onerror = function() {
+    console.log('failed to update setting');
+  };
+};
+
+/**
+ *@description: This function first loads our backed up copy of system settings.
+ *  We then update the system settings based on what our backed up copy has stored.
+ *
+ *
+ */
 
 
 SystemSettings.prototype.writeSettingsToDevice = function() {
 
-  var backedUpSettings = localStorage.getItem('ffosbrSystemSettings');
-  console.log(JSON.parse(backedUpSettings));
+  var retrievedSettings = localStorage.getItem('ffosbrSystemSettings');
+
+  if (retrievedSettings !== null) {
+    try {
+      retrievedSettings = JSON.parse(retrievedSettings);
+    } catch (err) {
+      console.log('cannot fetch object');
+      localStorage.setItem('ffosbrSystemSettings', null);
+      throw new Error('Fetched an invalid options object from local storage');
+    }
+  } else {
+    console.log('retrievedSettings is null');
+  }
+
+  for (var field in retrievedSettings) {
+    ffosbr.systemSettings.setField(field, retrievedSettings[field]);
+  }
 
 };
 
+/**
+ *@Description: this function handles changes in system settings.
+ *  When a setting is changed, this function should be called to update our local version of system settings.
+ *  This way we can consistently have the most up to date version of system settings.
+ *
+ *  APPLICATION SIDE MUST HAVE A LISTENER FOR settingchange EVENT!
+ *  navigator.mozSettings.onsettingchange = function(event) {
+ *    ffosbr.systemSettings.updateOnSettingChange(event);
+ *
+ *   }
+ *  then pass that event to this function.
+ *
+ *
+ * NEEDS TO BE TESTED 
+ */
 
+SystemSettings.prototype.updateOnSettingChange = function(event) {
+  var settingName = event.settingName;
+  var settingValue = event.settingValue;
+
+  this.systemsettings[settingName] = settingValue;
+  ffosbr.systemSettings.writeToLocalStorage();
+
+};
 
 
 module.exports = new SystemSettings();
