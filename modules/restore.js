@@ -22,12 +22,14 @@ var restore = function(type, oncomplete) {
     var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
 
     ffosbr.media.put(type === 'photos' ? 'pictures' : type, file, filename, function(error) {
-      if (error) {
+      if (ffosbr.utils.isFunction(oncomplete)) {
         oncomplete(error);
       }
     });
-  }, function() {
-    oncomplete();
+  }, function(error) {
+    if(ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(error);
+    }
   });
 };
 

@@ -26,8 +26,10 @@ var backup = function(type, oncomplete) {
     ffosbr.media.put('sdcard1', file, dest, function() {
       // Report progress?
     });
-  }, function() {
-    oncomplete();
+  }, function(error) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(error);
+    }
   });
 };
 

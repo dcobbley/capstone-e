@@ -142,12 +142,21 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
       oncomplete = forEach;
       forEach = directory;
     } else if (ffosbr.utils.isFunction(forEach)) {
-      throw new Error('Missing or invalid directory');
+      if (ffosbr.utils.isFunction(oncomplete)) {
+        oncomplete(new Error('Missing or invalid directory'));
+        return;
+      } else {
+        throw new Error('Missing or invalid directory');
+      }
     }
     directory = null;
   }
 
   if (!ffosbr.utils.isFunction(forEach)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid callback));
+      return;
+    }
     throw new Error('Missing or invalid callback');
   }
   if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
@@ -190,7 +199,9 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   var onerror = function() {
     if (oncomplete) {
       oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+      return;
     }
+    throw new Error('Attempt to read from an invalid storage. Abort.');
   };
 
   internalFiles.onsuccess = onsuccess;
@@ -222,14 +233,26 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   var write = null; // cursor or iterator
 
   if (typeof(type) !== 'string') {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid media type'));
+      return;
+    }
     throw new Error('Missing or invalid media type');
   }
 
   if (!(file instanceof File)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid file'));
+      return;
+    }
     throw new Error('Missing or invalid file');
   }
 
   if (typeof(dest) !== 'string') {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid write destination'));
+      return;
+    }
     throw new Error('Missing or invalid write destination');
   }
 
@@ -248,6 +271,10 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
     if (storages.external !== null) {
       targetStorage = storages.external;
     } else {
+      if (oncomplete) {
+        oncomplete(new Error('Unable to locate SD card. Abort.'));
+        return;
+      }
       throw new Error('Unable to locate SD card. Abort.');
     }
   } else {
@@ -261,12 +288,16 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       write = targetStorage.store.addNamed(file, filename);
     }
   } catch (e) {
+    if (oncomplete) {
+      oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+      return;
+    }
     throw new Error('Attempt to write to an invalid storage. Abort.');
   }
 
   write.onsuccess = function(fileWritten) {
     // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
+    if (oncomplete) {
       oncomplete();
     }
   };
@@ -275,12 +306,20 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
     var error = this.error;
     // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
+    if (oncomplete) {
 
       // The majority of errors thrown by Firefox OS do not provide messages.
       if (error.message.length > 0) {
-        oncomplete(error);
+        if (oncomplete) {
+          oncomplete(error);
+        } else {
+          throw error;
+        }
       } else {
+        if (oncomplete) {
+          oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+          return;
+        }
         throw new Error('Attempt to write to an invalid storage. Abort.');
       }
     }
@@ -316,7 +355,7 @@ Media.prototype.remove = function(filename, oncomplete) {
 
   remove.onsuccess = function() {
     // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
+    if (oncomplete) {
       oncomplete();
     }
   };
