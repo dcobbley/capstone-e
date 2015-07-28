@@ -345,8 +345,10 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
 
           // blockSize is the value be setted when formatting SD card
           // default value is 4KB
-          var blockSize = 4096;
-          assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
+          ffosbr.media.checkBlockSize(storage, function(blockSize) {
+            assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
+          });
+
         });
       });
     };
