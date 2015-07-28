@@ -5,11 +5,13 @@
 function Videos() {}
 
 /**
+ * @access private
  * @description Videos initializer.
  */
 Videos.prototype.initialize = function() {};
 
 /**
+ * @access public
  * @description Wrapper that calls ffosbr.backup('videos').
  *  Oncomplete callback is invoked upon completion; if an error occurred,
  *  it will be passed as the first parameter to the callback.
@@ -22,6 +24,7 @@ Videos.prototype.backup = function(oncomplete) {
 };
 
 /**
+ * @access public
  * @description Wrapper for ffosbr.restore('videos').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete
@@ -33,6 +36,7 @@ Videos.prototype.restore = function(oncomplete) {
 };
 
 /**
+ * @access public
  * @description Wrapper for ffosbr.clean('videos').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete

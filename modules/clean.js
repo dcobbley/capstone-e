@@ -6,6 +6,7 @@
  *   the callback, "oncomplete".
  * @param {string} type
  * @param {callback} oncomplete
+ * @throws On invalid data type
  */
 var clean = function(type, oncomplete) {
   var paths = ffosbr.settings.getBackupDirectoryPaths();

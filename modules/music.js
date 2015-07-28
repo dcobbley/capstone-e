@@ -5,11 +5,13 @@
 function Music() {}
 
 /**
+ * @access private
  * @description Music initializer.
  */
 Music.prototype.initialize = function() {};
 
 /**
+ * @access public
  * @description Wrapper that calls ffosbr.backup('music').
  *  Oncomplete callback is invoked upon completion; if an error occurred,
  *  it will be passed as the first parameter to the callback.
@@ -22,6 +24,7 @@ Music.prototype.backup = function(oncomplete) {
 };
 
 /**
+ * @access public
  * @description Wrapper for ffosbr.restore('music').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete
@@ -33,6 +36,7 @@ Music.prototype.restore = function(oncomplete) {
 };
 
 /**
+ * @access public
  * @description Wrapper for ffosbr.clean('music').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete

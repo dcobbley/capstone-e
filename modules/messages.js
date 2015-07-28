@@ -4,6 +4,7 @@
 var Messages = function() {};
 
 /**
+ * @access private
  * @description Messages constructor
  */
 Messages.prototype.initialize = function() {};

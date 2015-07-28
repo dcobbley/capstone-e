@@ -24,6 +24,7 @@ function Media() {
 }
 
 /**
+ * @access private
  * @description Media constructor
  */
 Media.prototype.initialize = function() {
@@ -154,7 +155,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
 
   if (!ffosbr.utils.isFunction(forEach)) {
     if (ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete(new Error('Missing or invalid callback));
+      oncomplete(new Error('Missing or invalid callback'));
       return;
     }
     throw new Error('Missing or invalid callback');
@@ -223,6 +224,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
  * @param {File} file
  * @param {String} dest
  * @param {requestCallback} oncomplete (option)
+ * @throws on invalid media type
  */
 Media.prototype.put = function(type, file, dest, oncomplete) {
 
@@ -333,6 +335,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
  * @param {String} filename - Specifies the full path to the file to be
  *   removed from the external sdcard (sdcard1).
  * @param {requestCallback} oncomplete (optional)
+ * @throws 
  */
 Media.prototype.remove = function(filename, oncomplete) {
 

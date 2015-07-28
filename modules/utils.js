@@ -4,12 +4,13 @@
 var Utilities = function() {};
 
 /**
+ * @access private
  * @description Utilities constructor
  */
 Utilities.prototype.initialize = function() {};
 
 /**
- * @access public
+ * @access private
  * @description Determines whether an object is a function.
  * @param {any} functionToCheck
  * @returns {boolean}

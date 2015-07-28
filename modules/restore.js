@@ -27,7 +27,7 @@ var restore = function(type, oncomplete) {
       }
     });
   }, function(error) {
-    if(ffosbr.utils.isFunction(oncomplete)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
       oncomplete(error);
     }
   });
