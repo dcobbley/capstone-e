@@ -21,19 +21,14 @@ var clean = function(type, oncomplete) {
     }
 
     var filename = paths[type] + file.name;
-    alert(file.name);
     window.ffosbr.media.remove(file.name, function(error) {
       if (error) {
         throw error;
       }
     });
-  }, function(error) {
-    if (ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete(error);
-    } else {
-      throw error;
-    }
-  });
+  }, ffosbr.utils.isFunction(oncomplete) ? function(error) {
+    oncomplete(error);
+  } : undefined);
 
 };
 

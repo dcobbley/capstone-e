@@ -170,10 +170,18 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   external = storages.external;
 
   if (type === 'sdcard1') {
-    externalFiles = external.store.enumerate();
-    if (directory && !directory.startsWith('/sdcard1/')) {
-      directory = '/sdcard1/' + directory;
+    if (directory) {
+      if (!directory.startsWith('/')) {
+        directory = '/' + directory;
+      }
+      if (!directory.startsWith('/sdcard1')) {
+        directory = '/sdcard1' + directory;
+      }
+      if (!directory.endsWith('/')) {
+        directory = directory + '/';
+      }
     }
+    externalFiles = external.store.enumerate();
   } else {
     // Fall back to empty objects to avoid errors providing
     // "onsuccess" callbacks to null variables.
@@ -312,18 +320,13 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
       // The majority of errors thrown by Firefox OS do not provide messages.
       if (error.message.length > 0) {
-        if (oncomplete) {
-          oncomplete(error);
-        } else {
-          throw error;
-        }
+        oncomplete(error);
       } else {
-        if (oncomplete) {
-          oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
-          return;
-        }
-        throw new Error('Attempt to write to an invalid storage. Abort.');
+        alert(type + '\n' + filename + '\n' + file.name + '\n' + file.type);
+        oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
       }
+    } else {
+      throw new Error('Attempt to write to an invalid storage. Abort.');
     }
   };
 };

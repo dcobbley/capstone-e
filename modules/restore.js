@@ -13,23 +13,30 @@ var restore = function(type, oncomplete) {
 
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  ffosbr.media.get('sdcard1', '/' + paths[type], function(file) {
+  ffosbr.media.get('sdcard1', paths[type], function(file) {
     if (!file) {
       return;
     }
 
     var fn = file.name;
+    if (fn.endsWith('~')) {
+      fn = fn.substr(0, fn.length - 1);
+    }
     var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
 
-    ffosbr.media.put(type === 'photos' ? 'pictures' : type, file, filename, function(error) {
-      if (ffosbr.utils.isFunction(oncomplete)) {
-        oncomplete(error);
-      }
-    });
-  }, function(error) {
-    if (ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete(error);
-    }
+    var reader = new FileReader();
+
+    reader.onloadend = function() {
+      var fc = this.result;
+      var newFile = new File([fc], filename, {
+        type: 'image/jpeg'
+      });
+      newFile.type = 'image/jpeg';
+
+      ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, oncomplete);
+    };
+
+    reader.readAsArrayBuffer(file);
   });
 };
 

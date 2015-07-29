@@ -23,15 +23,13 @@ var backup = function(type, oncomplete) {
 
     var fn = file.name;
     fn = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
-    var dest = paths[type] + fn;
+    var dest = paths[type] + fn + '~';
     ffosbr.media.put('sdcard1', file, dest, function() {
       // Report progress?
     });
-  }, function(error) {
-    if (ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete(error);
-    }
-  });
+  }, ffosbr.utils.isFunction(oncomplete) ? function(error) {
+    oncomplete(error);
+  } : undefined);
 };
 
 // Defines Ffosbr backup
