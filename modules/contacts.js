@@ -41,7 +41,15 @@ Contacts.prototype.restore = function() {
     }
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
-      myContact.givenName = [data[i].name];
+      var temp[] = data[i].split(" ");
+      if(temp.length===2){
+        myContact.givenName=temp[0];
+        myContact.familyName=temp[1];
+      }
+      else{
+        myContact.givenName = [data[i].name];
+      }
+
       navigator.mozContacts.save(myContact);
     }
   };
