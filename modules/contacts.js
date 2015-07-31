@@ -22,6 +22,7 @@ Contacts.prototype.initialize = function() {
  * @description Checks the progress of the current backup
  */
 Contacts.prototype.checkProgress = function() {
+  var that = this;
   var delay = 250; // 1/4 sec in ms
 
   if (!this.SIMfinished || !this.OSfinished) {
