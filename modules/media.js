@@ -418,7 +418,7 @@ Media.prototype.checkBlockSize = function(storage, oncomplete) {
   }
 
   if (!ffosbr.utils.isFunction(oncomplete)) {
-    throw new Error('Missing or invalide callback');
+    throw new Error('Missing or invalid callback');
   }
 
   // Create test file (1 byte in size)
@@ -455,22 +455,45 @@ Media.prototype.checkBlockSize = function(storage, oncomplete) {
  * @access public
  * @description
       Check if there is enough space for next backup file.
+       
+       var content = '1234567890';
+       var file = new File([content], 'Size' + content.length + '.txt', {
+        type: 'text/plain'
+       });
+       ffosbr.media.isEnoughSpace(navigator.getDeviceStorages('sdcard')[1], file, function() {} );
+      using above line to test
  * @param {DeviceStorage} storage
+ * @param {File} file
  * @param {requestCallback} oncomplete
  */
-Media.prototype.isEnoughSpace = function(storage, oncomplete) {
+Media.prototype.isEnoughSpace = function(storage, file, oncomplete) {
 
+  var currentFreeBytes = 0;
+
+  ffosbr.media.getFreeBytes(storage, function(currentFreeBytes) {
+    console.log(currentFreeBytes + 'bytes');
+    ffosbr.media.checkBlockSize(storage, function(blockSize) {
+      var fileSize = file.size;
+      var realFileSize = Math.ceil(fileSize / blockSize) * blockSize;
+      if (realFileSize < currentFreeBytes) {
+        oncomplete(true);
+      } else {
+        oncomplete(false);
+      }
+    });
+  });
 };
-
 /**
  * @access public
  * @description
       Check if there is file name collision for next backup file in same directory.
  * @param {DeviceStorage} storage
+ * @param {File} file
  * @param {requestCallback} oncomplete
  */
-Media.prototype.isNameCollision = function(storage, oncomplete) {
+Media.prototype.isNameCollision = function(storage, file, oncomplete) {
 
+  //This function exists in Storage.prototype.fileExists
 };
 
 

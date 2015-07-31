@@ -33,7 +33,7 @@ QUnit.test('Get internal storage', function(assert) {
     '...returns null given a list of only external storages'
   );
 
-  var desiredResult = storages.length >= 1 ? true : false;
+  var desiredResult = storages.length >= 1;
   var result = ffosbr.media.getInternalStorage(storages) instanceof DeviceStorage;
   assert.strictEqual(
     result, desiredResult,
@@ -332,17 +332,8 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
             throw new Error('Can\'t write to ' + storage.storageName + ': ' + putErr.message);
           }
 
-          // Get the number of free bytes after writing the test file
-          ffosbr.media.getFreeBytes(storage, function(bytesAfter, errAfter) {
-
-            if (errAfter) {
-              throw new Error('Can\'t get final free bytes from ' + storage.storageName + ': ' + errAfter.message);
-            }
-
-            endFreeBytes = bytesAfter;
-
-            // blockSize (set when formatting SD card) is 4KB by default
-            var blockSize = 4096;
+          // blockSize is set when formatting SD card (default value is 4KB)
+          ffosbr.media.checkBlockSize(storage, function(blockSize) {
             assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
           });
         });
