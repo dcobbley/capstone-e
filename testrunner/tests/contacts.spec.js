@@ -14,11 +14,6 @@ QUnit.test('Contacts', function(assert) {
   ffosbr.contacts.oncomplete = function() {
     console.log('Contacts is finished');
   };
-  //ffosbr.contacts.backup();
-  //ffosbr.contacts.backup();
-  // ffosbr.contacts.getContactsFromSIM();
-
- // ffosbr.contacts.restore();
 
   console.log('END Test');
 
