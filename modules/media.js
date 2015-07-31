@@ -13,7 +13,7 @@ function Media() {
     // 'music',
     'pictures',
     'sdcard',
-    // 'videos'
+    'videos'
   ];
 
   // Contains a storage {Storage} for each internal storage type.
@@ -24,6 +24,7 @@ function Media() {
 }
 
 /**
+ * @access private
  * @description Media constructor
  */
 Media.prototype.initialize = function() {
@@ -148,8 +149,9 @@ Media.prototype.getDefaultStorage = function(type) {
  * @param {String} type
  * @param {String} directory (optional)
  * @param {callback} forEach
+ * @param {callback} oncomplete
  */
-Media.prototype.get = function(type, directory, forEach) {
+Media.prototype.get = function(type, directory, forEach, oncomplete) {
 
   var storages = null;
   var internal = null;
@@ -167,17 +169,28 @@ Media.prototype.get = function(type, directory, forEach) {
     if (ffosbr.utils.isFunction(directory)) {
       // Parameter "directory" was not provided, and the
       // second parameter is really the "forEach" function
+      oncomplete = forEach;
       forEach = directory;
     } else if (ffosbr.utils.isFunction(forEach)) {
-      throw new Error('Missing or invalid directory');
-    } else {
-      throw new Error('Missing or invalid callback');
+      if (ffosbr.utils.isFunction(oncomplete)) {
+        oncomplete(new Error('Missing or invalid directory'));
+        return;
+      } else {
+        throw new Error('Missing or invalid directory');
+      }
     }
     directory = null;
   }
 
   if (!ffosbr.utils.isFunction(forEach)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid callback'));
+      return;
+    }
     throw new Error('Missing or invalid callback');
+  }
+  if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Invalid oncomplete callback');
   }
 
   storages = this.getStorageByName(type === 'sdcard1' ? 'sdcard' : type);
@@ -188,8 +201,16 @@ Media.prototype.get = function(type, directory, forEach) {
   if (internal.ready === false && external.ready === false) {
     forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
   } else if (type === 'sdcard1') {
-    if (external.ready === true) {
-      externalFiles = external.store.enumerate(directory);
+    if (directory) {
+      if (!directory.startsWith('/')) {
+        directory = '/' + directory;
+      }
+      if (!directory.startsWith('/sdcard1')) {
+        directory = '/sdcard1' + directory;
+      }
+      if (!directory.endsWith('/')) {
+        directory = directory + '/';
+      }
     }
   } else {
     if (internal.ready === true) {
@@ -202,11 +223,25 @@ Media.prototype.get = function(type, directory, forEach) {
 
   var onsuccess = function() {
     var file = this.result;
-    forEach(file);
+    if (!file || this.done) {
+      if (oncomplete !== undefined) {
+        oncomplete();
+      }
+      return;
+    }
+
+    if (!directory || file.name.startsWith(directory)) {
+      forEach(file);
+    }
+    this.continue();
   };
 
   var onerror = function() {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
+    if (oncomplete) {
+      oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+      return;
+    }
+    throw new Error('Attempt to read from an invalid storage. Abort.');
   };
 
   internalFiles.onsuccess = onsuccess;
@@ -230,6 +265,7 @@ Media.prototype.get = function(type, directory, forEach) {
  *   default directory of the storage device. Only valid for types sdcard
  *   and sdcard1.
  * @param {requestCallback} oncomplete (optional)
+ * @throws on invalid media type
  */
 Media.prototype.put = function(type, file, dest, oncomplete) {
 
@@ -240,14 +276,26 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   var write = {}; // cursor or iterator
 
   if (typeof(type) !== 'string') {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid media type'));
+      return;
+    }
     throw new Error('Missing or invalid media type');
   }
 
   if (!(file instanceof File)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid file'));
+      return;
+    }
     throw new Error('Missing or invalid file');
   }
 
   if (typeof(dest) !== 'string') {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid write destination'));
+      return;
+    }
     throw new Error('Missing or invalid write destination');
   }
 
@@ -282,7 +330,15 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   storages = this.getStorageByName(sname);
 
   if (type === 'sdcard1') {
-    targetStorage = storages.external;
+    if (storages.external !== null) {
+      targetStorage = storages.external;
+    } else {
+      if (oncomplete) {
+        oncomplete(new Error('Unable to locate SD card. Abort.'));
+        return;
+      }
+      throw new Error('Unable to locate SD card. Abort.');
+    }
   } else {
     targetStorage = this.getDefaultStorage(type);
   }
@@ -307,11 +363,17 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   write.onerror = function() {
     var error = this.error;
-    // The majority of errors thrown by Firefox OS do not provide messages.
-    if (error.message.length > 0) {
-      oncomplete(error);
+    // Only call the oncomplete callback if it was provided
+    if (oncomplete) {
+
+      // The majority of errors thrown by Firefox OS do not provide messages.
+      if (error.message.length > 0) {
+        oncomplete(error);
+      } else {
+        oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+      }
     } else {
-      oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+      throw new Error('Attempt to write to an invalid storage. Abort.');
     }
   };
 };
@@ -323,6 +385,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
  * @param {String} filename - Specifies the full path to the file to be
  *   removed from the external sdcard (sdcard1).
  * @param {requestCallback} oncomplete (optional)
+ * @throws 
  */
 Media.prototype.remove = function(filename, oncomplete) {
 
@@ -345,7 +408,7 @@ Media.prototype.remove = function(filename, oncomplete) {
 
   remove.onsuccess = function() {
     // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
+    if (oncomplete) {
       oncomplete();
     }
   };

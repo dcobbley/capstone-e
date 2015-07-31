@@ -1,4 +1,5 @@
 /**
+ * @access private
  * @description Basic "storage" class to help simplify code in the
  *  Media module, and help offload some functionality in detecting
  *  write-collisions. The main purpose of this class is to indicate
@@ -8,6 +9,7 @@
  *   Note: See Media > storageTypes for a list of valid types.
  * @param {DeviceStorage} store: The DeviceStorage used by this
  *   storage instance.
+ * @throws on invalid media type of device storage
  */
 function Storage(type, store) {
 
@@ -32,6 +34,7 @@ function Storage(type, store) {
 }
 
 /**
+ * @access private
  * @description Reports whether or not a file exists in a
  *   given storage.
  * @param {string} fname: Name of file to check.
@@ -63,9 +66,11 @@ Storage.prototype.fileExists = function(fname, oncomplete) {
 };
 
 /**
+ * @access private
  * @description Enumerates all files on storage and adds them to
  *   the "files" object. This is used for tracking what files
  *   exist in the storage at all times.
+ * @throws if fails access storage
  */
 Storage.prototype.populate = function() {
 
@@ -107,6 +112,7 @@ Storage.prototype.populate = function() {
 };
 
 /**
+ * @access private
  * @description Sanitizes file names such that they are valid
  *   object keys.
  * @fname File name to sanitize.

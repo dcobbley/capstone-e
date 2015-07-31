@@ -126,7 +126,7 @@ QUnit.test('Get media from storage', function(assert) {
     );
   });
 
-  // NOTE: Media.get() as no return value, so if it worked and doesn't
+  // NOTE: Media.get() has no return value, so if it worked and doesn't
   // throw an error, the return value should be "undefined".
   var desiredResult = storages.length >= 2 ? undefined : 'Attempt to read from an invalid storage. Abort.';
   ffosbr.media.get('sdcard1', function(file, err) {
@@ -195,10 +195,6 @@ QUnit.test('Put media to storage', function(assert) {
       '...throws error when there is not an external sdcard'
     );
   });
-
-  //TODO
-  //destination is ignored unless type is sdcard1 make sure it's ignored
-  //make sure dest affects where files are written ?? human test
 
 
 });
