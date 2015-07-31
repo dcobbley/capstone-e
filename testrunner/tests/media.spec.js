@@ -254,6 +254,56 @@ QUnit.test('Remove media from external storage', function(assert) {
 
 });
 
+
+
+
+
+QUnit.test('enumerate files ', function(assert) {
+  assert.ok(isFunction(ffosbr.media.getFreeBytes), '...is a function');
+  var sdcard = navigator.getDeviceStorages('sdcard')[1];
+
+  // // Let's retrieve files from last week.
+  // var param = {
+  //   since: new Date((+new Date()) - 7*24*60*60*1000)
+  // }
+
+  // var cursor = sdcard.enumerate('');
+
+  // cursor.onsuccess = function () {
+
+  //   if (this.result) {
+  //     var file = this.result;
+  //     alert("File updated on: " + file.lastModifiedDate + ":::L" + file.name);
+
+  //     // Once we found a file we check if there are other results
+  //     // Then we move to the next result, which calls the cursor
+  //     // success possibly with the next file as result.
+  //     this.continue();
+  //   }
+  // };
+  var content = '1234567890';
+
+  var file = new File([content], 'Size' + content.length + '.txt', {
+    type: 'text/plain'
+  });
+
+  var request = sdcard.addNamed(file, file.name);
+
+  request.onsuccess = function() {
+    var name = this.result;
+    console.log('File "' + name + '" successfully wrote on the sdcard storage area');
+  };
+
+  // An error typically occur if a file with the same name already exist
+  request.onerror = function() {
+    console.warn('Unable to write the file: ' + this.error.name);
+  };
+});
+
+
+
+
+
 /**
  * Media.getFreeBytes (modules/media.js)
  */
@@ -347,9 +397,9 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
           // default value is 4KB
           ffosbr.media.checkBlockSize(storage, function(blockSize) {
             assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
-            var requestAfter = storage.delete('backup/test' + file.name);     
+            var requestAfter = storage.delete('backup/test' + file.name);
             requestAfter.onerror = function() {
-               alert(this.error.name + 'Failed to remove after generated test file');
+              alert(this.error.name + 'Failed to remove after generated test file');
             };
 
             requestAfter.onsuccess = function() {

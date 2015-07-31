@@ -237,12 +237,26 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   try {
     if (type === 'sdcard1') {
-      write = targetStorage.store.addNamed(file, dest);
+      ffosbr.media.isEnoughSpace(targetStorage, file, function(res) {
+        if (res) {
+          write = targetStorage.store.addNamed(file, dest);
+        } else {
+          throw new Error('No enough space for ' + file.name);
+        }
+      });
+
     } else {
-      write = targetStorage.store.addNamed(file, filename);
+      ffosbr.media.isEnoughSpace(targetStorage, file, function(res) {
+        if (res) {
+          write = targetStorage.store.addNamed(file, filename);
+        } else {
+          throw new Error('No enough space for ' + file.name);
+        }
+      });
     }
   } catch (e) {
-    throw new Error('Attempt to write to an invalid storage. Abort.');
+    throw e;
+    //throw new Error('Unable to write file. Abort.');
   }
 
   write.onsuccess = function(fileWritten) {
@@ -458,8 +472,34 @@ Media.prototype.isEnoughSpace = function(storage, file, oncomplete) {
  * @param {requestCallback} oncomplete
  */
 Media.prototype.isNameCollision = function(storage, file, oncomplete) {
+  //create test file
+  var content = 'a';
 
-  //This function exists in Storage.prototype.fileExists
+  var testFile = new File([content], file.name);
+
+  var request = sdcard.addNamed(testFile, testFile.name);
+
+  request.onsuccess = function() {
+
+    console.log('testFile ' + 'successfully wrote on the sdcard storage area');
+    /////////delete test file////////////////////////
+    var deleteRequest = storage.delete(testFile.name);
+
+    deleteRequest.onerror = function() {
+      alert(this.error.name + 'Failed to remove name collision test file');
+    };
+
+    deleteRequest.onsuccess = function() {
+      console.log('successfully delete name collision test file');
+    };
+    //////////end delete//////////////////////////////
+
+  };
+
+  // An error typically occur if a file with the same name already exist
+  request.onerror = function() {
+    console.warn('File name collision for ' + file.name + ':' + this.error.name);
+  };
 };
 
 
