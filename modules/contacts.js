@@ -41,12 +41,11 @@ Contacts.prototype.restore = function() {
     }
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
-      var temp[] = data[i].split(" ");
-      if(temp.length===2){
-        myContact.givenName=temp[0];
-        myContact.familyName=temp[1];
-      }
-      else{
+      var nameSplit = data[i].split(' ');
+      if (nameSplit.length === 2) {
+        myContact.givenName = nameSplit[0];
+        myContact.familyName = nameSplit[1];
+      } else {
         myContact.givenName = [data[i].name];
       }
 
