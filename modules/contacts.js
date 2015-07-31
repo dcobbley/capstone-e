@@ -1,6 +1,5 @@
 /**
- * @access public
- * @description Takes contacts stored on the device and SIM or ICC card(s) and saves them
+ * Takes contacts stored on the device and SIM or ICC card(s) and saves them
  * to a JSON file on an external SD card.
  */
 var Contacts = function() {};
@@ -104,6 +103,7 @@ Contacts.prototype.restore = function() {
 /**
  * @access private
  * @description Deletes contacts.json from the SD card if it exists.
+ * @param {callback} oncomplete
  */
 Contacts.prototype.clean = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
@@ -223,6 +223,7 @@ Contacts.prototype.getContactsFromSIM = function() {
  * @access private
  * @description Writes the resulting JSON file to the SD card, removing any preexisting
  * file with the same name.
+ * @param {callback} oncomplete
  */
 Contacts.prototype.putContactsOnSD = function(oncomplete) {
   var that = this;

@@ -4,6 +4,7 @@
 var Utilities = function() {};
 
 /**
+ * @access public
  * @description Utilities constructor
  */
 Utilities.prototype.initialize = function() {};

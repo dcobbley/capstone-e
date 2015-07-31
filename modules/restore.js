@@ -4,60 +4,55 @@
  *   to Firefox OS. The contents restored depends on the
  *   backup present. Valid data types are: apps, music, photos,
  *   videos, contacts, and settings.
- *   If an error occurs, restore tries to call the "onerror"
+ *   If an error occurs, restore tries to call the "oncomplete"
  *   handler.
- * @param {callback} onerror
+ * @param {string} type
+ * @param {callback} oncomplete
  */
-var restore = function(onerror) {
+var restore = function(type, oncomplete) {
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  var externalSD = null;
-  var restoreFiles = null;
-  var type = null;
-  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
-
-  externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
-
-  if (externalSD.ready === true) {
-    restoreFiles = externalSD.store.enumerate(paths[type]);
-  }
-
-  restoreFiles.onsuccess = function(file) {
+  ffosbr.media.get('sdcard1', paths[type], function(file) {
     if (!file) {
       return;
     }
 
     var fn = file.name;
-    var filepath = fn.substr(0, fn.lastIndexOf('/') + 1);
+    if (fn.endsWith('~')) {
+      fn = fn.substr(0, fn.length - 1);
+    }
     var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
+    var extension = fn.substr(fn.lastIndexOf('.') + 1, fn.length);
 
-    for (var i in paths) {
-      if (filepath === paths[i]) {
-        type = i;
+    var mimeType;
+    switch (extension) {
+      case 'jpg':
+        mimeType = 'image/jpeg';
         break;
-      }
+      case 'png':
+        mimeType = 'image/png';
+        break;
+      case '3gp':
+        mimeType = 'video/3gpp';
+        break;
+      default:
+        // Text I guess?
+        mimeType = 'application/json';
     }
 
-    // The following data types are passed to the OS
-    // in the same fashion. Contacts and settings have
-    // to be handled individually.
-    if (filepath === paths.apps ||
-      filepath === paths.music ||
-      filepath === paths.photos ||
-      filepath === paths.videos) {
+    var reader = new FileReader();
 
-      window.ffosbr.media.put(type, file, '', function(error) {
-        if (error) {
-          throw error;
-        }
+    reader.onloadend = function() {
+      var fc = this.result;
+      var newFile = new File([fc], filename, {
+        type: mimeType
       });
-    } else if (filepath === paths.contacts) {
-      // TODO - backup contacts
-    } else if (filepath === paths.settings) {
-      // TODO - backup settings
-    } else {
-      throw new Error('Failed to determine data type of ' + fn);
-    }
-  };
+
+      ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, oncomplete);
+    };
+
+    reader.readAsArrayBuffer(file);
+  }, oncomplete);
 };
 
 // Defines Ffosbr restore
