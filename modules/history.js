@@ -98,7 +98,7 @@ History.prototype.get = function(field, subfield) {
 /**
  * @access private
  * @description Validate all passed in history
- * @para {object} potentialHistoryObject
+ * @param {object} potentialHistoryObject
  * @return True if passed in history are valid otherwise false
  */
 History.prototype.validateAll = function(potentialHistoryObject) {

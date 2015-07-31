@@ -1,7 +1,6 @@
 /**
  * Manages library settings and exposes ways to change them.
  */
-
 function Settings() {
 
   this.options = {

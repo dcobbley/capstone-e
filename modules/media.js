@@ -13,7 +13,7 @@ function Media() {
     // 'music',
     'pictures',
     'sdcard',
-    // 'videos'
+    'videos'
   ];
 
   // Contains a storage {Storage} for each internal storage type.
