@@ -26,9 +26,7 @@ var clean = function(type, oncomplete) {
         throw error;
       }
     });
-  }, ffosbr.utils.isFunction(oncomplete) ? function(error) {
-    oncomplete(error);
-  } : undefined);
+  }, oncomplete);
 
 };
 

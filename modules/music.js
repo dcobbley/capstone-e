@@ -18,9 +18,7 @@ Music.prototype.initialize = function() {};
  * @param {callback} oncomplete
  */
 Music.prototype.backup = function(oncomplete) {
-  ffosbr.backup('music', function() {
-    oncomplete();
-  });
+  ffosbr.backup('music', oncomplete);
 };
 
 /**
@@ -30,9 +28,7 @@ Music.prototype.backup = function(oncomplete) {
  * @param {callback} oncomplete
  */
 Music.prototype.restore = function(oncomplete) {
-  ffosbr.restore('music', function() {
-    oncomplete();
-  });
+  ffosbr.restore('music', oncomplete);
 };
 
 /**

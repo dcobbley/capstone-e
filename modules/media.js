@@ -322,7 +322,6 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       if (error.message.length > 0) {
         oncomplete(error);
       } else {
-        alert(type + '\n' + filename + '\n' + file.name + '\n' + file.type);
         oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
       }
     } else {

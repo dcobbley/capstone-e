@@ -18,9 +18,7 @@ Videos.prototype.initialize = function() {};
  * @param {callback} oncomplete
  */
 Videos.prototype.backup = function(oncomplete) {
-  ffosbr.backup('videos', function() {
-    oncomplete();
-  });
+  ffosbr.backup('videos', oncomplete);
 };
 
 /**
@@ -30,9 +28,7 @@ Videos.prototype.backup = function(oncomplete) {
  * @param {callback} oncomplete
  */
 Videos.prototype.restore = function(oncomplete) {
-  ffosbr.restore('videos', function() {
-    oncomplete();
-  });
+  ffosbr.restore('videos', oncomplete);
 };
 
 /**
