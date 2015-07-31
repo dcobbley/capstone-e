@@ -7,10 +7,42 @@ var Contacts = function() {};
 
 /**
  * @access public
- * @description Contacts initializer.
+ * @description List of contacts initialized, as well as onProgress and onComplete for checking the status of the current backup
  */
 Contacts.prototype.initialize = function() {
+  this.running = false;
   this.contacts = [];
+  this.SIMfinished = false;
+  this.OSfinished = false;
+  this.onprogress = null; // user defined function
+  this.oncomplete = null; // user defined function
+};
+
+/**
+ * @access public
+ * @description Checks the progress of the current backup
+ */
+Contacts.prototype.checkProgress = function() {
+
+  var that = this;
+  var delay = 250; // 1/4 sec in ms
+
+  if (!this.SIMfinished || !this.OSfinished) {
+
+    if (this.onprogress) {
+      this.onprogress();
+    }
+
+    // recurse!
+    setTimeout(function() {
+      that.checkProgress();
+    }, delay);
+  } else if (this.oncomplete) {
+    this.oncomplete();
+    this.SIMfinished = false; //Reset for next backup
+    this.OSfinished = false; //Reset for next backup
+    this.running = false;
+  }
 };
 
 /**
@@ -19,7 +51,14 @@ Contacts.prototype.initialize = function() {
  * Note: Calls getContactsFromSIM() calls getContactsFromOS() on completion.
  */
 Contacts.prototype.backup = function() {
-  this.getContactsFromSIM();
+  var that = this;
+
+  if (!this.running) {
+    this.running = true;
+    this.checkProgress();
+    this.contacts = [];
+    this.getContactsFromSIM();
+  }
 };
 
 /**
@@ -114,6 +153,7 @@ Contacts.prototype.getContactsFromOS = function() {
         var sdcard = navigator.getDeviceStorages('sdcard')[1];
         var cursor = sdcard.enumerate();
         cursor.onsuccess = function() {};
+        that.OSfinished = true;
       });
     }
   };
@@ -124,6 +164,7 @@ Contacts.prototype.getContactsFromOS = function() {
       var sdcard = navigator.getDeviceStorages('sdcard')[1];
       var cursor = sdcard.enumerate();
       cursor.onsuccess = function() {};
+      that.OSfinished = true;
     });
   };
 };
@@ -147,6 +188,7 @@ Contacts.prototype.getContactsFromSIM = function() {
       that.contacts = that.contacts.concat(contact);
     }
     if (numHandlersCalled === numSIMCards) {
+      that.SIMfinished = true;
       that.getContactsFromOS();
     }
   };
@@ -154,6 +196,7 @@ Contacts.prototype.getContactsFromSIM = function() {
   var onErrorFunction = function() {
     ++numHandlersCalled;
     if (numHandlersCalled === numSIMCards) {
+      that.SIMfinished = true;
       that.getContactsFromOS();
     }
   };
@@ -175,6 +218,7 @@ Contacts.prototype.getContactsFromSIM = function() {
     }
   }
   if (numSIMCards === 0) {
+    that.SIMfinished = true;
     this.getContactsFromOS();
   }
 };
