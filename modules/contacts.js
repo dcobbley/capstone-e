@@ -80,10 +80,10 @@ Contacts.prototype.restore = function() {
     }
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
-      var nameSplit = data[i].split(' ');
+      var nameSplit = data[i].name[0].split(' ');
       if (nameSplit.length === 2) {
-        myContact.givenName = nameSplit[0];
-        myContact.familyName = nameSplit[1];
+        myContact.givenName = [nameSplit[0]];
+        myContact.familyName = [nameSplit[1]];
       } else {
         myContact.givenName = [data[i].name];
       }
