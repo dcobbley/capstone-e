@@ -6,10 +6,14 @@ QUnit.test('Contacts', function(assert) {
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
 
 
+  //Create your own onprogress and oncomplete to do what you want with the progress bar
 
-  // ffosbr.contacts.getContactsFromSIM();
-
-  //ffosbr.contacts.restore();
+  ffosbr.contacts.onprogress = function() {
+    console.log('Contacts is Still Working');
+  };
+  ffosbr.contacts.oncomplete = function() {
+    console.log('Contacts is finished');
+  };
 
   console.log('END Test');
 
