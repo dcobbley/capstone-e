@@ -99,6 +99,7 @@ Storage.prototype.populate = function() {
     if (file) {
       var name = that.sanitizeFilename(file.name);
       that.files[name] = true;
+      this.continue();
     } else {
       that.updating = false;
       that.ready = true;

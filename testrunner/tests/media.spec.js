@@ -307,10 +307,10 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
     startFreeBytes = bytesBefore;
 
     // delete last generated test_sizeX.txt file before testing.
-    var request = storage.delete('backup/test' + file.name);
+    var removeTestFile = storage.delete('backup/test' + file.name);
 
     // test success case
-    request.onsuccess = function() {
+    removeTestFile.onsuccess = function() {
 
       var fileSizeInBytes = file.size;
 
@@ -322,8 +322,6 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
         // Write our test file to the storage
         ffosbr.media.put('sdcard', file, 'backup/test/' + file.name, function(putErr) {
 
-          // BUG - this callback never executes because the Media.put fails silently.
-
           if (putErr) {
             throw new Error('Can\'t write to ' + storage.storageName + ': ' + putErr.message);
           }
@@ -331,12 +329,15 @@ QUnit.test('Get number of available bytes from storage device', function(assert)
           // blockSize is set when formatting SD card (default value is 4KB)
           ffosbr.media.checkBlockSize(storage, function(blockSize) {
             assert.strictEqual(startFreeBytes - endFreeBytes, Math.ceil(fileSizeInBytes / blockSize) * blockSize, '...works');
+
+            // clean up test file - not a big deal if this fails
+            storage.delete('backup/test' + file.name);
           });
         });
       });
     };
 
-    request.onerror = function() {
+    removeTestFile.onerror = function() {
       throw new Error('Failed to remove last generated test file');
     };
   });

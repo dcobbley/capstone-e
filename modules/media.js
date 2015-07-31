@@ -301,7 +301,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
     throw new Error('Callback is not a function');
-  } else {
+  } else if (!oncomplete) {
     // This allows us to safely call oncomplete, even when
     // the callback was not provided.
     oncomplete = function() {}; // dummy function
@@ -330,15 +330,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   storages = this.getStorageByName(sname);
 
   if (type === 'sdcard1') {
-    if (storages.external !== null) {
-      targetStorage = storages.external;
-    } else {
-      if (oncomplete) {
-        oncomplete(new Error('Unable to locate SD card. Abort.'));
-        return;
-      }
-      throw new Error('Unable to locate SD card. Abort.');
-    }
+    targetStorage = storages.external;
   } else {
     targetStorage = this.getDefaultStorage(type);
   }
@@ -363,17 +355,11 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   write.onerror = function() {
     var error = this.error;
-    // Only call the oncomplete callback if it was provided
-    if (oncomplete) {
-
-      // The majority of errors thrown by Firefox OS do not provide messages.
-      if (error.message.length > 0) {
-        oncomplete(error);
-      } else {
-        oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
-      }
+    // The majority of errors thrown by Firefox OS do not provide messages.
+    if (error.message.length > 0) {
+      oncomplete(error);
     } else {
-      throw new Error('Attempt to write to an invalid storage. Abort.');
+      oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
     }
   };
 };
@@ -385,7 +371,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
  * @param {String} filename - Specifies the full path to the file to be
  *   removed from the external sdcard (sdcard1).
  * @param {requestCallback} oncomplete (optional)
- * @throws 
+ * @throws
  */
 Media.prototype.remove = function(filename, oncomplete) {
 
@@ -440,7 +426,7 @@ Media.prototype.remove = function(filename, oncomplete) {
  */
 Media.prototype.getFreeBytes = function(storage, oncomplete) {
 
-  var getFreeBytes = null;
+  var available = {};
 
   if ((storage instanceof DeviceStorage) === false) {
     throw new Error('Missing or invalid storage device');
@@ -450,14 +436,14 @@ Media.prototype.getFreeBytes = function(storage, oncomplete) {
     throw new Error('Missing or invalide callback');
   }
 
-  getFreeBytes = storage.freeSpace();
+  available = storage.freeSpace();
 
-  getFreeBytes.onsuccess = function() {
+  available.onsuccess = function() {
     var size = this.result;
     oncomplete(size);
   };
 
-  getFreeBytes.onerror = function() {
+  available.onerror = function() {
     var error = this.error;
     oncomplete(null, new Error('Failed to get available space: ' + error.message));
   };
@@ -518,7 +504,7 @@ Media.prototype.checkBlockSize = function(storage, oncomplete) {
  * @access public
  * @description
       Check if there is enough space for next backup file.
-       
+
        var content = '1234567890';
        var file = new File([content], 'Size' + content.length + '.txt', {
         type: 'text/plain'
