@@ -10,6 +10,7 @@ var Contacts = function() {};
  * @description List of contacts initialized, as well as onProgress and onComplete for checking the status of the current backup
  */
 Contacts.prototype.initialize = function() {
+  this.running = false;
   this.contacts = [];
   this.SIMfinished = false;
   this.OSfinished = false;
@@ -38,8 +39,9 @@ Contacts.prototype.checkProgress = function() {
     }, delay);
   } else if (this.oncomplete) {
     this.oncomplete();
-    this.SIMfinished=false;//Reset for next backup
-    this.OSfinished=false;//Reset for next backup
+    this.SIMfinished = false; //Reset for next backup
+    this.OSfinished = false; //Reset for next backup
+    this.running = false;
   }
 };
 
@@ -50,9 +52,13 @@ Contacts.prototype.checkProgress = function() {
  */
 Contacts.prototype.backup = function() {
   var that = this;
-  this.checkProgress();
-  this.contacts=[];
-  this.getContactsFromSIM();
+
+  if (!this.running) {
+    this.running = true;
+    this.checkProgress();
+    this.contacts = [];
+    this.getContactsFromSIM();
+  }
 };
 
 /**
