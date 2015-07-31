@@ -52,7 +52,7 @@ var restore = function(type, oncomplete) {
     };
 
     reader.readAsArrayBuffer(file);
-  });
+  }, oncomplete);
 };
 
 // Defines Ffosbr restore

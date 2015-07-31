@@ -225,7 +225,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   var onsuccess = function() {
     var file = this.result;
     if (!file || this.done) {
-      if (oncomplete !== undefined) {
+      if (oncomplete) {
         oncomplete();
       }
       return;
