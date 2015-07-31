@@ -10,7 +10,6 @@
  * @param {callback} oncomplete
  */
 var restore = function(type, oncomplete) {
-
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
   ffosbr.media.get('sdcard1', paths[type], function(file) {
@@ -53,7 +52,7 @@ var restore = function(type, oncomplete) {
     };
 
     reader.readAsArrayBuffer(file);
-  });
+  }, oncomplete);
 };
 
 // Defines Ffosbr restore

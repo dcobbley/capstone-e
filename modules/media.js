@@ -200,8 +200,9 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
 
   if (internal.ready === false && external.ready === false) {
     forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
-  } else if (type === 'sdcard1') {
-    if (directory) {
+  } else {
+
+    if (type === 'sdcard1' && directory) {
       if (!directory.startsWith('/')) {
         directory = '/' + directory;
       }
@@ -212,7 +213,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
         directory = directory + '/';
       }
     }
-  } else {
+
     if (internal.ready === true) {
       internalFiles = internal.store.enumerate();
     }
@@ -224,7 +225,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   var onsuccess = function() {
     var file = this.result;
     if (!file || this.done) {
-      if (oncomplete !== undefined) {
+      if (oncomplete) {
         oncomplete();
       }
       return;
