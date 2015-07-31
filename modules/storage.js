@@ -15,11 +15,14 @@ function Storage(type, store) {
   this.store = null;
   this.files = {};
   this.updating = false;
+  this.ready = true;
 
   if (typeof ffosbr.media.storageTypes.indexOf(type) < 0) {
     throw new Error('Invalid media type ' + type);
   }
-  if (!store || !(store instanceof DeviceStorage)) {
+  if (store === null) {
+    this.ready = false;
+  } else if (!(store instanceof DeviceStorage)) {
     throw new Error('Invalid DeviceStorage object');
   }
 
@@ -40,6 +43,7 @@ function Storage(type, store) {
 Storage.prototype.fileExists = function(fname, oncomplete) {
 
   var that = this;
+
   if (this.updating === true) {
     setTimeout(function() {
       that.fileExists(fname, oncomplete);
@@ -47,7 +51,11 @@ Storage.prototype.fileExists = function(fname, oncomplete) {
     return;
   }
 
-  if (this.files[this.sanitizeFilename(fname)] === true) {
+  if (this.ready === false) {
+    // This storage's DeviceStorage is invalid.
+    // Therefore, the file cannot exist.
+    oncomplete(false);
+  } else if (this.files[this.sanitizeFilename(fname)] === true) {
     oncomplete(true);
   } else {
     oncomplete(false);
@@ -64,13 +72,21 @@ Storage.prototype.populate = function() {
   var that = this;
   var listFiles = {}; // cursor
 
+  if (this.ready === false) {
+    // This storage's DeviceStorage is invalid.
+    // Therefore, there is nothing to populate.
+    return;
+  }
+
   this.updating = true; // files are in flux
   this.files = {}; // erase record of current files
 
   try {
     listFiles = this.store.enumerate();
   } catch (e) {
-    throw e;
+    console.error(e.message);
+    this.ready = false;
+    that.updating = false;
   }
 
   listFiles.onsuccess = function() {
@@ -80,11 +96,13 @@ Storage.prototype.populate = function() {
       that.files[name] = true;
     } else {
       that.updating = false;
+      that.ready = true;
     }
   };
 
   listFiles.onerror = function() {
-    throw new Error('Failed to list files on storage device ' + this.type);
+    that.ready = false;
+    console.error('Failed to list files on storage device ' + that.type);
   };
 };
 
