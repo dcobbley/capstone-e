@@ -9,7 +9,10 @@
       'settings': require('./settings'),
       'history': require('./history'),
       'messages': require('./messages'),
-      'contacts': require('./contacts')
+      'contacts': require('./contacts'),
+      'photos': require('./photos'),
+      'videos': require('./videos'),
+      'music': require('./music')
     };
 
     /* Import classes */

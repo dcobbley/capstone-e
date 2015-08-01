@@ -1,4 +1,5 @@
 /**
+ * @access private
  * @description Basic "storage" class to help simplify code in the
  *  Media module, and help offload some functionality in detecting
  *  write-collisions. The main purpose of this class is to indicate
@@ -8,6 +9,7 @@
  *   Note: See Media > storageTypes for a list of valid types.
  * @param {DeviceStorage} store: The DeviceStorage used by this
  *   storage instance.
+ * @throws on invalid media type of device storage
  */
 function Storage(type, store) {
 
@@ -15,11 +17,14 @@ function Storage(type, store) {
   this.store = null;
   this.files = {};
   this.updating = false;
+  this.ready = true;
 
   if (typeof ffosbr.media.storageTypes.indexOf(type) < 0) {
     throw new Error('Invalid media type ' + type);
   }
-  if (!store || !(store instanceof DeviceStorage)) {
+  if (store === null) {
+    this.ready = false;
+  } else if (!(store instanceof DeviceStorage)) {
     throw new Error('Invalid DeviceStorage object');
   }
 
@@ -29,6 +34,7 @@ function Storage(type, store) {
 }
 
 /**
+ * @access private
  * @description Reports whether or not a file exists in a
  *   given storage.
  * @param {string} fname: Name of file to check.
@@ -40,6 +46,7 @@ function Storage(type, store) {
 Storage.prototype.fileExists = function(fname, oncomplete) {
 
   var that = this;
+
   if (this.updating === true) {
     setTimeout(function() {
       that.fileExists(fname, oncomplete);
@@ -47,7 +54,11 @@ Storage.prototype.fileExists = function(fname, oncomplete) {
     return;
   }
 
-  if (this.files[this.sanitizeFilename(fname)] === true) {
+  if (this.ready === false) {
+    // This storage's DeviceStorage is invalid.
+    // Therefore, the file cannot exist.
+    oncomplete(false);
+  } else if (this.files[this.sanitizeFilename(fname)] === true) {
     oncomplete(true);
   } else {
     oncomplete(false);
@@ -55,14 +66,22 @@ Storage.prototype.fileExists = function(fname, oncomplete) {
 };
 
 /**
+ * @access private
  * @description Enumerates all files on storage and adds them to
  *   the "files" object. This is used for tracking what files
  *   exist in the storage at all times.
+ * @throws if fails access storage
  */
 Storage.prototype.populate = function() {
 
   var that = this;
   var listFiles = {}; // cursor
+
+  if (this.ready === false) {
+    // This storage's DeviceStorage is invalid.
+    // Therefore, there is nothing to populate.
+    return;
+  }
 
   this.updating = true; // files are in flux
   this.files = {}; // erase record of current files
@@ -70,7 +89,9 @@ Storage.prototype.populate = function() {
   try {
     listFiles = this.store.enumerate();
   } catch (e) {
-    throw e;
+    console.error(e.message);
+    this.ready = false;
+    that.updating = false;
   }
 
   listFiles.onsuccess = function() {
@@ -80,15 +101,18 @@ Storage.prototype.populate = function() {
       that.files[name] = true;
     } else {
       that.updating = false;
+      that.ready = true;
     }
   };
 
   listFiles.onerror = function() {
-    throw new Error('Failed to list files on storage device ' + this.type);
+    that.ready = false;
+    console.error('Failed to list files on storage device ' + that.type);
   };
 };
 
 /**
+ * @access private
  * @description Sanitizes file names such that they are valid
  *   object keys.
  * @fname File name to sanitize.
