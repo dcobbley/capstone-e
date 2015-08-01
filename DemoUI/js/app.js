@@ -109,13 +109,32 @@ window.addEventListener('DOMContentLoaded', function() {
     messagesUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('messages', 'lastBackupDate'));
     var messagesSize = document.getElementById('messages-hist-size');
     messagesSize.textContent = sizeFormat(ffosbr.history.getValue('messages', 'backupSize'));
+
+    var systemSettingsUpdatedAt = document.getElementById('systemSettings-hist-date');
+    systemSettingsUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('systemSettings', 'lastBackupDate'));
+    var systemSettingsSize = document.getElementById('systemSettings-hist-size');
+    systemSettingsSize.textContent = sizeFormat(ffosbr.history.getValue('systemSettings', 'backupSize'));
   }
+
 
   refreshHistories();
 
+
+
+  function backup() {
+    if (ffosbr.settings.get('contacts')) {
+      ffosbr.contacts.backup();
+    }
+  }
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    * EVENT LISTENERS                                                               *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+    document.getElementById('backup-button').addEventListener('click', function() {
+    backup();
+  });
+
 
   // Settings page listeners
 
@@ -170,6 +189,10 @@ window.addEventListener('DOMContentLoaded', function() {
     loadBackupDetailPage(ffosbr.history.getValue('messages'));
   });
 
+  document.getElementById('systemSettings-infopane').addEventListener('click', function() {
+    loadBackupDetailPage(ffosbr.history.getValue('systemSettings'));
+  });
+
   /*
   document.getElementById('backup-page-back-button').addEventListener('click', function() {
     document.getElementById('backup-page')
@@ -177,7 +200,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('backups-page')
       .setAttribute('class', 'go-deeper-back-in');
   });*/
-
+/*
   document.getElementById('backup-button').addEventListener('click', function() {
     var backupName = 'Backup ' + Math.floor((Math.random() * 100) + 1);
     var backupDate = new Date();
@@ -214,5 +237,5 @@ window.addEventListener('DOMContentLoaded', function() {
       backupsPage.setAttribute('class', 'go-deeper-out');
     });
   });
-
+*/
 });

@@ -31,7 +31,13 @@ History.prototype.getDefault = function() {
       title: 'Messages',
       lastBackupDate: null,
       backupSize: 0
+    },
+    systemSettings: {
+      title: 'SystemSettings',
+      lastBackupDate: null,
+      backupSize: 0
     }
+
   };
 };
 
@@ -86,12 +92,13 @@ History.prototype.validateAll = function(potentialHistoryObject) {
     !this.validateEntry(hist.videos) ||
     !this.validateEntry(hist.music) ||
     !this.validateEntry(hist.contacts) ||
-    !this.validateEntry(hist.messages)) {
+    !this.validateEntry(hist.messages) ||
+    !this.validateEntry(hist.systemSettings)) {
     return false;
   }
 
   // Ensure that we don't have extra fields
-  if (Object.keys(hist).length !== 5) {
+  if (Object.keys(hist).length !== 6) {
     return false;
   }
 
