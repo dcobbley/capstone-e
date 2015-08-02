@@ -1,3 +1,6 @@
+/**
+ * Manages library settings and exposes ways to change them.
+ */
 function Settings() {
 
   this.options = {
@@ -7,6 +10,7 @@ function Settings() {
     messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
+    systemsettings: true,
     registeredTimer: false,
     repeat: true
   };
@@ -17,11 +21,18 @@ function Settings() {
     music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
-    contacts: 'backup/videos/',
+    contacts: 'backup/contacts/',
     settings: 'backup/settings/',
+    systemsettings: 'backup/systemSettings/',
     messages: 'backup/messages/'
   };
+}
 
+/**
+ * @access private
+ * @description Settings constructor
+ */
+Settings.prototype.initialize = function() {
   // Load persistent settings from local storage, if they exist
   try {
     this.load();
@@ -30,8 +41,12 @@ function Settings() {
     // was malformed. It has now been cleared and Settings
     // options holds default values.
   }
-}
+};
 
+/**
+ * @access private
+ * @description Load previous settings from local storage if they exist
+ */
 Settings.prototype.load = function() {
   // Load options if present
   var retrievedOptions = localStorage.getItem('ffosbrOptions');
@@ -54,6 +69,10 @@ Settings.prototype.load = function() {
   }
 };
 
+/**
+ * @access private
+ * @description Load previous settings from local storage if they exist
+ */
 Settings.prototype.getBackupDirectoryPaths = function() {
   var paths = {};
   for (var field in this.backupPaths) {
@@ -62,6 +81,13 @@ Settings.prototype.getBackupDirectoryPaths = function() {
   return paths;
 };
 
+/**
+ * @access private
+ * @description Validate passed in setting
+ * @para {object} potentialOptions
+ * @para {object}  value
+ * @return True if passed in settings are valid otherwise false
+ */
 Settings.prototype.validate = function(potentialOptions, value) {
 
   var valid = true;
@@ -73,6 +99,7 @@ Settings.prototype.validate = function(potentialOptions, value) {
     messages: 'boolean',
     intervalTime: 'number',
     id: 'number',
+    systemsettings: 'boolean',
     registeredTimer: 'boolean',
     repeat: 'boolean'
   };
@@ -109,6 +136,13 @@ Settings.prototype.validate = function(potentialOptions, value) {
   return valid;
 };
 
+/**
+ * @access public
+ * @description Set settings
+ * @para {setting object} newOptions
+ * @para {object} value (optional)
+ * @throws if new value is invalid
+ */
 Settings.prototype.set = function(newOptions, value) {
 
   var opts = null;
@@ -143,6 +177,12 @@ Settings.prototype.set = function(newOptions, value) {
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
 };
 
+/**
+ * @access public
+ * @description Get's current settings or a particular field if passsed in
+ * @para {object} field (optional)
+ * @return current options
+ */
 Settings.prototype.get = function(field) {
 
   if (typeof field === 'undefined') {

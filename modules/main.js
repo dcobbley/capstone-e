@@ -14,6 +14,7 @@
     this.settings = require('./settings');
     this.history = require('./history');
     this.messages = require('./messages');
+    this.systemSettings = require('./systemSettings');
   };
 
   window.ffosbr = new Ffosbr();
