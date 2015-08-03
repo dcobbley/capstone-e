@@ -119,7 +119,6 @@ Media.prototype.backup = function(type, oncomplete) {
  * @param {callback} oncomplete
  */
 Media.prototype.restore = function(type, oncomplete) {
-
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
   ffosbr.media.get('sdcard1', paths[type], function(file) {
@@ -162,7 +161,7 @@ Media.prototype.restore = function(type, oncomplete) {
     };
 
     reader.readAsArrayBuffer(file);
-  });
+  }, oncomplete);
 };
 
 /**
