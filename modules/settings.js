@@ -5,6 +5,7 @@ function Settings() {
 
   this.options = {
     photos: true,
+    music: true,
     videos: true,
     contacts: true,
     messages: true,
@@ -92,6 +93,7 @@ Settings.prototype.validate = function(potentialOptions, value) {
   var opts = null;
   var validTypes = {
     photos: 'boolean',
+    music: 'boolean',
     videos: 'boolean',
     contacts: 'boolean',
     messages: 'boolean',
