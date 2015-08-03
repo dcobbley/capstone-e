@@ -2,47 +2,25 @@
  * @access public
  * @description Backups every data type set as true in settings
  * Calls the callback on every error
- * @param {callback} oncomplete
+ * @param {callback} onerror
  */
-var backup = function(oncomplete) {
-  if (ffosbr.settings.get('contacts')) {
-    ffosbr.contacts.backup(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
+var backup = function(onerror) {
+  var backupTypes = ['contacts', 'messages', 'photos', 'music', 'videos'];
 
-  if (ffosbr.settings.get('messages')) {
-    ffosbr.messages.backup(function(err) {
-      if (err) {
-        onerror(err);
+  var asyncBackup = function(type) {
+    setTimeout(function() {
+      if (ffosbr.settings.get(type)) {
+        ffosbr[type].backup(function(err) {
+          if (err) {
+            onerror(err);
+          }
+        });
       }
-    });
-  }
+    }, 0);
+  };
 
-  if (ffosbr.settings.get('photos')) {
-    ffosbr.photos.backup(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
-
-  if (ffosbr.settings.get('music')) {
-    ffosbr.music.backup(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
-
-  if (ffosbr.settings.get('videos')) {
-    ffosbr.videos.backup(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
+  for (var i = 0; i < backupTypes.length; i++) {
+    asyncBackup(backupTypes[i]);
   }
 };
 

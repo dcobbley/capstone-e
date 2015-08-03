@@ -5,44 +5,22 @@
  * @param {callback} onerror
  */
 var clean = function(onerror) {
-  if (ffosbr.settings.get('contacts')) {
-    ffosbr.contacts.clean(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
+  var cleanTypes = ['contacts', 'messages', 'photos', 'music', 'videos'];
 
-  if (ffosbr.settings.get('messages')) {
-    ffosbr.messages.clean(function(err) {
-      if (err) {
-        onerror(err);
+  var asyncClean = function(type) {
+    setTimeout(function() {
+      if (ffosbr.settings.get(type)) {
+        ffosbr[type].backup(function(err) {
+          if (err) {
+            onerror(err);
+          }
+        });
       }
-    });
-  }
+    }, 0);
+  };
 
-  if (ffosbr.settings.get('photos')) {
-    ffosbr.photos.clean(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
-
-  if (ffosbr.settings.get('music')) {
-    ffosbr.music.clean(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
-
-  if (ffosbr.settings.get('videos')) {
-    ffosbr.videos.clean(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
+  for (var i = 0; i < cleanTypes.length; i++) {
+    asyncClean(cleanTypes[i]);
   }
 };
 

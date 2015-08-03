@@ -2,47 +2,25 @@
  * @access public
  * @description Restores every data type set as true in settings
  * Calls the callback on every error
- * @param {callback} oncomplete
+ * @param {callback} onerror
  */
-var restore = function(oncomplete) {
-  if (ffosbr.settings.get('contacts')) {
-    ffosbr.contacts.restore(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
+var restore = function(onerror) {
+  var restoreTypes = ['contacts', 'messages', 'photos', 'music', 'videos'];
 
-  if (ffosbr.settings.get('messages')) {
-    ffosbr.messages.restore(function(err) {
-      if (err) {
-        onerror(err);
+  var asyncRestore = function(type) {
+    setTimeout(function() {
+      if (ffosbr.settings.get(type)) {
+        ffosbr[type].restore(function(err) {
+          if (err) {
+            onerror(err);
+          }
+        });
       }
-    });
-  }
+    }, 0);
+  };
 
-  if (ffosbr.settings.get('photos')) {
-    ffosbr.photos.restore(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
-
-  if (ffosbr.settings.get('music')) {
-    ffosbr.music.restore(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
-  }
-
-  if (ffosbr.settings.get('videos')) {
-    ffosbr.videos.restore(function(err) {
-      if (err) {
-        onerror(err);
-      }
-    });
+  for (var i = 0; i < restoreTypes.length; i++) {
+    asyncRestore(restoreTypes[i]);
   }
 };
 
