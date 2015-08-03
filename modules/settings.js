@@ -7,7 +7,7 @@ function Settings() {
     photos: true,
     videos: true,
     contacts: true,
-    text: true,
+    messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
     registeredTimer: false,
@@ -94,7 +94,7 @@ Settings.prototype.validate = function(potentialOptions, value) {
     photos: 'boolean',
     videos: 'boolean',
     contacts: 'boolean',
-    text: 'boolean',
+    messages: 'boolean',
     intervalTime: 'number',
     id: 'number',
     registeredTimer: 'boolean',
