@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Backups app</title>
+    <meta name="description" content="A privileged app stub">
+
+    <!--
+    viewport allows you to control how mobile browsers will render your content.
+    width=device-width tells mobile browsers to render your content across the
+    full width of the screen, without being zoomed out (by default it would render
+    it at a desktop width, then shrink it to fit.)
+    Read more about it here:
+    https://developer.mozilla.org/Mozilla/Mobile/Viewport_meta_tag
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/gaia-fonts/style.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+
+    <link href="css/header.css" rel="stylesheet">
+    <link href="css/lists.css" rel="stylesheet">
+    <link href="css/buttons.css" rel="stylesheet">
+    <link href="css/switches.css" rel="stylesheet">
+    <link href="css/layout.css" rel="stylesheet">
+    <link href="css/gaia-icons-embedded.css" rel="stylesheet">
+
+	  <script type="text/javascript" src="FFOSBR.js" id="FFOSBR"></script>
+
+    <!--
+    Inline JavaScript code is not allowed for privileged and certified apps,
+    due to Content Security Policy restrictions.
+    You can read more about it here: https://developer.mozilla.org/Apps/CSP
+    Plus keeping your JavaScript separated from your HTML is always a good practice!
+
+    We're also using the 'defer' attribute. This allows us to tell the browser that
+    it should not wait for this file to load before continuing to load the rest of
+    resources in the page. Then, once everything has been loaded, it will parse and
+    execute the deferred files.
+    Read about defer: https://developer.mozilla.org/Web/HTML/Element/script#attr-defer
+    -->
+    <script type="text/javascript" src="js/app.js" defer></script>
+
+    <!--
+    The following two lines are for loading the localisations library
+    and the localisation data-so people can use the app in their
+    own language (as long as you provide translations).
+    -->
+    <link rel="prefetch" type="application/l10n" href="data/locales.ini" />
+    <script type="text/javascript" src="js/libs/l10n.js" defer></script>
+  </head>
+  
+  <body style='overflow: scroll;'>
+      <section role='region' class='vbox fit' style='position: absolute'>
+        <header>
+          <menu type="toolbar">
+            <a href='#' id='settings-button'>
+              <span class='icon icon-settings'>
+                settings
+              </span>
+            </a>
+          </menu>
+          <h1>FFOSBR Demo</h1>
+        </header>
+      
+      <section class='gaia-list fit scroll sticky' id='main-page' style='margin-top: 5rem; position: absolute'>
+        <div data-type='list' style="overflow-y: scroll; height: calc(100% - 10rem); padding: 0">
+          <a href='#' class='main-list-link' id='photo-infopane'>
+            <li class='main-list-item infopane'>
+              <div class='main-list-icon' id='photo-icon'>
+                <i class="fa fa-picture-o fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='photo-label'>
+                <p style='padding: 0px'>Photos</p>
+              </div>
+              <div class='main-list-hist'>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Last backup:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='photo-hist-date'>Hello </p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Backup size:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='photo-hist-size'>world</p>
+                </div>
+              </div>
+            </li>
+          </a>
+          <a href='#' class='main-list-link' id='video-infopane'>
+            <li class='main-list-item infopane'>
+              <div class='main-list-icon' id='video-icon'>
+                <i class="fa fa-film fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='video-label'>
+                <p style='padding: 0px'>Videos</p>
+              </div>
+              <div class='main-list-hist'>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Last backup:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='video-hist-date'>Hello </p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Backup size:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='video-hist-size'>world</p>
+                </div>
+              </div>
+            </li>
+          </a>
+          <a href='#' class='main-list-link' id='contact-infopane'>
+            <li class='main-list-item infopane'>
+              <div class='main-list-icon' id='contact-icon'>
+                <i class="fa fa-users fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='contact-label'>
+                <p style='padding: 0px'>Contacts</p>
+              </div>
+              <div class='main-list-hist'>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Last backup:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='contact-hist-date'>Hello </p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Backup size:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='contact-hist-size'>world</p>
+                </div>
+              </div>
+            </li>
+          </a>
+          <a href='#' class='main-list-link' id='messages-infopane'>
+            <li class='main-list-item infopane'>
+              <div class='main-list-icon' id='messages-icon'>
+                <i class="fa fa-comment-o fa-3x"></i>
+              </div>
+              <div class='main-list-label' id='messages-label'>
+                <p style='padding: 0px'>Messages</p>
+              </div>
+              <div class='main-list-hist'>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Last backup:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='messages-hist-date'>Hello </p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-label'>Backup size:</p>
+                </div>
+                <div class='main-list-hist-row'>
+                  <p class='main-list-hist-data' id='messages-hist-size'>world</p>
+                </div>
+              </div>
+            </li>
+          </a>
+        </div>
+      </section>
+      <div class="footer">
+          <button id="backup-button" class="bb-button recommend" style="margin: 5px 5%; width: 90%;">
+            Backup
+          </button>
+      </div>
+    </section>
+
+    <section role='region' id='settings-page' class='vbox fit' style="transform: translateY(100%); position: absolute;">
+      <header>
+        <menu type='toolbar'>
+          <button id='settings-done-button'>
+            done
+          </button>
+        </menu>
+        <h1>Settings</h1>
+      </header>
+    </section>
+
+    <section role='region' class='backup-detail-page' id='backup-detail-page' class='vbox fit'>
+      <header>
+        <menu type='toolbar' style='float: left'>
+          <i class='fa fa-angle-left backbutton' id='backup-detail-done-button'></i>
+        </menu>
+        <h1 id='detail-page-title'>EMPTY !!</h1>
+
+      </header>
+
+      <section class='gaia-list fit scroll sticky' id='main-page' style='margin-top: 5rem; position: absolute'>
+        <div data-type='list' style="overflow-y: scroll; height: calc(100% - 10rem); padding: 0">
+      
+
+        <li class = 'secondary-list-infopane'>
+          <div style= "width: 75%">
+            <p id = 'detail-page-title-2' 
+               style="display: inline; margin-left: -10px">
+               EMPTY
+            </p>
+          </div>
+          <div class = 'detail-page-slider' style = "width: 25%">
+            <label class="pack-switch" style= "float:right">
+              <input type="checkbox" data-type="switch" id="backupStatus">
+              <span></span>
+            </label>
+          </div>    
+        </li>
+        <li>
+          <button class='bb-button recommend'>
+            <center>Restore</center>
+          </button>
+        </li>
+        <li>
+          <button class='bb-button recommend'>
+            <center>Clear</center>
+          </button>
+        </li>
+
+        </div>  
+      </section>
+    </section>
+
+    
+  </body>
+</html>
