@@ -62,6 +62,9 @@ module.exports = function(grunt) {
         files: [{
           src: 'FFOSBR.js',
           dest: 'testrunner/'
+        }, {
+          src: 'FFOSBR.js',
+          dest: 'DemoUI/'
         }],
       },
     },
@@ -75,7 +78,7 @@ module.exports = function(grunt) {
 
 
   grunt.registerTask('default', function() {
-    console.log('No opitions specified defaulting to push to any device then simulator');
+    console.log('No options specified. Will attempt to push to any device, then the simulator');
     grunt.task.run([
       'build',
       'execute'
@@ -119,10 +122,37 @@ module.exports = function(grunt) {
 
     if (grunt.option('sim')) {
       var simVersion = grunt.option('sim').toFixed(1);
-      grunt.config.set('execute.options.args', ['pushToVersion', simVersion]);
+      grunt.config.set('execute.options.args', ['../testrunner', 'pushToVersion', simVersion]);
     } else {
-      grunt.config.set('execute.options.args', ['pushToAnything']);
+      grunt.config.set('execute.options.args', ['../testrunner', 'pushToAnything']);
     }
+
+    grunt.task.run([
+      'build',
+      'execute'
+    ]);
+  });
+
+  /**
+   * Deploys the demo UI application to the device or a simulator.
+   * Same options as above.
+   */
+  grunt.registerTask('demo', function() {
+    if (grunt.option('sim')) {
+      var simVersion = grunt.option('sim').toFixed(1);
+      grunt.config.set('execute.options.args', ['../DemoUI', 'pushToVersion', simVersion]);
+    } else {
+      grunt.config.set('execute.options.args', ['../DemoUI', 'pushToAnything']);
+    }
+
+    // Replace testrunner directory with DemoUI in jshint.all
+    var newSearchDirectories = grunt.config.get('jshint.all');
+    var index = newSearchDirectories.indexOf('testrunner/tests/*.js');
+    if (index > -1) {
+      newSearchDirectories.splice(index, 1);
+    }
+    newSearchDirectories.push('DemoUI/js/*.js');
+    grunt.config.set('jshint.all', newSearchDirectories);
 
     grunt.task.run([
       'build',

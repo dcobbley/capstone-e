@@ -234,6 +234,8 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
       type: 'text/json'
     });
 
+    console.log(file);
+
     var sdcardAvailable = sdcard.available();
 
     sdcardAvailable.onsuccess = function() {
