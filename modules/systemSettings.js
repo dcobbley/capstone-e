@@ -76,6 +76,99 @@ SystemSettings.prototype.initialize = function() {
 };
 
 
+/*
+ *@Description: restores settings to the device from the SD card.
+ *  calls media.get to get data from Sd card.
+ *  calls writeToLocalStorage to save instance of systemsettings
+ *  calls writeToDevice to transfer lcoal storage object to the device's settings
+ *
+ */
+
+SystemSettings.prototype.restore = function() {
+  var that = this;
+  var path = '/sdcard1/' + ffosbr.settings.backupPaths.systemsettings;
+
+
+  /*
+   *@Description: helper used in media.get.
+   *  Reads the passed in file (from media.get) and saves it to
+   *   the systemsettings.
+   */
+
+  var copyToSettings = function(file) {
+    var filereader = new FileReader();
+
+    settingsJSON = filereader.readAsText(file);
+
+    filereader.onloadend = function(fileContents, error) {
+
+      if (!error) {
+        try {
+          that.systemsettings = this.result;
+        } catch (e) {
+          console.error(e);
+        }
+
+      } else {
+        console.error(error);
+      }
+
+    };
+
+    filereader.onerror = function(error) {
+      console.error('Failure: ' + error.name);
+    };
+
+  };
+
+  var oncomplete = function() {
+    console.log('successful restore');
+  };
+
+
+  ffosbr.media.get('sdcard1', path, copyToSettings, oncomplete);
+  this.writeToLocalStorage();
+  this.writeSettingsToDevice();
+
+};
+/*
+ *@Description: removes the systemsettings file from the sd card
+ *  calls media.remove
+ *
+ *
+ */
+
+SystemSettings.prototype.clean = function() {
+  var path = '/sdcard1/' + ffosbr.settings.backupPaths.systemsettings + '/systemSettings.json';
+
+  ffosbr.media.remove(path);
+
+};
+
+/*
+ *@Description: backup the systemsettings object to SD card.
+ *
+ *
+ *
+ */
+SystemSettings.prototype.backup = function() {
+  var that = this;
+  var path = ffosbr.settings.backupPaths.systemsettings + '/systemSettings.json';
+
+  //this.clean();
+
+  var settings = this.loadFromDevice();
+
+  var settingsToWrite = new File([JSON.stringify(settings)], 'systemSettings.json', {
+    type: 'text/json'
+  });
+
+  console.log(settingsToWrite);
+
+  ffosbr.media.put('sdcard1', settingsToWrite, path);
+
+};
+
 /**
  *@description: helper function to be used in update field.
  *  Needed to allow access to this.systemsettings

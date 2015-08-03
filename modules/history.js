@@ -1,10 +1,26 @@
-function History() {
+/**
+ * Manages internal and external storages, or handles to storage
+ * devices, and their various data sets, including apps, music,
+ * pictures, sdcard, and videos.
+ */
+function History() {}
+
+/**
+ * @access private
+ * @description History constructor
+ */
+History.prototype.initialize = function() {
   // Initialize history to either the stored values or defaults
   if (!this.loadHistory()) {
     this.set(this.getDefault());
   }
-}
+};
 
+/**
+ * @access private
+ * @description Defaults for backup history
+ * @return Default values for backup history
+ */
 History.prototype.getDefault = function() {
   return {
     photos: {
@@ -41,6 +57,11 @@ History.prototype.getDefault = function() {
   };
 };
 
+/**
+ * @access private
+ * @description Loads backup history settings from local storage if they exist
+ * @return True if backup history settings was loaded from local storage otherwise False 
+ */
 History.prototype.loadHistory = function() {
   var retrievedHistory = localStorage.getItem('ffosbrHistory');
 
@@ -58,6 +79,11 @@ History.prototype.loadHistory = function() {
   return false;
 };
 
+/**
+ * @access private
+ * @description Loads backup history settings from local storage if they exist
+ * @return True if backup history settings was loaded from local storage otherwise False 
+ */
 History.prototype.getValue = function(field, subfield) {
   if (typeof field === 'undefined') {
     return this.history;
@@ -76,6 +102,12 @@ History.prototype.getValue = function(field, subfield) {
   return this.history[field];
 };
 
+/**
+ * @access private
+ * @description Validate all passed in history
+ * @param {object} potentialHistoryObject
+ * @return True if passed in history are valid otherwise false
+ */
 History.prototype.validateAll = function(potentialHistoryObject) {
   var hist = null;
   // If potentialHistoryObject was null, validate this object
@@ -105,6 +137,12 @@ History.prototype.validateAll = function(potentialHistoryObject) {
   return true;
 };
 
+/**
+ * @access private
+ * @description Validate a entry in history
+ * @para {object} potentialHistoryEntry
+ * @return True if passed in history entry is valid otherwise false
+ */
 History.prototype.validateEntry = function(potentialHistoryEntry) {
   if (typeof potentialHistoryEntry !== 'object') {
     return false;
@@ -129,6 +167,13 @@ History.prototype.validateEntry = function(potentialHistoryEntry) {
   return true;
 };
 
+/**
+ * @access private
+ * @description Validate a entrys field in history
+ * @para {String} field
+ * @para {Object} value
+ * @return True if passed in history entry field is valid otherwise false
+ */
 History.prototype.validateEntryField = function(field, value) {
   if (field === 'title') {
     return typeof value === 'string';
@@ -143,6 +188,13 @@ History.prototype.validateEntryField = function(field, value) {
   return false;
 };
 
+/**
+ * @access private
+ * @description Update field or object in history
+ * @para {Object} fieldNameOrHistoryObject
+ * @para {Object} historyValue
+ * @return True if history was updated otherwise false
+ */
 History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
   // Is the first argument a field name or a full history object?
   if (typeof fieldNameOrHistoryObject === 'string') {
@@ -161,6 +213,13 @@ History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
   return false;
 };
 
+/**
+ * @access public
+ * @description Get a field of history or the whole history object
+ * @para {String} field
+ * @para {String} subfield
+ * @return field of history or the whole history object
+ */
 History.prototype.get = function(field, subfield) {
   // If field is undefined, return the whole object
   if (typeof field === 'undefined') {

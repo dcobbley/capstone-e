@@ -4,6 +4,12 @@
 var Messages = function() {};
 
 /**
+ * @access private
+ * @description Messages constructor
+ */
+Messages.prototype.initialize = function() {};
+
+/**
  * @access public
  * @description Backups the current SMS and MMS messages on the device
  *   to external storage. Callback is invoked upon completion. If an error
@@ -58,18 +64,18 @@ Messages.prototype.backup = function(callback) {
 
 /**
  * @access public
- * @description Firefox OS current exposes no API to 
- *  restore messages to the device so this function is a noop.
+ * @description Firefox OS currently exposes no API to
+ *  restore messages to the device.
  */
 Messages.prototype.restore = function() {
   // **This is not possible**
-  // Firefox OS current exposes no API to restore messages to device!
+  // Firefox OS currently exposes no API to restore messages to device!
 };
 
 /**
  * @access public
- * @description Deletes the messages file from external storage. 
- *   Callback is invoked upon completion. If an error occurred, 
+ * @description Deletes the messages file from external storage.
+ *   Callback is invoked upon completion. If an error occurred,
  *   it will be passed as the first parameter to the callback.
  * @param {callback} callback
  */
@@ -85,8 +91,8 @@ Messages.prototype.clean = function(callback) {
 
 /**
  * @access private
- * @description Retrieves the current messages from the device. 
- *   Callback is invoked upon completion. If an error occurred, 
+ * @description Retrieves the current messages from the device.
+ *   Callback is invoked upon completion. If an error occurred,
  *   it will be passed as the first parameter to the callback.
  *   If no error occured then the a list of messages will be passed
  *   to the callback.
@@ -118,8 +124,8 @@ Messages.prototype._getMessages = function(callback) {
 
 /**
  * @access private
- * @description Stores the pasted in messages to external storage. 
- *   Callback is invoked upon completion. If an error occurred, 
+ * @description Stores the pasted in messages to external storage.
+ *   Callback is invoked upon completion. If an error occurred,
  *   it will be passed as the first parameter to the callback.
  * @param {array} messageData
  * @param {callback} callback

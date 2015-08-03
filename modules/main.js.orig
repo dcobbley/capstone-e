@@ -12,7 +12,6 @@
       'contacts': require('./contacts'),
       'photos': require('./photos'),
       'videos': require('./videos'),
-      'systemSettings': require('./systemSettings'),
       'music': require('./music')
     };
 
@@ -23,6 +22,12 @@
     this.backup = require('./backup');
     this.restore = require('./restore');
     this.clean = require('./clean');
+<<<<<<< HEAD
+    this.settings = require('./settings');
+    this.history = require('./history');
+    this.messages = require('./messages');
+    this.systemSettings = require('./systemSettings');
+=======
   };
 
   Ffosbr.prototype.initialize = function() {
@@ -32,6 +37,7 @@
       // Invoke module constructor
       this[module].initialize();
     }
+>>>>>>> b713206fcd516f5344d766766e3dccf4b380675a
   };
 
   window.ffosbr = new Ffosbr();

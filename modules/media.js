@@ -1,124 +1,3 @@
-// TODO - Storage needs to be moved into its own file. This
-// is currently just a work-around which can be transferred
-// after the dependency refactor.
-
-/**
- * @description Basic "storage" class to help simplify code in the
- *  Media module, and help offload some functionality in detecting
- *  write-collisions. The main purpose of this class is to indicate
- *  the availability of a DeviceStorage object, and to keep track of
- *  all files in the DeviceStorage without having to query as often.
- * @param {string} type: The type of storage being held.
- *   Note: See Media > storageTypes for a list of valid types.
- * @param {DeviceStorage} store: The DeviceStorage used by this
- *   storage instance.
- */
-function Storage(type, store) {
-
-  this.type = null;
-  this.store = null;
-  this.files = {};
-  this.updating = false;
-
-  // Constructor
-
-  // Note: The code below is commented out because of circular
-  // dependencies. This is a big problem, and needs to be dealt
-  // with. The build system may need to be restructured.
-
-  // if (typeof ffosbr.media.storageTypes[type] !== 'string') {
-  //   throw new Error('Invalid media type ' + type);
-  // }
-
-  if (typeof type !== 'string') {
-    throw new Error('Invalid media type ' + type);
-  }
-  if (!store || !(store instanceof DeviceStorage)) {
-    throw new Error('Invalid DeviceStorage object');
-  }
-
-  this.type = type;
-  this.store = store;
-  this.populate();
-}
-
-/**
- * @description Reports whether or not a file exists in a
- *   given storage.
- * @param {string} fname: Name of file to check.
- * @param {callback} oncomplete: It is possible that the files
- *   were being repopulated when this function was called. For
- *   that reason, this method has to be asynchronous and wait
- *   for the update to finish before returning a value.
- */
-Storage.prototype.fileExists = function(fname, oncomplete) {
-
-  var that = this;
-  if (this.updating === true) {
-    setTimeout(function() {
-      that.fileExists(fname, oncomplete);
-    }, 5);
-    return;
-  }
-
-  if (this.files[this.sanatizeFilename(fname)] === true) {
-    oncomplete(true);
-  } else {
-    oncomplete(false);
-  }
-};
-
-/**
- * @description Enumerates all files on storage and adds them to
- *   the "files" object. This is used for tracking what files
- *   exist in the storage at all times.
- */
-Storage.prototype.populate = function() {
-
-  var that = this;
-  var listFiles = {}; // cursor
-
-  this.updating = true; // files are in flux
-  this.files = {}; // erase record of current files
-
-  try {
-    listFiles = this.store.enumerate();
-  } catch (e) {
-    throw e;
-  }
-
-  listFiles.onsuccess = function() {
-    var file = this.result;
-    if (file) {
-      var name = that.sanatizeFilename(file.name);
-      that.files[name] = true;
-    } else {
-      that.updating = false;
-    }
-  };
-
-  listFiles.onerror = function() {
-    throw new Error('Failed to list files on storage device ' + this.type);
-  };
-};
-
-/**
- * @description Santizes file names such that they are valid
- *   object keys.
- * @fname File name to sanatize.
- * @returns {string}
- */
-Storage.prototype.sanatizeFilename = function(fname) {
-  // TODO - This is not legit.
-  fname = fname.replace(/-/g, 'x');
-  fname = fname.replace(/\./g, 'y');
-  return fname;
-};
-
-
-
-
-
 /**
  * Manages internal and external storages, or handles to storage
  * devices, and their various data sets, including apps, music,
@@ -134,7 +13,7 @@ function Media() {
     // 'music',
     'pictures',
     'sdcard',
-    // 'videos'
+    'videos'
   ];
 
   // Contains a storage {Storage} for each internal storage type.
@@ -142,8 +21,13 @@ function Media() {
 
   // Contains a storage {Storage} for each external storage type.
   this.external = {};
+}
 
-  // Constructor
+/**
+ * @access private
+ * @description Media constructor
+ */
+Media.prototype.initialize = function() {
   for (var i = 0; i < this.storageTypes.length; ++i) {
 
     var type = this.storageTypes[i];
@@ -152,12 +36,12 @@ function Media() {
     var stores = navigator.getDeviceStorages(type);
 
     // Extract internal DeviceStorage and create Storage object
-    this.internal[type] = new Storage(type, this.getInternalStorage(stores));
+    this.internal[type] = new ffosbr.Storage(type, this.getInternalStorage(stores));
 
     // Extract external DeviceStorage and create Storage object
-    this.external[type] = new Storage(type, this.getExternalStorage(stores));
+    this.external[type] = new ffosbr.Storage(type, this.getExternalStorage(stores));
   }
-}
+};
 
 /**
  * @access public
@@ -168,13 +52,15 @@ function Media() {
  */
 Media.prototype.getInternalStorage = function(stores) {
 
-  // TODO - if there are multiple internal
-  // storages, do we just use the largest?
-
   for (var i = 0; i < stores.length; ++i) {
     if (stores[i].isRemovable === false) {
       return stores[i];
     }
+  }
+
+  // This is required to correct behavior on simulators.
+  if (stores.length > 0 && typeof stores[0].isRemovable === 'undefined') {
+    return stores[0];
   }
 
   return null;
@@ -189,20 +75,22 @@ Media.prototype.getInternalStorage = function(stores) {
  */
 Media.prototype.getExternalStorage = function(stores) {
 
-  // TODO - if there are multiple external
-  // storages, do we just use the largest?
-
   for (var i = 0; i < stores.length; ++i) {
     if (stores[i].isRemovable === true) {
       return stores[i];
     }
   }
 
+  // This is required to correct behavior on simulators.
+  if (stores.length > 1 && typeof stores[1].isRemovable === 'undefined') {
+    return stores[1];
+  }
+
   return null;
 };
 
 /**
- * @access public
+ * @access private
  * @description Takes a string describing which type of storage is desired.
  *   Valid options are listed in the "storageTypes" array.
  * @param {String} type
@@ -225,6 +113,31 @@ Media.prototype.getStorageByName = function(type) {
 };
 
 /**
+ * @access private
+ * @description Determines which storage (internal or external) is the default
+ *   storage. This is decided by user preferences.
+ * @param {String} type
+ * @returns {Storage}
+ */
+Media.prototype.getDefaultStorage = function(type) {
+
+  // TODO - write utility/settings function to confirm
+  // a valid media type.
+  if (typeof(type) !== 'string') {
+    throw new Error('Missing or invalid media type');
+  }
+
+  if (this.internal[type].ready === true && this.internal[type].store.default === true) {
+    return this.internal[type];
+  } else if (this.external[type].ready === true && this.internal[type].store.default === true) {
+    return this.external[type];
+  } else {
+    console.error('No ' + type + ' storages available.');
+    return null;
+  }
+};
+
+/**
  * @access public
  * @description Fetches files from both internal and external storages
  *   via DOMRequest. The type of files fetched (e.g. pictures, music) is
@@ -236,8 +149,9 @@ Media.prototype.getStorageByName = function(type) {
  * @param {String} type
  * @param {String} directory (optional)
  * @param {callback} forEach
+ * @param {callback} oncomplete
  */
-Media.prototype.get = function(type, directory, forEach) {
+Media.prototype.get = function(type, directory, forEach, oncomplete) {
 
   var storages = null;
   var internal = null;
@@ -255,17 +169,28 @@ Media.prototype.get = function(type, directory, forEach) {
     if (ffosbr.utils.isFunction(directory)) {
       // Parameter "directory" was not provided, and the
       // second parameter is really the "forEach" function
+      oncomplete = forEach;
       forEach = directory;
     } else if (ffosbr.utils.isFunction(forEach)) {
-      throw new Error('Missing or invalid directory');
-    } else {
-      throw new Error('Missing or invalid callback');
+      if (ffosbr.utils.isFunction(oncomplete)) {
+        oncomplete(new Error('Missing or invalid directory'));
+        return;
+      } else {
+        throw new Error('Missing or invalid directory');
+      }
     }
     directory = null;
   }
 
   if (!ffosbr.utils.isFunction(forEach)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid callback'));
+      return;
+    }
     throw new Error('Missing or invalid callback');
+  }
+  if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Invalid oncomplete callback');
   }
 
   storages = this.getStorageByName(type === 'sdcard1' ? 'sdcard' : type);
@@ -273,22 +198,51 @@ Media.prototype.get = function(type, directory, forEach) {
   internal = storages.internal;
   external = storages.external;
 
-  if (type === 'sdcard1') {
-    externalFiles = external.store.enumerate(directory);
+  if (internal.ready === false && external.ready === false) {
+    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
   } else {
-    // Fall back to empty objects to avoid errors providing
-    // "onsuccess" callbacks to null variables.
-    internalFiles = internal.store.enumerate();
-    externalFiles = external.store.enumerate();
+
+    if (type === 'sdcard1' && directory) {
+      if (!directory.startsWith('/')) {
+        directory = '/' + directory;
+      }
+      if (!directory.startsWith('/sdcard1')) {
+        directory = '/sdcard1' + directory;
+      }
+      if (!directory.endsWith('/')) {
+        directory = directory + '/';
+      }
+    }
+
+    if (internal.ready === true) {
+      internalFiles = internal.store.enumerate();
+    }
+    if (external.ready === true) {
+      externalFiles = external.store.enumerate();
+    }
   }
 
   var onsuccess = function() {
     var file = this.result;
-    forEach(file);
+    if (!file || this.done) {
+      if (oncomplete) {
+        oncomplete();
+      }
+      return;
+    }
+
+    if (!directory || file.name.startsWith(directory)) {
+      forEach(file);
+    }
+    this.continue();
   };
 
   var onerror = function() {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
+    if (oncomplete) {
+      oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+      return;
+    }
+    throw new Error('Attempt to read from an invalid storage. Abort.');
   };
 
   internalFiles.onsuccess = onsuccess;
@@ -306,10 +260,13 @@ Media.prototype.get = function(type, directory, forEach) {
  *   ignored. If the file type is 'sdcard1' the file will be written to the
  *   external storage device with the exact 'dest' provided. If an oncomplete
  *   callback if provided, it will be called after the file has been written.
- * @param {String} type
- * @param {File} file
- * @param {String} dest
- * @param {requestCallback} oncomplete (option)
+ * @param {String} type - [apps, music, pictures, sdcard, sdcard1, videos]
+ * @param {File} file - Mozilla File (Blob) to be written
+ * @param {String} dest - path (with or without file name) relative to the
+ *   default directory of the storage device. Only valid for types sdcard
+ *   and sdcard1.
+ * @param {requestCallback} oncomplete (optional)
+ * @throws on invalid media type
  */
 Media.prototype.put = function(type, file, dest, oncomplete) {
 
@@ -317,26 +274,57 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   var storages = null; // array of DeviceStorage
   var targetStorage = null; // DeviceStorage to write to
   var sname = null; // valid OS media type
-  var write = null; // cursor or iterator
+  var write = {}; // cursor or iterator
 
   if (typeof(type) !== 'string') {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid media type'));
+      return;
+    }
     throw new Error('Missing or invalid media type');
   }
 
   if (!(file instanceof File)) {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid file'));
+      return;
+    }
     throw new Error('Missing or invalid file');
   }
 
   if (typeof(dest) !== 'string') {
+    if (ffosbr.utils.isFunction(oncomplete)) {
+      oncomplete(new Error('Missing or invalid write destination'));
+      return;
+    }
     throw new Error('Missing or invalid write destination');
   }
 
   if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
     throw new Error('Callback is not a function');
+  } else {
+    // This allows us to safely call oncomplete, even when
+    // the callback was not provided.
+    oncomplete = function() {}; // dummy function
   }
 
-  // strip out the file path
-  filename = dest.substr(dest.lastIndexOf('/') + 1, dest.length);
+  // If file name is present in the dest parameter, store it.
+  // If not, add the current file name to the dest string.
+  if (dest.indexOf('.') > 0) {
+    filename = dest.substr(dest.lastIndexOf('/') + 1, dest.length);
+  } else {
+    var fn = file.name;
+    // ensure a trailing slash
+    if (!dest.endsWith('/')) {
+      dest += '/';
+    }
+    // append file name
+    dest += fn.substr(fn.lastIndexOf('/') + 1, fn.length);
+  }
+  // remove leading slash
+  if (dest.startsWith('/')) {
+    dest = dest.substr(1, dest.length);
+  }
 
   // If the type is 'sdcard1', use name 'sdcard'
   sname = (type === 'sdcard1' ? 'sdcard' : type);
@@ -346,34 +334,38 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
     if (storages.external !== null) {
       targetStorage = storages.external;
     } else {
-      throw new Error('Attempt to write to an invalid storage. Abort.');
+      if (oncomplete) {
+        oncomplete(new Error('Unable to locate SD card. Abort.'));
+        return;
+      }
+      throw new Error('Unable to locate SD card. Abort.');
     }
   } else {
-    targetStorage = (storages.internal === null ? storages.external : storages.internal);
+    targetStorage = this.getDefaultStorage(type);
   }
 
-  try {
-    if (type === 'sdcard1') {
-      write = targetStorage.store.addNamed(file, dest);
-    } else {
-      write = targetStorage.store.addNamed(file, filename);
+  if (targetStorage && targetStorage.ready === true) {
+    try {
+      if (type === 'sdcard1') {
+        write = targetStorage.store.addNamed(file, dest);
+      } else {
+        write = targetStorage.store.addNamed(file, filename);
+      }
+    } catch (e) {
+      return oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
     }
-  } catch (e) {
-    throw new Error('Attempt to write to an invalid storage. Abort.');
+  } else {
+    return oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
   }
 
   write.onsuccess = function(fileWritten) {
-    // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete();
-    }
+    oncomplete();
   };
 
   write.onerror = function() {
-
     var error = this.error;
     // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
+    if (oncomplete) {
 
       // The majority of errors thrown by Firefox OS do not provide messages.
       if (error.message.length > 0) {
@@ -381,6 +373,8 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
       } else {
         oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
       }
+    } else {
+      throw new Error('Attempt to write to an invalid storage. Abort.');
     }
   };
 };
@@ -392,6 +386,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
  * @param {String} filename - Specifies the full path to the file to be
  *   removed from the external sdcard (sdcard1).
  * @param {requestCallback} oncomplete (optional)
+ * @throws 
  */
 Media.prototype.remove = function(filename, oncomplete) {
 
@@ -409,12 +404,12 @@ Media.prototype.remove = function(filename, oncomplete) {
   try {
     remove = externalSD.store.delete(filename);
   } catch (e) {
-    throw new Error('Attempt to delete from invalid storage. Abort.');
+    return oncomplete(new Error('Attempt to delete from invalid storage. Abort.'));
   }
 
   remove.onsuccess = function() {
     // Only call the oncomplete callback if it was provided
-    if (ffosbr.utils.isFunction(oncomplete)) {
+    if (oncomplete) {
       oncomplete();
     }
   };
@@ -468,6 +463,103 @@ Media.prototype.getFreeBytes = function(storage, oncomplete) {
     oncomplete(null, new Error('Failed to get available space: ' + error.message));
   };
 };
+
+/**
+ * @access public
+ * @description Checks the block size of an SD card by passing in a 1 byte file
+ *   and then returning the number of bytes that been occupied.
+ *
+ *   Use the follwing line to test block size in the console:
+ *     ffosbr.media.checkBlockSize(navigator.getDeviceStorages('sdcard')[0],function(size){alert(size);})
+ * @param {DeviceStorage} storage
+ * @param {requestCallback} oncomplete - passed the block size, and a potential
+ *   error object as a second parameter.
+ */
+Media.prototype.checkBlockSize = function(storage, oncomplete) {
+
+  if ((storage instanceof DeviceStorage) === false) {
+    throw new Error('Missing or invalid storage device');
+  }
+
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    throw new Error('Missing or invalid callback');
+  }
+
+  // Create test file (1 byte in size)
+  var file = new File(['a'], Date.now() + '.txt', {
+    type: 'text/plain'
+  });
+
+  ffosbr.media.getFreeBytes(storage, function(sizeBefore) {
+
+    var initialFreeBytes = sizeBefore;
+    var write = storage.addNamed(file, file.name);
+
+    write.onsuccess = function() {
+      ffosbr.media.getFreeBytes(storage, function(sizeAfter) {
+        var blockSize = initialFreeBytes - sizeAfter;
+        oncomplete(blockSize);
+
+        // Remove generated test file
+        var deleteRequest = storage.delete(file.name);
+        deleteRequest.onerror = function() {
+          console.error('Failed to remove last generated test file.');
+        };
+      });
+
+      write.onerror = function() {
+        oncomplete(undefined, new Error('Failed to add blocksize test file.'));
+      };
+    };
+  });
+
+};
+
+/**
+ * @access public
+ * @description
+      Check if there is enough space for next backup file.
+       
+       var content = '1234567890';
+       var file = new File([content], 'Size' + content.length + '.txt', {
+        type: 'text/plain'
+       });
+       ffosbr.media.isEnoughSpace(navigator.getDeviceStorages('sdcard')[1], file, function() {} );
+      using above line to test
+ * @param {DeviceStorage} storage
+ * @param {File} file
+ * @param {requestCallback} oncomplete
+ */
+Media.prototype.isEnoughSpace = function(storage, file, oncomplete) {
+
+  var currentFreeBytes = 0;
+
+  ffosbr.media.getFreeBytes(storage, function(currentFreeBytes) {
+    console.log(currentFreeBytes + 'bytes');
+    ffosbr.media.checkBlockSize(storage, function(blockSize) {
+      var fileSize = file.size;
+      var realFileSize = Math.ceil(fileSize / blockSize) * blockSize;
+      if (realFileSize < currentFreeBytes) {
+        oncomplete(true);
+      } else {
+        oncomplete(false);
+      }
+    });
+  });
+};
+/**
+ * @access public
+ * @description
+      Check if there is file name collision for next backup file in same directory.
+ * @param {DeviceStorage} storage
+ * @param {File} file
+ * @param {requestCallback} oncomplete
+ */
+Media.prototype.isNameCollision = function(storage, file, oncomplete) {
+
+  //This function exists in Storage.prototype.fileExists
+};
+
 
 // Extend Ffosbr library
 module.exports = new Media();

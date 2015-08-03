@@ -6,25 +6,28 @@
  *   the callback, "oncomplete".
  * @param {string} type
  * @param {callback} oncomplete
+ * @throws On invalid data type
  */
 var backup = function(type, oncomplete) {
 
-  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  if (typeof(ffosbr.settings.getPath(type)) === undefined) {
+  if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot restore type ' + type);
   }
 
-  window.ffosbr.media.get(type, function(file) {
+  ffosbr.media.get(type === 'photos' ? 'pictures' : type, function(file) {
     if (!file) {
       return;
     }
 
-    var filename = paths[type] + photo.name;
-    window.ffosbr.media.put('sdcard1', photo, filename, function() {
-      oncomplete();
+    var fn = file.name;
+    fn = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
+    var dest = paths[type] + fn + '~';
+    ffosbr.media.put('sdcard1', file, dest, function() {
+      // Report progress?
     });
-  });
+  }, oncomplete);
 };
 
 // Defines Ffosbr backup
