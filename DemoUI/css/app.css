@@ -1,0 +1,154 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font-size: 10px;
+  font-family: sans-serif;
+  background-color: #fff;
+  /* Prevent other pages from being visible */
+  height: 100%;
+  widows: 100%;
+  overflow: hidden;
+}
+
+.footer {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  background-color: #f97c17;
+}
+
+section {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: white;
+}
+
+.fa.fa-angle-left.backbutton {
+  font-size: 3rem;
+  line-height: 5rem;
+  padding-left: 1rem;
+}
+
+li.main-list-item.infopane {
+  height: 80px;
+  border-bottom: solid 0.1rem #e7e7e7 !important;
+}
+
+.main-list-link {
+  text-decoration: none
+}
+
+.main-list-icon {
+  margin-left: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  float: left;
+  width: 20%;
+}
+
+.main-list-label {
+  margin-left: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 35%;
+}
+
+.main-list-hist {
+  margin-left: 0px;
+  float: right;
+  width: 45%;
+}
+
+.main-list-hist-row {
+  margin-left: 0px;
+  padding: 0px;
+}
+
+/*
+ * gaia has some high-specificity class in place here already.
+ * Since this is just a demo application anyway and this code probably
+ * doesn't need to be extensively maintained, I'm just using
+ * "!important".
+ *
+ * Sorry.
+ */
+.main-list-hist-label {
+  font-size: 14px !important;
+  opacity: 0.6;
+  line-height: 1.1 !important;
+  padding-top: 0px !important;
+}
+
+.main-list-hist-data {
+  font-size: 12px !important;
+  opacity: 0.6;
+  line-height: 1.2 !important;
+  padding-top: 0px !important;
+}
+
+.backup-detail-page {
+  transform: translateX(100%); position: absolute;
+}
+
+.option-list {
+  background-color: black;
+  opacity: 0.4;
+}
+
+.slide-up {
+  animation: slide-up 0.4s forwards ease-out;
+}
+
+.slide-down {
+  animation: slide-down 0.4s forwards ease-out;
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+.go-deeper-out {
+  animation: current-to-left 0.4s forwards;
+}
+
+.go-deeper-in {
+  animation: right-to-current 0.4s forwards;
+}
+
+.go-deeper-back-in {
+  animation: left-to-current 0.4s forwards;
+}
+
+.go-deeper-back-out {
+  animation: current-to-right 0.4s forwards;
+}
+
+@keyframes right-to-current {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes current-to-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes current-to-right {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes left-to-current {
+  /* To pre-render the incoming screen and avoid a flick we are getting if
+      setting it to 100%. */
+  0%   { transform: translateX(-99.99%); }
+  100% { transform: translateX(0); }
+}

@@ -13,7 +13,7 @@ var launchApp = require('node-firefox-launch-app');
 var pushApp = require('push-app');
 
 // Where our app is located
-var appPath = path.join(__dirname, '../testrunner');
+var appPath = path.join(__dirname, process.argv[2]);
 
 
 /**
@@ -120,16 +120,16 @@ function quit() {
 // Main
 if (process.argv.length == 2) {
   pushToAnything();
-} else if (process.argv[2] == 'pushToAnything') {
+} else if (process.argv[3] == 'pushToAnything') {
   pushToAnything();
-} else if (process.argv[2] == 'pushToVersion') {
-  if (process.argv[3] === 'true') {
+} else if (process.argv[3] == 'pushToVersion') {
+  if (process.argv[4] === 'true') {
     console.warn('No simulator version specificed, defaulting to 3.0.');
     pushToVersion('3.0')
     return;
   }
 
-  pushToVersion(process.argv[3])
+  pushToVersion(process.argv[4])
 } else {
   console.error("Second command line argument not understood, please use 'pushToAnything' or 'pushToVersion'.");
   quit();
