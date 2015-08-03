@@ -37,7 +37,7 @@ var backup = function(oncomplete) {
     });
   }
 
-  if (ffosbr.settings.get('video')) {
+  if (ffosbr.settings.get('videos')) {
     ffosbr.videos.backup(function(err) {
       if (err) {
         onerror(err);

@@ -37,7 +37,7 @@ var clean = function(onerror) {
     });
   }
 
-  if (ffosbr.settings.get('video')) {
+  if (ffosbr.settings.get('videos')) {
     ffosbr.videos.clean(function(err) {
       if (err) {
         onerror(err);
