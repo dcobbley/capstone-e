@@ -10,7 +10,7 @@ var clean = function(onerror) {
   var asyncClean = function(type) {
     setTimeout(function() {
       if (ffosbr.settings.get(type)) {
-        ffosbr[type].backup(function(err) {
+        ffosbr[type].clean(function(err) {
           if (err) {
             onerror(err);
           }
