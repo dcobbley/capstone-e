@@ -5,12 +5,12 @@ function Settings() {
 
   this.options = {
     photos: true,
-    music: true,
     videos: true,
     contacts: true,
     messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
+    systemsettings: true,
     registeredTimer: false,
     repeat: true
   };
@@ -23,6 +23,7 @@ function Settings() {
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
     settings: 'backup/settings/',
+    systemsettings: 'backup/systemSettings/',
     messages: 'backup/messages/'
   };
 }
@@ -93,12 +94,12 @@ Settings.prototype.validate = function(potentialOptions, value) {
   var opts = null;
   var validTypes = {
     photos: 'boolean',
-    music: 'boolean',
     videos: 'boolean',
     contacts: 'boolean',
     messages: 'boolean',
     intervalTime: 'number',
     id: 'number',
+    systemsettings: 'boolean',
     registeredTimer: 'boolean',
     repeat: 'boolean'
   };

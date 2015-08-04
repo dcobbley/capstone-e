@@ -12,6 +12,7 @@
       'contacts': require('./contacts'),
       'photos': require('./photos'),
       'videos': require('./videos'),
+      'systemSettings': require('./systemSettings'),
       'music': require('./music')
     };
 
