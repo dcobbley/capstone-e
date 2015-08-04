@@ -104,7 +104,9 @@ Media.prototype.backup = function(type, oncomplete) {
     ffosbr.media.put('sdcard1', file, dest, function() {
       // Report progress?
     });
-  }, oncomplete);
+  }, function(error) {
+    oncomplete(type, error);
+  });
 };
 
 /**
@@ -165,7 +167,7 @@ Media.prototype.restore = function(type, oncomplete) {
 };
 
 /**
- * @access public
+ * @access private
  * @description Takes an array of DeviceStorage objects and returns
  *   whichever represents the internal storage.
  * @param {array of DeviceStorage} stores
@@ -507,7 +509,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
  * @param {String} filename - Specifies the full path to the file to be
  *   removed from the external sdcard (sdcard1).
  * @param {requestCallback} oncomplete (optional)
- * @throws 
+ * @throws
  */
 Media.prototype.remove = function(filename, oncomplete) {
 
@@ -640,7 +642,7 @@ Media.prototype.checkBlockSize = function(storage, oncomplete) {
  * @access public
  * @description
       Check if there is enough space for next backup file.
-       
+
        var content = '1234567890';
        var file = new File([content], 'Size' + content.length + '.txt', {
         type: 'text/plain'
