@@ -13,6 +13,8 @@
  */
 function Storage(type, store) {
 
+  var that = this;
+
   this.type = null;
   this.store = null;
   this.files = {};
@@ -31,6 +33,9 @@ function Storage(type, store) {
   this.type = type;
   this.store = store;
   this.populate();
+  this.store.onchange = function() {
+    that.populate();
+  };
 }
 
 /**
@@ -46,6 +51,10 @@ function Storage(type, store) {
 Storage.prototype.fileExists = function(fname, oncomplete) {
 
   var that = this;
+
+  if (!oncomplete || !ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
 
   if (this.updating === true) {
     setTimeout(function() {
@@ -103,12 +112,19 @@ Storage.prototype.populate = function() {
     } else {
       that.updating = false;
       that.ready = true;
+      that.makePathsRelative();
     }
   };
 
   listFiles.onerror = function() {
-    that.ready = false;
-    console.error('Failed to list files on storage device ' + that.type);
+    console.error('Failed to populate storage device ' + that.type + ': ' + this.error.name);
+    that.updating = false;
+    // BUG - There seems to be an issue where an error is
+    // thrown by enumerate after the last file. In this
+    // case, it's a false error.
+    if (that.files.length === 0) {
+      that.ready = false;
+    }
   };
 };
 
@@ -120,10 +136,54 @@ Storage.prototype.populate = function() {
  * @returns {string}
  */
 Storage.prototype.sanitizeFilename = function(fname) {
-  // TODO - This is not legit.
-  fname = fname.replace(/-/g, 'x');
-  fname = fname.replace(/\./g, 'y');
+
+  if (fname) {
+    // TODO - This is not legit.
+    fname = fname.replace(/-/g, 'x');
+    fname = fname.replace(/\./g, 'y');
+  }
+
   return fname;
+};
+
+/**
+ * @access private
+ * @description Determines whether there exists a common prefix to the
+ *   path names in the "files" object and, if so, removes it.
+ */
+Storage.prototype.makePathsRelative = function() {
+
+  var all = [];
+
+  // Convert to array
+  for (var field in this.files) {
+    all.push(field);
+  }
+
+  // Sort them
+  all = all.concat().sort();
+
+  if (all.length === 0) {
+    return;
+  }
+
+  var a1 = all[0]; // 1st file name
+  var a2 = all[all.length - 1]; // nth file name
+  var prefix = ''; // common base directory
+  var i = 0;
+
+  while (i < a1.length && a1.charAt(i) === a2.charAt(i)) {
+    ++i;
+  }
+
+  a1 = a1.substring(0, i);
+  prefix = a1.substring(0, a1.lastIndexOf('/') + 1);
+
+  for (var name in this.files) {
+    var normalized = name.substr(prefix.length, name.length);
+    this.files[normalized] = true;
+    delete this.files[name];
+  }
 };
 
 // Extend Ffosbr library

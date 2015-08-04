@@ -269,6 +269,7 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
  */
 Media.prototype.put = function(type, file, dest, oncomplete) {
 
+  var that = this;
   var filename = null; // dest without file paths
   var storages = null; // array of DeviceStorage
   var targetStorage = null; // DeviceStorage to write to
@@ -332,19 +333,75 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   if (type === 'sdcard1') {
     targetStorage = storages.external;
   } else {
+    dest = filename;
     targetStorage = this.getDefaultStorage(type);
   }
 
   if (targetStorage && targetStorage.ready === true) {
-    try {
-      if (type === 'sdcard1') {
-        write = targetStorage.store.addNamed(file, dest);
-      } else {
-        write = targetStorage.store.addNamed(file, filename);
+
+    alert('enough space?'); //rmv
+
+    this.enoughSpaceAvailable(targetStorage.store, file, function(isEnough) {
+
+      // Local avoidance of duplicate code
+      function putFile() {
+
+        alert('puDDin'); //rmv
+
+        try {
+
+          alert(filename + '  vs  ' + dest); //rmv
+
+          // WORKING HERE
+          // WORKING HERE
+          // WORKING HERE
+
+          write.targetStorage.store.addNamed(file, dest);
+          // if (type === 'sdcard1') {
+          //   write = targetStorage.store.addNamed(file, dest);
+          // } else {
+          //   write = targetStorage.store.addNamed(file, filename);
+          // }
+        } catch (e) {
+          oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+        }
       }
-    } catch (e) {
-      return oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
-    }
+
+      if (!isEnough) {
+
+        alert('nope'); //rmv
+
+        oncomplete(new Error('Not enough space remaining to write file ' + dest));
+      } else {
+
+        alert('yes'); //rmv
+
+        targetStorage.fileExists(dest, function(exists) {
+
+          alert('Does ' + dest + ' exist?'); //rmv
+
+          if (exists === true) {
+
+            alert(dest + ' exists!'); //rmv
+
+            // The file already exists, so we must delete it because
+            // overwriting files fails in Firefox OS
+            that.remove(dest, function(error) {
+              if (error) {
+                oncomplete(error);
+              } else {
+                putFile();
+              }
+            });
+          } else {
+
+            alert(dest + ' does not exist!'); //rmv
+
+            putFile();
+          }
+        });
+      }
+    });
   } else {
     return oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
   }
@@ -509,18 +566,18 @@ Media.prototype.checkBlockSize = function(storage, oncomplete) {
        var file = new File([content], 'Size' + content.length + '.txt', {
         type: 'text/plain'
        });
-       ffosbr.media.isEnoughSpace(navigator.getDeviceStorages('sdcard')[1], file, function() {} );
+       ffosbr.media.enoughSpaceAvailable(navigator.getDeviceStorages('sdcard')[1], file, function() {} );
       using above line to test
  * @param {DeviceStorage} storage
  * @param {File} file
  * @param {requestCallback} oncomplete
  */
-Media.prototype.isEnoughSpace = function(storage, file, oncomplete) {
+Media.prototype.enoughSpaceAvailable = function(storage, file, oncomplete) {
 
   var currentFreeBytes = 0;
 
   ffosbr.media.getFreeBytes(storage, function(currentFreeBytes) {
-    console.log(currentFreeBytes + 'bytes');
+
     ffosbr.media.checkBlockSize(storage, function(blockSize) {
       var fileSize = file.size;
       var realFileSize = Math.ceil(fileSize / blockSize) * blockSize;
