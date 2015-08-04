@@ -1,3 +1,16 @@
+
+  function showProgressDialog(message) {
+    var progressMask = document.getElementById('progress-mask');
+    var progressMessage = progressMask.querySelector('#progress-message');
+    progressMessage.textContent = message;
+    progressMask.style.display = 'block';
+  }
+
+  function hideProgressDialog() {
+    var progressMask = document.getElementById('progress-mask');
+    progressMask.style.display = 'none';
+  }
+
 // DOMContentLoaded is fired once the document has been loaded and parsed,
 // but without waiting for other external resources to load (css/images/etc)
 // That makes the app more responsive and perceived as faster.
@@ -11,21 +24,22 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // We want to wait until the localisations library has loaded all the strings.
   // So we'll tell it to let us know once it's ready.
-  navigator.mozL10n.once(start);
+  //navigator.mozL10n.once(start);
 
-  // ---
+  var cleanHandler = function() {
+    // Hurr
+  };
 
-  function start() {
+  var restoreHandler = function() {
+    // Durr
+  };
 
-    // var message = document.getElementById('message');
+  function loadBackupDetailPage(type) {
+    var detailOptions = ffosbr.history.getValue(type);
+    if (!detailOptions) {
+      return;
+    }
 
-    // We're using textContent because inserting content from external sources into your page using innerHTML can be dangerous.
-    // https://developer.mozilla.org/Web/API/Element.innerHTML#Security_considerations
-    // message.textContent = translate('message');
-
-  }
-
-  function loadBackupDetailPage(detailOptions) {
     // Load the title of the detail page from options
     var detailPageDataTypeTitle = document.getElementById('detail-page-title');
     detailPageDataTypeTitle.textContent = detailOptions.title;
@@ -34,26 +48,37 @@ window.addEventListener('DOMContentLoaded', function() {
     detailPageDataTypeTitle2.textContent = 'Backup ' + detailOptions.title;
 
     //get current status of settings
-    var key = detailOptions.title.toLowerCase();
-    var currStatus = ffosbr.settings.get(key);
+    var currStatus = ffosbr.settings.get(type);
+    if (typeof currStatus != 'boolean') {
+      return;
+    }
 
     //load the slider based on current state of settings
     var sliderStatus = document.getElementById('backupStatus');
 
-    if (currStatus === false) {
-      sliderStatus.checked = false;
-    } else {
-      sliderStatus.checked = true;
-    }
+    sliderStatus.checked = currStatus;
 
-    ffosbr.settings.set(key, sliderStatus.checked);
+    ffosbr.settings.set(type, sliderStatus.checked);
+
+    // Update the button handlers
+    var cleanButton = document.getElementById('detail-clean-button');
+    cleanButton.removeEventListener('click', cleanHandler);
+    cleanHandler = function() {
+      ffosbr['type'].clean();
+    };
+    cleanButton.addEventListener('click', cleanHandler);
+
+    var restoreButton = document.getElementById('detail-restore-button');
+    restoreButton.removeEventListener('click', restoreHandler);
+    restoreHandler = function() {
+      ffosbr['type'].restore();
+    };
+    restoreButton.addEventListener('click', restoreHandler);
 
     // Slide the backup detail page onto the screen
     var backupDetailPage = document.getElementById('backup-detail-page');
     backupDetailPage.style.zIndex = '100';
     backupDetailPage.setAttribute('class', 'go-deeper-in');
-
-
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -165,28 +190,20 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 
   document.getElementById('photo-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(ffosbr.history.getValue('photos'));
+    loadBackupDetailPage('photos');
   });
 
   document.getElementById('video-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(ffosbr.history.getValue('videos'));
+    loadBackupDetailPage('videos');
   });
 
   document.getElementById('contact-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(ffosbr.history.getValue('contacts'));
+    loadBackupDetailPage('contacts');
   });
 
   document.getElementById('messages-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(ffosbr.history.getValue('messages'));
+    loadBackupDetailPage('messages');
   });
-
-  /*
-  document.getElementById('backup-page-back-button').addEventListener('click', function() {
-    document.getElementById('backup-page')
-      .setAttribute('class', 'go-deeper-back-out');
-    document.getElementById('backups-page')
-      .setAttribute('class', 'go-deeper-back-in');
-  });*/
 
 
 });

@@ -66,6 +66,26 @@ li.main-list-item.infopane {
   padding: 0px;
 }
 
+.mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(255, 255, 255, 0.9);
+  display: none;
+}
+
+.mask h1 {
+  height: 100%;
+  position: absolute;
+  top: 50%;
+  margin-top: -41px;
+  text-align: center;
+  width: 100%;
+  user-select: none;
+}
+
 /*
  * gaia has some high-specificity class in place here already.
  * Since this is just a demo application anyway and this code probably
