@@ -5,6 +5,7 @@ function Settings() {
 
   this.options = {
     photos: true,
+    music: true,
     videos: true,
     contacts: true,
     messages: true,
