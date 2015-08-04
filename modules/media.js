@@ -302,7 +302,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
     throw new Error('Callback is not a function');
-  } else {
+  } else if (!oncomplete) {
     // This allows us to safely call oncomplete, even when
     // the callback was not provided.
     oncomplete = function() {}; // dummy function
