@@ -35,4 +35,18 @@
 
   window.ffosbr = new Ffosbr();
   window.ffosbr.initialize();
+
+
+  // REMOVE - testing purposes
+  window.backup = function() {
+    ffosbr.backup(function(type) {
+      alert('onsuccess - ' + type);
+    }, function(type, error) {
+      alert('onerror - ' + type);
+      alert(error ? error : 'no error');
+    }, function() {
+      alert('backup finished');
+    });
+  };
+
 })();

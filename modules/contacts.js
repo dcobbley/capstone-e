@@ -35,8 +35,9 @@ Contacts.prototype.checkProgress = function() {
     setTimeout(function() {
       that.checkProgress();
     }, delay);
+
   } else if (this.oncomplete) {
-    this.oncomplete();
+    this.oncomplete('contacts');
     this.SIMfinished = false; //Reset for next backup
     this.OSfinished = false; //Reset for next backup
     this.running = false;
@@ -46,10 +47,12 @@ Contacts.prototype.checkProgress = function() {
 /**
  * @access public
  * @description Saves all contacts from the device and SIM/ICC cards to a JSON file on the SD card.
- * Note: Calls getContactsFromSIM() calls getContactsFromOS() on completion.
+ *   Note: Calls getContactsFromSIM() calls getContactsFromOS() on completion.
+ * @param {callback} oncomplete
  */
-Contacts.prototype.backup = function() {
+Contacts.prototype.backup = function(oncomplete) {
   if (!this.running) {
+    this.oncomplete = oncomplete;
     this.running = true;
     this.checkProgress();
     this.contacts = [];
@@ -110,7 +113,11 @@ Contacts.prototype.clean = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
   var that = this;
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-  var remove = sdcard.delete(path);
+  var remove = {}; // cursor
+
+  if (sdcard) {
+    remove = sdcard.delete(path);
+  }
 
   remove.onsuccess = function() {
     if (window.ffosbr.utils.isFunction(oncomplete)) {
@@ -177,6 +184,12 @@ Contacts.prototype.getContactsFromSIM = function() {
   var request = null;
   var numSIMCards = 0;
   var numHandlersCalled = 0;
+
+  // Nothing to backup from SIM
+  if (!cards || cards.length === 0) {
+    that.SIMfinished = true;
+    return this.getContactsFromOS();
+  }
 
   var onSuccessFunction = function() {
     var contact = this.result;
