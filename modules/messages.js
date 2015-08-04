@@ -64,12 +64,16 @@ Messages.prototype.backup = function(callback) {
 
 /**
  * @access public
- * @description Firefox OS currently exposes no API to
- *  restore messages to the device.
+ * @description Firefox OS current exposes no API to
+ *  restore messages to the device so this function is a noop.
+ * @param {callback} callback
  */
-Messages.prototype.restore = function() {
+Messages.prototype.restore = function(callback) {
   // **This is not possible**
-  // Firefox OS currently exposes no API to restore messages to device!
+  // Firefox OS current exposes no API to restore messages to device!
+  if (callback) {
+    callback();
+  }
 };
 
 /**

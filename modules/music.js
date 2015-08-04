@@ -12,33 +12,33 @@ Music.prototype.initialize = function() {};
 
 /**
  * @access public
- * @description Wrapper that calls ffosbr.backup('music').
+ * @description Wrapper that calls ffosbr.media.backup('music').
  *  Oncomplete callback is invoked upon completion; if an error occurred,
  *  it will be passed as the first parameter to the callback.
  * @param {callback} oncomplete
  */
 Music.prototype.backup = function(oncomplete) {
-  ffosbr.backup('music', oncomplete);
+  ffosbr.media.backup('music', oncomplete);
 };
 
 /**
  * @access public
- * @description Wrapper for ffosbr.restore('music').
+ * @description Wrapper for ffosbr.media.restore('music').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete
  */
 Music.prototype.restore = function(oncomplete) {
-  ffosbr.restore('music', oncomplete);
+  ffosbr.media.restore('music', oncomplete);
 };
 
 /**
  * @access public
- * @description Wrapper for ffosbr.clean('music').
+ * @description Wrapper for ffosbr.media.clean('music').
  *  Oncomplete callback is invoked upon completion.
  * @param {callback} oncomplete
  */
 Music.prototype.clean = function(oncomplete) {
-  ffosbr.clean('music', oncomplete);
+  ffosbr.media.clean('music', oncomplete);
 };
 
 module.exports = new Music();
