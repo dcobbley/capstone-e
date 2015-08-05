@@ -87,16 +87,18 @@ Messages.prototype.restore = function(oncomplete) {
  * @access public
  * @description Deletes the messages file from external storage.
  *   Callback is invoked upon completion. If an error occurred,
- *   it will be passed as the first parameter to the callback.
- * @param {callback} callback
+ *   it will be passed as the first parameter to oncomplete.
+ * @param {callback} oncomplete
  */
-Messages.prototype.clean = function(callback) {
+Messages.prototype.clean = function(oncomplete) {
   var path = ffosbr.settings.backupPaths.messages;
 
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
+
   ffosbr.media.remove(path + 'messages.json', function(err) {
-    if (callback) {
-      callback(err ? err : undefined);
-    }
+    oncomplete('messages', err);
   });
 };
 

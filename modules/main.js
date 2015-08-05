@@ -35,47 +35,4 @@
 
   window.ffosbr = new Ffosbr();
   window.ffosbr.initialize();
-
-
-  // REMOVE - testing purposes
-  window.backup = function() {
-    ffosbr.backup(function(type) {
-      alert('backup success - ' + type);
-    }, function(type, error) {
-      alert('backup error - ' + type);
-      alert(error ? error : 'no error');
-    }, function() {
-      alert('backup finished');
-    });
-  };
-
-  // REMOVE - testing purposes
-  window.restore = function() {
-    ffosbr.restore(function(type) {
-      alert('restore success - ' + type);
-    }, function(type, error) {
-      alert('restore error - ' + type);
-      alert(error ? error : 'no error');
-    }, function() {
-      alert('restore finished');
-    });
-  };
-
-  // REMOVE - testing purposes
-  window.enumerate = function() {
-    var cursor = navigator.getDeviceStorage('videos').enumerate();
-    cursor.onsuccess = function() {
-      alert(this.result);
-      if (!this.result) {
-        alert('there aint none');
-      }
-      if (!this.done) {
-        this.continue();
-      }
-    };
-    cursor.onerror = function() {
-      console.error(this.error);
-    };
-  };
-
 })();

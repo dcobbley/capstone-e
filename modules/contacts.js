@@ -134,20 +134,22 @@ Contacts.prototype.clean = function(oncomplete) {
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
   var remove = {}; // cursor
 
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
+
   if (sdcard) {
     remove = sdcard.delete(path);
+  } else {
+    return oncomplete('contacts', new Error('Cannot remove contacts JSON file.'));
   }
 
   remove.onsuccess = function() {
-    if (window.ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete('Clean success');
-    }
+    oncomplete('contacts');
   };
 
   remove.onerror = function() {
-    if (window.ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete(remove.error);
-    }
+    oncomplete('contacts', this.error);
   };
 };
 

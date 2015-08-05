@@ -55,23 +55,29 @@ Media.prototype.initialize = function() {
  */
 Media.prototype.clean = function(type, oncomplete) {
   var paths = ffosbr.settings.getBackupDirectoryPaths();
+  var empty = true; // is storage empty?
 
   if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
   }
 
-  ffosbr.media.get('sdcard1', paths[type], function(file) {
-    if (!file) {
-      return;
+  ffosbr.media.get('sdcard1', paths[type], function(file, error) {
+
+    if (error || !file) {
+      return oncomplete(type, error);
+    } else {
+      empty = false;
     }
 
     var filename = paths[type] + file.name;
     window.ffosbr.media.remove(file.name, function(error) {
-      if (error) {
-        throw error;
-      }
+      oncomplete(type, error);
     });
-  }, oncomplete);
+  }, function(error) {
+    if (error || empty) {
+      oncomplete(type, error);
+    }
+  });
 
 };
 
@@ -127,12 +133,7 @@ Media.prototype.restore = function(type, oncomplete) {
 
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
 
-    if (error) {
-      return oncomplete(type, error);
-    }
-
-    if (!file) {
-      // This condition is only true when there are no files to restore
+    if (error || !file) {
       return oncomplete(type, error);
     } else {
       empty = false;
