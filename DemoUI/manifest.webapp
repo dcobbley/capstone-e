@@ -12,7 +12,7 @@
   "developer": {
     "name": "Thomas Guerena"
   },
-  "type": "privileged",
+  "type": "certified",
   "permissions": {
     "systemXHR": {
       "description": "Required to load remote content"
