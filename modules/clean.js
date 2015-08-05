@@ -1,33 +1,27 @@
 /**
  * @access public
- * @description Deletes specified file types from external storage
- *   device. Callback is invoked upon completion. If an error
- *   occurred, it will be passed as the first parameter to
- *   the callback, "oncomplete".
- * @param {string} type
- * @param {callback} oncomplete
- * @throws On invalid data type
+ * @description Deletes every data type set as true in settings
+ * Calls the callback on every error
+ * @param {callback} onerror
  */
-var clean = function(type, oncomplete) {
-  var paths = ffosbr.settings.getBackupDirectoryPaths();
+var clean = function(onerror) {
+  var cleanTypes = ['contacts', 'messages', 'photos', 'music', 'videos'];
 
-  if (paths[type] === undefined) {
-    throw new Error('Invalid data type. Cannot clean type ' + type);
-  }
-
-  ffosbr.media.get('sdcard1', paths[type], function(file) {
-    if (!file) {
-      return;
-    }
-
-    var filename = paths[type] + file.name;
-    window.ffosbr.media.remove(file.name, function(error) {
-      if (error) {
-        throw error;
+  var asyncClean = function(type) {
+    setTimeout(function() {
+      if (ffosbr.settings.get(type)) {
+        ffosbr[type].clean(function(err) {
+          if (err) {
+            onerror(err);
+          }
+        });
       }
-    });
-  }, oncomplete);
+    }, 0);
+  };
 
+  for (var i = 0; i < cleanTypes.length; i++) {
+    asyncClean(cleanTypes[i]);
+  }
 };
 
 // Defines Ffosbr clean
