@@ -6,7 +6,7 @@ var Contacts = function() {};
 
 /**
  * @access public
- * @description List of contacts initialized, as well as onProgress and onComplete for checking the status of the current backup
+ * @description List of contacts initialized, as well as onprogress and oncomplete for checking the status of the current backup
  */
 Contacts.prototype.initialize = function() {
   this.running = false;
@@ -62,21 +62,25 @@ Contacts.prototype.backup = function(oncomplete) {
 
 /**
  * @access public
- * @description Loads contacts from a JSON file on the SD card onto the phone.
+ * @description Loads contacts from a JSON file on the external SD card back
+ *   onto the phone.
+ * @param {callback} oncomplete
  */
-Contacts.prototype.restore = function() {
+Contacts.prototype.restore = function(oncomplete) {
   var that = this;
   var reader = new FileReader();
+  var cursor = {};
 
   reader.onloadend = function() {
     var contents = this.result;
     var data;
+
     try {
       data = JSON.parse(contents);
     } catch (SyntaxError) {
-      alert('Invalid contacts.');
-      return;
+      return oncomplete('contacts', new Error('Invalid contacts JSON file.'));
     }
+
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
       var nameSplit = data[i].name[0].split(' ');
@@ -89,19 +93,34 @@ Contacts.prototype.restore = function() {
 
       navigator.mozContacts.save(myContact);
     }
+
+    // NOTE: mozContacts.save is an asynchronous call. Currently, we are not
+    // checking whether this request is successful or not. However, it's more
+    // difficult to do so than other DOMRequests. Mozilla should add support
+    // for accepting multiple contacts as an argument, which would make tracking
+    // the status of the request much easier.
+    oncomplete('contacts');
   };
 
 
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
 
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-  var request = sdcard.get(path);
+  var request = {};
+
+  if (sdcard) {
+    request = sdcard.get(path);
+  } else {
+    oncomplete('contacts', new Error('Cannot load contacts JSON file.'));
+  }
 
   request.onsuccess = function() {
     reader.readAsText(this.result);
   };
 
-  request.onerror = function() {};
+  request.onerror = function() {
+    oncomplete('contacts', new Error('Failed to load contacts JSON file.'));
+  };
 };
 
 /**

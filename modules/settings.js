@@ -82,11 +82,11 @@ Settings.prototype.getBackupDirectoryPaths = function() {
 
 /**
  * @access public
- * @descripton Provides an array the current allowable backup
- *   types as strings.
+ * @descripton Provides an array the current allowable backup,
+ *   clean, and restore types as strings.
  * @returns {Array of String}
  */
-Settings.prototype.getCurrentAllowedBackupTypes = function() {
+Settings.prototype.getCurrentAllowedTypes = function() {
   var allowed = [];
   for (var type in this.backupPaths) {
     if (this.options[type] === true) {

@@ -1,12 +1,14 @@
 /**
  * @access public
  * @description Backups every data type set as true in settings.
+ *
  *   Calls onsuccess after each sub-backup (per type) finishes
- *   without error. First argument is the type of backup, second
- *   is the error.
+ *   without error. Only argument is the type of backup.
+ *
  *   Calls onerror after each sub-backup (per type) finished with
  *   an error.  First argument is the type of backup, second
  *   is the error.
+ *
  *   Calls oncomplete after all backups have finished, regardless
  *   of success/failure status. No arguments are provided.
  * @param {callback} onsuccess
@@ -15,7 +17,7 @@
  */
 var backup = function(onsuccess, onerror, oncomplete) {
 
-  var backupTypes = ffosbr.settings.getCurrentAllowedBackupTypes();
+  var backupTypes = ffosbr.settings.getCurrentAllowedTypes();
   var finished = {};
 
   // Keeps track of which callbacks have finished, and calls
