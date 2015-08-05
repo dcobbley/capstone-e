@@ -121,11 +121,21 @@ Media.prototype.backup = function(type, oncomplete) {
  * @param {callback} oncomplete
  */
 Media.prototype.restore = function(type, oncomplete) {
-  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  ffosbr.media.get('sdcard1', paths[type], function(file) {
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
+  var empty = true; // default to true, fetching a file will set it false
+
+  ffosbr.media.get('sdcard1', paths[type], function(file, error) {
+
+    if (error) {
+      return oncomplete(type, error);
+    }
+
     if (!file) {
-      return;
+      // This condition is only true when there are no files to restore
+      return oncomplete(type, error);
+    } else {
+      empty = false;
     }
 
     var fn = file.name;
@@ -159,11 +169,24 @@ Media.prototype.restore = function(type, oncomplete) {
         type: mimeType
       });
 
-      ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, oncomplete);
+      ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, function(error) {
+        if (error) {
+          // If the put fails, the restore has failed
+          oncomplete(type, error);
+        }
+        // Report progress?
+      }, function(error) {
+        oncomplete(type, error);
+      });
     };
 
     reader.readAsArrayBuffer(file);
-  }, oncomplete);
+  }, function(error) {
+    if (error || empty) {
+      // If the get fails, the restore has failed
+      oncomplete(type, error);
+    }
+  });
 };
 
 /**

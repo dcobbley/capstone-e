@@ -68,14 +68,19 @@ Messages.prototype.backup = function(oncomplete) {
  * @access public
  * @description Firefox OS current exposes no API to
  *  restore messages to the device so this function is a noop.
- * @param {callback} callback
+ * @param {callback} oncomplete
  */
-Messages.prototype.restore = function(callback) {
-  // **This is not possible**
-  // Firefox OS current exposes no API to restore messages to device!
-  if (callback) {
-    callback();
+Messages.prototype.restore = function(oncomplete) {
+
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    onsuccess = function() {};
   }
+
+  // ** This is not possible **
+  // Firefox OS current exposes no API to restore messages to device!
+
+  // Behave as if successful.
+  oncomplete('messages');
 };
 
 /**
