@@ -1,6 +1,6 @@
 /**
  * @access public
- * @description Restores every data type set as true in settings
+ * @description Restores every data type set as true in settings.
  *
  *   Calls onsuccess after each sub-restore (per type) finishes
  *   without error. Only argument is the type of restore.
