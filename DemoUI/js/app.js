@@ -170,7 +170,7 @@ window.addEventListener('DOMContentLoaded', function() {
       }
       sitrep += '\nFAILURES:\n';
       
-      for(var i = 0; i < failures.length; ++i) {
+      for(i = 0; i < failures.length; ++i) {
         sitrep += '\t' + failures[i] + '\n';
       }
 
