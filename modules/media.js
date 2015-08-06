@@ -519,6 +519,10 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   if (targetStorage && targetStorage.ready === true) {
     try {
+
+      console.log('dest = ' + dest); //rmv
+      console.log('filename = ' + filename); //rmv
+
       if (type === 'sdcard1') {
         write = targetStorage.store.addNamed(file, dest);
       } else {

@@ -26,6 +26,7 @@ function Storage(type, store) {
   }
   if (store === null) {
     this.ready = false;
+    store = {}; // to avoid error adding onchange
   } else if (!(store instanceof DeviceStorage)) {
     throw new Error('Invalid DeviceStorage object');
   }
@@ -33,10 +34,7 @@ function Storage(type, store) {
   this.type = type;
   this.store = store;
 
-  this.store.onchange = function () {
-    // TODO - this is a working, but inefficient way
-    // of updating our file records. Test "reason"
-    // values and manually update the records accordingly.
+  this.store.onchange = function() {
     that.populate();
   };
 
@@ -109,7 +107,6 @@ Storage.prototype.populate = function() {
     if (file) {
       var name = that.sanitizeFilename(file.name);
       that.files[name] = true;
-      this.continue();
     } else {
       that.updating = false;
       that.ready = true;
