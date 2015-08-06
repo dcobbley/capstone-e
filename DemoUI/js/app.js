@@ -64,14 +64,18 @@ window.addEventListener('DOMContentLoaded', function() {
     var cleanButton = document.getElementById('detail-clean-button');
     cleanButton.removeEventListener('click', cleanHandler);
     cleanHandler = function() {
-      ffosbr['type'].clean();
+      ffosbr[type].clean(function(resultType, error) {
+        alert(error ? error : type + ' cleaned successfully');
+      });
     };
     cleanButton.addEventListener('click', cleanHandler);
 
     var restoreButton = document.getElementById('detail-restore-button');
     restoreButton.removeEventListener('click', restoreHandler);
     restoreHandler = function() {
-      ffosbr['type'].restore();
+      ffosbr[type].restore(function(resultType, error) {
+        alert(error ? error : type + ' restored successfully');
+      });
     };
     restoreButton.addEventListener('click', restoreHandler);
 
@@ -138,18 +142,43 @@ window.addEventListener('DOMContentLoaded', function() {
 
   refreshHistories();
 
-  function backup() {
-    if (ffosbr.settings.get('contacts')) {
-      ffosbr.contacts.backup();
-    }
-  }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
    * EVENT LISTENERS                                                               *
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   document.getElementById('backup-button').addEventListener('click', function() {
-    backup();
+    showProgressDialog('backup initiated...');
+    
+    var successes = [];
+    var failures = [];
+
+    var reportSuccess = function(type) {
+      showProgressDialog(type + ' saved successfully');
+      successes.push(type);
+    };
+
+    var reportError = function(type, error) {
+      showProgressDialog(type + ' failed');
+      failures.push(type);
+    };
+
+    var finished = function() {
+      var sitrep = 'SUCCESSES:\n';
+      for (var i = 0; i < successes.length; ++i) {
+        sitrep += '\t' + successes[i] + '\n';
+      }
+      sitrep += '\nFAILURES:\n';
+      
+      for(var i = 0; i < failures.length; ++i) {
+        sitrep += '\t' + failures[i] + '\n';
+      }
+
+      hideProgressDialog();
+      alert(sitrep);
+    };
+
+    ffosbr.backup(reportSuccess, reportError, finished);
   });
 
   // Settings page listeners

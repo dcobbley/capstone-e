@@ -1,6 +1,6 @@
 /**
  * @access public
- * @description Backups every data type set as true in settings.
+ * @description Backs up every data type set as true in settings.
  *
  *   Calls onsuccess after each sub-backup (per type) finishes
  *   without error. Only argument is the type of backup.
