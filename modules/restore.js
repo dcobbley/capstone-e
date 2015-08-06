@@ -1,63 +1,81 @@
 /**
  * @access public
- * @description Writes files stored in a Ffosbr backup back
- *   to Firefox OS. The contents restored depends on the
- *   backup present. Valid data types are: apps, music, photos,
- *   videos, contacts, and settings.
- *   If an error occurs, restore tries to call the "onerror"
- *   handler.
+ * @description Restores every data type set as true in settings.
+ *
+ *   Calls onsuccess after each sub-restore (per type) finishes
+ *   without error. Only argument is the type of restore.
+ *
+ *   Calls onerror after each sub-restore (per type) finished with
+ *   an error.  First argument is the type of restore, second
+ *   is the error.
+ *
+ *   Calls oncomplete after all restores have finished, regardless
+ *   of success/failure status. No arguments are provided.
+ * @param {callback} onsuccess
  * @param {callback} onerror
+ * @param {callback} oncomplete
  */
-var restore = function(onerror) {
+var restore = function(onsuccess, onerror, oncomplete) {
 
-  var externalSD = null;
-  var restoreFiles = null;
-  var type = null;
-  var paths = window.ffosbr.settings.getBackupDirectoryPaths();
+  var restoreTypes = ffosbr.settings.getCurrentAllowedTypes();
+  var finished = {}; // object containing all completed types
+  var calledOncomplete = false;
 
-  externalSD = window.ffosbr.media.getStorageByName('sdcard').external;
+  // Keeps track of which callbacks have finished, and calls
+  // appropriate handlers.
+  var callbackManager = function(type, error) {
 
-  if (externalSD.ready === true) {
-    restoreFiles = externalSD.store.enumerate(paths[type]);
-  }
+    finished[type] = true;
 
-  restoreFiles.onsuccess = function(file) {
-    if (!file) {
+    if (calledOncomplete === true) {
+      // Do nothing if we've already completed
       return;
+    } else if (error) {
+      onerror(type, error);
+    } else {
+      onsuccess(type);
     }
 
-    var fn = file.name;
-    var filepath = fn.substr(0, fn.lastIndexOf('/') + 1);
-    var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
-
-    for (var i in paths) {
-      if (filepath === paths[i]) {
-        type = i;
-        break;
+    // If there are any outstanding callbacks, we return early.
+    for (var f in finished) {
+      if (finished[f] === false) {
+        return;
       }
     }
 
-    // The following data types are passed to the OS
-    // in the same fashion. Contacts and settings have
-    // to be handled individually.
-    if (filepath === paths.apps ||
-      filepath === paths.music ||
-      filepath === paths.photos ||
-      filepath === paths.videos) {
-
-      window.ffosbr.media.put(type, file, '', function(error) {
-        if (error) {
-          throw error;
-        }
-      });
-    } else if (filepath === paths.contacts) {
-      // TODO - backup contacts
-    } else if (filepath === paths.settings) {
-      // TODO - backup settings
-    } else {
-      throw new Error('Failed to determine data type of ' + fn);
-    }
+    // All callbacks have finished. Call master oncomplete.
+    calledOncomplete = true;
+    oncomplete();
   };
+
+  // Kicks off a restore asycnronously, using timeouts.
+  var launchRestore = function(type) {
+    var nodelay = 0;
+    setTimeout(function() {
+      ffosbr[type].restore(callbackManager);
+    }, nodelay);
+  };
+
+  if (!ffosbr.utils.isFunction(onsuccess)) {
+    onsuccess = function() {};
+  }
+  if (!ffosbr.utils.isFunction(onerror)) {
+    onerror = function() {};
+  }
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
+
+  // Record expected types to finish
+  for (var i = 0; i < restoreTypes.length; ++i) {
+    // Values are false by default. True after finishing.
+    finished[restoreTypes[i]] = false;
+  }
+
+  // Launch each restore asynchronously.
+  for (var j = 0; j < restoreTypes.length; ++j) {
+    launchRestore(restoreTypes[j]);
+  }
 };
 
 // Defines Ffosbr restore

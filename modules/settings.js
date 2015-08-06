@@ -1,10 +1,14 @@
+/**
+ * Manages library settings and exposes ways to change them.
+ */
 function Settings() {
 
   this.options = {
     photos: true,
+    // music: true, // This hasn't been activated yet in Media
     videos: true,
     contacts: true,
-    text: true,
+    messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
     registeredTimer: false,
@@ -17,13 +21,14 @@ function Settings() {
     music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
-    contacts: 'backup/videos/',
+    contacts: 'backup/contacts/',
     settings: 'backup/settings/',
     messages: 'backup/messages/'
   };
 }
 
 /**
+ * @access private
  * @description Settings constructor
  */
 Settings.prototype.initialize = function() {
@@ -37,6 +42,10 @@ Settings.prototype.initialize = function() {
   }
 };
 
+/**
+ * @access private
+ * @description Load previous settings from local storage if they exist
+ */
 Settings.prototype.load = function() {
   // Load options if present
   var retrievedOptions = localStorage.getItem('ffosbrOptions');
@@ -59,6 +68,10 @@ Settings.prototype.load = function() {
   }
 };
 
+/**
+ * @access private
+ * @description Load previous settings from local storage if they exist
+ */
 Settings.prototype.getBackupDirectoryPaths = function() {
   var paths = {};
   for (var field in this.backupPaths) {
@@ -67,15 +80,39 @@ Settings.prototype.getBackupDirectoryPaths = function() {
   return paths;
 };
 
+/**
+ * @access public
+ * @descripton Provides an array the current allowable backup,
+ *   clean, and restore types as strings.
+ * @returns {Array of String}
+ */
+Settings.prototype.getCurrentAllowedTypes = function() {
+  var allowed = [];
+  for (var type in this.backupPaths) {
+    if (this.options[type] === true) {
+      allowed.push(type);
+    }
+  }
+  return allowed;
+};
+
+/**
+ * @access private
+ * @description Validate passed in setting
+ * @para {object} potentialOptions
+ * @para {object}  value
+ * @return True if passed in settings are valid otherwise false
+ */
 Settings.prototype.validate = function(potentialOptions, value) {
 
   var valid = true;
   var opts = null;
   var validTypes = {
     photos: 'boolean',
+    music: 'boolean',
     videos: 'boolean',
     contacts: 'boolean',
-    text: 'boolean',
+    messages: 'boolean',
     intervalTime: 'number',
     id: 'number',
     registeredTimer: 'boolean',
@@ -114,6 +151,13 @@ Settings.prototype.validate = function(potentialOptions, value) {
   return valid;
 };
 
+/**
+ * @access public
+ * @description Set settings
+ * @para {setting object} newOptions
+ * @para {object} value (optional)
+ * @throws if new value is invalid
+ */
 Settings.prototype.set = function(newOptions, value) {
 
   var opts = null;
@@ -148,6 +192,12 @@ Settings.prototype.set = function(newOptions, value) {
   localStorage.setItem('ffosbrOptions', JSON.stringify(this.options));
 };
 
+/**
+ * @access public
+ * @description Get's current settings or a particular field if passsed in
+ * @para {object} field (optional)
+ * @return current options
+ */
 Settings.prototype.get = function(field) {
 
   if (typeof field === 'undefined') {
