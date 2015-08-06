@@ -52,6 +52,10 @@ var checkDefaults = function(assert) {
 };
 
 QUnit.test('History', function(assert) {
+  // Save the user's previous history
+  var oldHistory = ffosbr.history.get();
+  ffosbr.history.set(ffosbr.history.getDefault());
+
   checkDefaults(assert);
   assert.strictEqual(ffosbr.history.validateAll(),
     true,
@@ -68,5 +72,6 @@ QUnit.test('History', function(assert) {
     'Photos',
     'but changes that don\'t use set() don\'t persist');
 
-
+  // Restore the user's previous history
+  ffosbr.history.set(oldHistory);
 });
