@@ -35,6 +35,7 @@ function Storage(type, store) {
   this.store = store;
 
   this.store.onchange = function() {
+    console.log('storage changed!'); //rmv
     that.populate();
   };
 
@@ -107,13 +108,22 @@ Storage.prototype.populate = function() {
     if (file) {
       var name = that.sanitizeFilename(file.name);
       that.files[name] = true;
+      if (!this.done) {
+        this.continue();
+      } else {
+        that.updating = false;
+        that.makePathsRelative();
+        that.ready = true;
+      }
     } else {
       that.updating = false;
+      that.makePathsRelative();
       that.ready = true;
     }
   };
 
   listFiles.onerror = function() {
+    that.updating = false;
     that.ready = false;
     console.error('Failed to list files on storage device ' + that.type);
   };
@@ -132,6 +142,52 @@ Storage.prototype.sanitizeFilename = function(fname) {
   fname = fname.replace(/-/g, 'x');
   fname = fname.replace(/\./g, 'y');
   return fname;
+};
+
+/**
+ * @access private
+ * @description Determines whether there exists a common prefix to the
+ *   path names in the "files" object and, if so, removes it.
+ */
+Storage.prototype.makePathsRelative = function() {
+
+  var all = [];
+
+  if (this.files.length === 0) {
+    // We cannot accurately do this without
+    // at least two files in storage.
+    return;
+  }
+
+  // Convert to array
+  for (var field in this.files) {
+    all.push(field);
+  }
+
+  // Sort them
+  all = all.concat().sort();
+
+  if (all.length === 0) {
+    return;
+  }
+
+  var a1 = all[0]; // 1st file name
+  var a2 = all[all.length - 1]; // nth file name
+  var prefix = ''; // common base directory
+  var i = 0;
+
+  while (i < a1.length && a1.charAt(i) === a2.charAt(i)) {
+    ++i;
+  }
+
+  a1 = a1.substring(0, i);
+  prefix = a1.substring(0, a1.lastIndexOf('/') + 1);
+
+  for (var name in this.files) {
+    var normalized = name.substr(prefix.length, name.length);
+    this.files[normalized] = true;
+    delete this.files[name];
+  }
 };
 
 // Extend Ffosbr library

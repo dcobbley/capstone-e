@@ -519,10 +519,6 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   if (targetStorage && targetStorage.ready === true) {
     try {
-
-      console.log('dest = ' + dest); //rmv
-      console.log('filename = ' + filename); //rmv
-
       if (type === 'sdcard1') {
         write = targetStorage.store.addNamed(file, dest);
       } else {
@@ -540,19 +536,20 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   };
 
   write.onerror = function() {
-    var error = this.error;
-    // Only call the oncomplete callback if it was provided
-    if (oncomplete) {
-
-      // The majority of errors thrown by Firefox OS do not provide messages.
-      if (error.message.length > 0) {
-        oncomplete(error);
+    targetStorage.fileExists(dest + filename, function(exists) {
+      if (exists) {
+        ffosbr.media.remove(directory + file.name, function(error) {
+          if (!error) {
+            that.put(type, file, dest, oncomplete);
+          } else {
+            console.error(error);
+            oncomplete(error);
+          }
+        });
       } else {
-        oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+        oncomplete(this.error);
       }
-    } else {
-      throw new Error('Attempt to write to an invalid storage. Abort.');
-    }
+    });
   };
 };
 

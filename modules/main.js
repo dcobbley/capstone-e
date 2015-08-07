@@ -82,29 +82,14 @@
 
   // REMOVE - testing purposes only
   window.put = function() {
-    var found = false;
     var file = new File(['ass'], 'assfile.txt');
     var directory = 'test/files/';
     ffosbr.media.put('sdcard1', file, directory, function(error) {
       if (!error) {
         console.log('put successful');
       } else {
-        ffosbr.media.external.sdcard.fileExists(directory + file.name, function(exists) {
-          if (exists) {
-            console.log('file found');
-            ffosbr.media.remove(directory + file.name, function(error) {
-              if (!error) {
-                put();
-              } else {
-                console.error(error);
-              }
-            });
-          } else {
-            console.log('file not found');
-          }
-        });
+        console.log('put failed');
       }
     });
   };
-
 })();
