@@ -35,7 +35,6 @@ function Storage(type, store) {
   this.store = store;
 
   this.store.onchange = function() {
-    console.log('storage changed!'); //rmv
     that.populate();
   };
 
