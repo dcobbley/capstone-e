@@ -87,6 +87,14 @@ Messages.prototype.clean = function(callback) {
   var path = ffosbr.settings.backupPaths.messages;
 
   ffosbr.media.remove(path + 'messages.json', function(err) {
+    if (err !== undefined) {
+      ffosbr.history.set('messages', {
+        title: 'Messages',
+        lastBackupDate: null,
+        backupSize: 0,
+      });
+    }
+
     if (callback) {
       callback(err ? err : undefined);
     }
@@ -104,6 +112,8 @@ Messages.prototype.clean = function(callback) {
  */
 Messages.prototype._getMessages = function(callback) {
   var msgs = [];
+
+  // !WARNING! This only works on the device
   var cursor = navigator.mozMobileMessage.getMessages({}, false);
 
   cursor.onsuccess = function() {
@@ -156,6 +166,13 @@ Messages.prototype._putMessagesOnSD = function(messageData, callback) {
       }
 
       request.onsuccess = function() {
+
+        ffosbr.history.set('messages', {
+          title: 'Messages',
+          lastBackupDate: new Date(),
+          backupSize: file.size,
+        });
+
         if (callback) {
           callback();
         }
