@@ -1,61 +1,43 @@
 function SystemSettings() {
 
   this.systemsettings = {
-    'accessibility.invert': false,
-    'accessibility.screenreader': false,
-    'alarm.enabled': false,
-    'app.update.interval': 86400,
-    'audio.volume.alarm': 15,
-    'audio.volume.bt_sco': 15,
-    'audio.volume.dtmf': 15,
-    'audio.volume.content': 15,
-    'audio.volume.notification': 15,
-    'audio.volume.tts': 15,
-    'audio.volume.telephony': 5,
-    'bluetooth.enabled': false,
-    'camera.shutter.enabled': true,
-    'geolocation.enabled': true,
-    'keyboard.layouts.english': true,
-    'keyboard.layouts.dvorak': false,
-    'keyboard.layouts.otherlatins': false,
-    'keyboard.layouts.cyrillic': false,
-    'keyboard.layouts.arabic': false,
-    'keyboard.layouts.hebrew': false,
-    'keyboard.layouts.zhuyin': false,
-    'keyboard.layouts.pinyin': false,
-    'keyboard.layouts.greek': false,
-    'keyboard.layouts.japanese': false,
-    'keyboard.layouts.polish': false,
-    'keyboard.layouts.portuguese': false,
-    'keyboard.layouts.spanish': false,
-    'keyboard.vibration': false,
-    'keyboard.clicksound': false,
-    'keyboard.autocorrect': true,
-    'keyboard.wordsuggestion': true,
-    'keyboard.current': 'en',
-    'language.current': 'en-US',
-    'lockscreen.passcode-lock.code': '0000',
-    'lockscreen.passcode-lock.timeout': 0,
-    'lockscreen.passcode-lock.enabled': false,
-    'lockscreen.notifications-preview.enabled': true,
-    'lockscreen.enabled': true,
-    'lockscreen.locked': true,
-    'lockscreen.unlock-sound.enabled': false,
-    'mail.sent-sound.enabled': true,
-    'message.sent-sound.enabled': true,
-    'phone.ring.keypad': true,
-    'ring.enabled': true,
-    'screen.automatic-brightness': true,
-    'screen.brightness': 1,
-    'screen.timeout': 60,
-    'vibration.enabled': true,
-    'wifi.enabled': true,
-    'wifi.screen_off_timeout': 600000,
-    'wifi.disabled_by_wakelock': false,
-    'wifi.notification': false,
-    'wifi.connect_via_settings': false,
-    'icc.displayTextTimeout': 40000,
-    'icc.inputTextTimeout': 40000
+    'accessibility.screenreader': null,
+    'alarm.enabled': null,
+    'app.update.interval': null,
+    'audio.volume.alarm': null,
+    'audio.volume.bt_sco': null,
+    'audio.volume.dtmf': null,
+    'audio.volume.content': null,
+    'audio.volume.notification': null,
+    'audio.volume.tts': null,
+    'audio.volume.telephony': null,
+    'bluetooth.enabled': null,
+    'camera.shutter.enabled': null,
+    'geolocation.enabled': null,
+    'keyboard.vibration': null,
+    'keyboard.clicksound': null,
+    'keyboard.autocorrect': null,
+    'keyboard.wordsuggestion': null,
+    'lockscreen.passcode-lock.timeout': null,
+    'lockscreen.notifications-preview.enabled': null,
+    'lockscreen.enabled': null,
+    'lockscreen.locked': null,
+    'lockscreen.unlock-sound.enabled': null,
+    'mail.sent-sound.enabled': null,
+    'message.sent-sound.enabled': null,
+    'phone.ring.keypad': null,
+    'ring.enabled': null,
+    'screen.automatic-brightness': null,
+    'screen.brightness': null,
+    'screen.timeout': null,
+    'vibration.enabled': null,
+    'wifi.enabled': null,
+    'wifi.screen_off_timeout': null,
+    'wifi.disabled_by_wakelock': null,
+    'wifi.notification': null,
+    'wifi.connect_via_settings': null,
+    'icc.displayTextTimeout': null,
+    'icc.inputTextTimeout': null
   };
 
 
@@ -129,6 +111,7 @@ SystemSettings.prototype.restore = function() {
   ffosbr.media.get('sdcard1', path, copyToSettings, oncomplete);
   this.writeToLocalStorage();
   this.writeSettingsToDevice();
+  console.log('system settings successfully restored');
 
 };
 /*
@@ -247,12 +230,14 @@ SystemSettings.prototype.writeToLocalStorage = function() {
  */
 
 SystemSettings.prototype.setField = function(settingName, settingValue) {
+  console.log(settingName);
+  console.log(settingValue);
   var lock = navigator.mozSettings.createLock();
-  var settingString = settingName + ': ' + settingValue;
-  var settingObj = {
-    settingName: settingValue
-  };
-  var result = lock.set(settingObj);
+  var jsonStr = '{"' + settingName + '":' + settingValue + '}';
+
+  console.log(jsonStr);
+  console.log(JSON.parse(jsonStr));
+  var result = lock.set(JSON.parse(jsonStr));
 
   result.onsuccess = function() {
     console.log('successfully updated setting');
