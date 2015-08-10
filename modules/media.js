@@ -55,7 +55,7 @@ Media.prototype.initialize = function() {
  */
 Media.prototype.clean = function(type, oncomplete) {
   var paths = ffosbr.settings.getBackupDirectoryPaths();
-  var empty = true; // is storage empty?
+  var errors = [];
 
   if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
@@ -63,20 +63,21 @@ Media.prototype.clean = function(type, oncomplete) {
 
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
 
-    if (error || !file) {
+    if (error) {
       return oncomplete(type, error);
-    } else {
-      empty = false;
     }
 
     var filename = paths[type] + file.name;
-    window.ffosbr.media.remove(file.name, function(error) {
-      oncomplete(type, error);
+    ffosbr.media.remove(file.name, function(error) {
+      if (error) {
+        errors.push(error);
+      }
     });
   }, function(error) {
-    if (error || empty) {
-      oncomplete(type, error);
+    if (error) {
+      errors.push(error);
     }
+    oncomplete(type, errors.length === 0 ? undefined : errors);
   });
 
 };
@@ -130,16 +131,16 @@ Media.prototype.restore = function(type, oncomplete) {
 
   var paths = ffosbr.settings.getBackupDirectoryPaths();
   var allFiles = []; // stores all files fetched by "get"
-  var empty = true; // default to true, fetching a file will set it false
+  var errors = [];
 
   var writeFiles = function(files) {
 
     var file = null;
     var remaining = null;
 
-    if (files.length === 0) {
+    if (!files || files.length === 0) {
       // There are no more files to write
-      return oncomplete(type);
+      return oncomplete(type, errors.length === 0 ? undefined : errors);
     } else if (files.length === 1) {
       // This is the last file to write
       remaining = [];
@@ -186,11 +187,10 @@ Media.prototype.restore = function(type, oncomplete) {
       ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, function(error) {
         if (error) {
           // If the put fails, break the callback chain. The restore has failed.
-          oncomplete(type, error);
-        } else {
-          // If not, recurse on remaining files to be written.
-          writeFiles(remaining);
+          errors.push(error);
         }
+
+        writeFiles(remaining);
 
         // TODO - Report progress?
 
@@ -203,12 +203,12 @@ Media.prototype.restore = function(type, oncomplete) {
   // Ignore any errors in "get". They will show up in the oncomplete.
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
     if (!file) {
-      empty = true;
-    } else if (file) {
-      allFiles.push(file);
+      return;
     }
+
+    allFiles.push(file);
   }, function(error) {
-    if (error || empty) {
+    if (error) {
       oncomplete(type, error);
     } else {
       writeFiles(allFiles);
@@ -372,27 +372,26 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   external = storages.external;
 
   if (internal.ready === false && external.ready === false) {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
-  } else {
+    return oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+  }
 
-    if (type === 'sdcard1' && directory) {
-      if (!directory.startsWith('/')) {
-        directory = '/' + directory;
-      }
-      if (!directory.startsWith('/sdcard1')) {
-        directory = '/sdcard1' + directory;
-      }
-      if (!directory.endsWith('/')) {
-        directory = directory + '/';
-      }
+  if (type === 'sdcard1' && directory) {
+    if (!directory.startsWith('/')) {
+      directory = '/' + directory;
     }
+    if (!directory.startsWith('/sdcard1')) {
+      directory = '/sdcard1' + directory;
+    }
+    if (!directory.endsWith('/')) {
+      directory = directory + '/';
+    }
+  }
 
-    if (internal.ready === true) {
-      internalFiles = internal.store.enumerate();
-    }
-    if (external.ready === true) {
-      externalFiles = external.store.enumerate();
-    }
+  if (internal.ready === true) {
+    internalFiles = internal.store.enumerate();
+  }
+  if (external.ready === true) {
+    externalFiles = external.store.enumerate();
   }
 
   var onsuccess = function() {
