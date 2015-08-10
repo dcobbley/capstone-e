@@ -20,6 +20,7 @@
     "device-storage:sdcard": { "access": "readwrite" },
     "device-storage:pictures":{ "access": "readwrite" },
     "device-storage:videos":{ "access": "readwrite" },
+    "device-storage:music":{ "access": "readwrite" },
     "contacts": { "access": "readwrite" },
     "mobileconnection":{},
     "sms":{}

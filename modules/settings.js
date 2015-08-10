@@ -94,12 +94,13 @@ Settings.prototype.load = function() {
       throw new Error('Fetched an invalid options object from local storage');
     }
 
-
     if (this.validate(retrievedOptions) === true) {
       this.options = retrievedOptions;
     } else {
       throw new Error('Fetched an invalid options object from local storage');
     }
+  } else {
+    throw new Error('Previously saved settings not found!');
   }
 };
 
