@@ -35,4 +35,49 @@
 
   window.ffosbr = new Ffosbr();
   window.ffosbr.initialize();
+
+  // REMOVE - testing purposes only
+  window.backup = function() {
+    ffosbr.backup(function(type) {
+      // on success
+      console.log('success ' + type);
+    }, function(type, error) {
+      // on error
+      console.log('error ' + type + ': ' + error.message);
+    }, function(type, error) {
+      // on complete
+      console.log('backup complete!');
+    });
+  };
+
+  // REMOVE - testing purposes only
+  window.restore = function() {
+    ffosbr.restore(function(type) {
+      // on success
+      console.log('success ' + type);
+    }, function(type, error) {
+      // on error
+      console.log('error ' + type + ': ' + error.message);
+    }, function(type, error) {
+      // on complete
+      error = error ? error : {};
+      console.log('restore complete!');
+    });
+  };
+
+  // REMOVE - testing purposes only
+  window.clean = function() {
+    ffosbr.clean(function(type) {
+      // on success
+      console.log('success ' + type);
+    }, function(type, error) {
+      // on error
+      console.log('error ' + type + ': ' + error.message);
+    }, function(type, error) {
+      // on complete
+      error = error ? error : {};
+      console.log('clean complete!');
+    });
+  };
+
 })();
