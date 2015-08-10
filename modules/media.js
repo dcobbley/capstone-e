@@ -55,7 +55,7 @@ Media.prototype.initialize = function() {
  */
 Media.prototype.clean = function(type, oncomplete) {
   var paths = ffosbr.settings.getBackupDirectoryPaths();
-  var empty = true; // is storage empty?
+  var errors = [];
 
   if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
@@ -63,20 +63,21 @@ Media.prototype.clean = function(type, oncomplete) {
 
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
 
-    if (error || !file) {
+    if (error) {
       return oncomplete(type, error);
-    } else {
-      empty = false;
     }
 
     var filename = paths[type] + file.name;
-    window.ffosbr.media.remove(file.name, function(error) {
-      oncomplete(type, error);
+    ffosbr.media.remove(file.name, function(error) {
+      if (error) {
+        errors.push(error);
+      }
     });
   }, function(error) {
-    if (error || empty) {
-      oncomplete(type, error);
+    if (error) {
+      errors.push(error);
     }
+    oncomplete(type, errors.length === 0 ? undefined : errors);
   });
 
 };
@@ -371,27 +372,26 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   external = storages.external;
 
   if (internal.ready === false && external.ready === false) {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
-  } else {
+    return oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+  }
 
-    if (type === 'sdcard1' && directory) {
-      if (!directory.startsWith('/')) {
-        directory = '/' + directory;
-      }
-      if (!directory.startsWith('/sdcard1')) {
-        directory = '/sdcard1' + directory;
-      }
-      if (!directory.endsWith('/')) {
-        directory = directory + '/';
-      }
+  if (type === 'sdcard1' && directory) {
+    if (!directory.startsWith('/')) {
+      directory = '/' + directory;
     }
+    if (!directory.startsWith('/sdcard1')) {
+      directory = '/sdcard1' + directory;
+    }
+    if (!directory.endsWith('/')) {
+      directory = directory + '/';
+    }
+  }
 
-    if (internal.ready === true) {
-      internalFiles = internal.store.enumerate();
-    }
-    if (external.ready === true) {
-      externalFiles = external.store.enumerate();
-    }
+  if (internal.ready === true) {
+    internalFiles = internal.store.enumerate();
+  }
+  if (external.ready === true) {
+    externalFiles = external.store.enumerate();
   }
 
   var onsuccess = function() {
