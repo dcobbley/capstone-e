@@ -130,16 +130,16 @@ Media.prototype.restore = function(type, oncomplete) {
 
   var paths = ffosbr.settings.getBackupDirectoryPaths();
   var allFiles = []; // stores all files fetched by "get"
-  var empty = true; // default to true, fetching a file will set it false
+  var errors = [];
 
   var writeFiles = function(files) {
 
     var file = null;
     var remaining = null;
 
-    if (files.length === 0) {
+    if (!files || files.length === 0) {
       // There are no more files to write
-      return oncomplete(type);
+      return oncomplete(type, errors.length === 0 ? undefined : errors);
     } else if (files.length === 1) {
       // This is the last file to write
       remaining = [];
@@ -186,11 +186,10 @@ Media.prototype.restore = function(type, oncomplete) {
       ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, function(error) {
         if (error) {
           // If the put fails, break the callback chain. The restore has failed.
-          oncomplete(type, error);
-        } else {
-          // If not, recurse on remaining files to be written.
-          writeFiles(remaining);
+          errors.push(error);
         }
+
+        writeFiles(remaining);
 
         // TODO - Report progress?
 
@@ -203,12 +202,12 @@ Media.prototype.restore = function(type, oncomplete) {
   // Ignore any errors in "get". They will show up in the oncomplete.
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
     if (!file) {
-      empty = true;
-    } else if (file) {
-      allFiles.push(file);
+      return;
     }
+
+    allFiles.push(file);
   }, function(error) {
-    if (error || empty) {
+    if (error) {
       oncomplete(type, error);
     } else {
       writeFiles(allFiles);

@@ -5,7 +5,7 @@ function Settings() {
   // Are these the paths we want?
   this.backupPaths = {
     apps: 'backup/apps/',
-    music: 'backup/music/',
+    // music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
