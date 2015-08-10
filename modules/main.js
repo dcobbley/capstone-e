@@ -80,4 +80,16 @@
     });
   };
 
+  // REMOVE - testing purposes only
+  window.put = function() {
+    var file = new File(['ass'], 'assfile.txt');
+    var directory = 'test/files/';
+    ffosbr.media.put('sdcard1', file, directory, function(error) {
+      if (!error) {
+        console.log('put successful');
+      } else {
+        console.log('put failed');
+      }
+    });
+  };
 })();
