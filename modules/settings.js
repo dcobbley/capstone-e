@@ -20,7 +20,7 @@ function Settings() {
   // Are these the paths we want?
   this.backupPaths = {
     apps: 'backup/apps/',
-    // music: 'backup/music/',
+    music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
@@ -38,6 +38,7 @@ Settings.prototype.initialize = function() {
   this.validTypes = {
     photos: 'boolean',
     videos: 'boolean',
+    music: 'boolean',
     contacts: 'boolean',
     messages: 'boolean',
     intervalTime: 'number',
@@ -66,6 +67,7 @@ Settings.prototype.getDefault = function() {
   return {
     photos: true,
     videos: true,
+    music: true,
     contacts: true,
     messages: true,
     intervalTime: 24, // pass in value in hours

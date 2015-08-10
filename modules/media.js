@@ -10,7 +10,7 @@ function Media() {
   // Valid storage types
   this.storageTypes = [
     // 'apps',
-    // 'music',
+    'music',
     'pictures',
     'sdcard',
     'videos'
@@ -166,7 +166,11 @@ Media.prototype.restore = function(type, oncomplete) {
       case '3gp':
         mimeType = 'video/3gpp';
         break;
+      case 'mp3':
+        mimeType = 'audio/mpeg3';
+        break;
       default:
+        // THROW AN ERROR?
         // Text I guess?
         mimeType = 'application/json';
     }
