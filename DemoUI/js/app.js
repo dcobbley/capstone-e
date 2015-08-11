@@ -241,6 +241,6 @@ window.addEventListener('DOMContentLoaded', function() {
   });
 
   document.getElementById('systemSettings-infopane').addEventListener('click', function() {
-    loadBackupDetailPage(ffosbr.history.getValue('systemSettings'));
+    loadBackupDetailPage('systemSettings');
   });
 });
