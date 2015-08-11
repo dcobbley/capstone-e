@@ -1,6 +1,6 @@
 /**
  * @access public
- * @description Backs up every data type set as true in settings.
+ * @description Backups every data type set as true in settings.
  *
  *   Calls onsuccess after each sub-backup (per type) finishes
  *   without error. Only argument is the type of backup.
@@ -18,15 +18,19 @@
 var backup = function(onsuccess, onerror, oncomplete) {
 
   var backupTypes = ffosbr.settings.getCurrentAllowedTypes();
-  var finished = {};
+
+  var finished = {}; // object contained finished types
+  var calledOncomplete = false;
 
   // Keeps track of which callbacks have finished, and calls
   // appropriate handlers.
   var callbackManager = function(type, error) {
 
     finished[type] = true;
-
-    if (error) {
+    if (calledOncomplete === true) {
+      // Do nothing if we've already completed
+      return;
+    } else if (error) {
       onerror(type, error);
     } else {
       onsuccess(type);
@@ -40,6 +44,7 @@ var backup = function(onsuccess, onerror, oncomplete) {
     }
 
     // All callbacks have finished. Call master oncomplete.
+    calledOncomplete = true;
     oncomplete();
   };
 

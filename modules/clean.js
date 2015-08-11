@@ -18,15 +18,18 @@
 var clean = function(onsuccess, onerror, oncomplete) {
 
   var cleanTypes = ffosbr.settings.getCurrentAllowedTypes();
-  var finished = {};
+  var finished = {}; // object containing all completed types
+  var calledOncomplete = false;
 
   // Keeps track of which callbacks have finished, and calls
   // appropriate handlers.
   var callbackManager = function(type, error) {
 
     finished[type] = true;
-
-    if (error) {
+    if (calledOncomplete === true) {
+      // Do nothing if we've already completed
+      return;
+    } else if (error) {
       onerror(type, error);
     } else {
       onsuccess(type);
@@ -40,6 +43,7 @@ var clean = function(onsuccess, onerror, oncomplete) {
     }
 
     // All callbacks have finished. Call master oncomplete.
+    calledOncomplete = true;
     oncomplete();
   };
 

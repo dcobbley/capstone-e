@@ -55,28 +55,28 @@ Media.prototype.initialize = function() {
  */
 Media.prototype.clean = function(type, oncomplete) {
   var paths = ffosbr.settings.getBackupDirectoryPaths();
-  var empty = true; // is storage empty?
+  var errors = [];
 
   if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
   }
 
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
-
-    if (error || !file) {
+    if (error) {
       return oncomplete(type, error);
-    } else {
-      empty = false;
     }
 
     var filename = paths[type] + file.name;
-    window.ffosbr.media.remove(file.name, function(error) {
-      oncomplete(type, error);
+    ffosbr.media.remove(file.name, function(error) {
+      if (error) {
+        errors.push(error);
+      }
     });
   }, function(error) {
-    if (error || empty) {
-      oncomplete(type, error);
+    if (error) {
+      errors.push(error);
     }
+    oncomplete(type, errors.length === 0 ? undefined : errors);
   });
 
 };
@@ -127,18 +127,27 @@ Media.prototype.backup = function(type, oncomplete) {
  * @param {callback} oncomplete
  */
 Media.prototype.restore = function(type, oncomplete) {
-
   var paths = ffosbr.settings.getBackupDirectoryPaths();
-  var empty = true; // default to true, fetching a file will set it false
+  var allFiles = []; // stores all files fetched by "get"
+  var errors = [];
 
-  ffosbr.media.get('sdcard1', paths[type], function(file, error) {
-
-    if (error || !file) {
-      return oncomplete(type, error);
+  var writeFiles = function(files) {
+    var file = null;
+    var remaining = null;
+    if (!files || files.length === 0) {
+      // There are no more files to write
+      return oncomplete(type, errors.length === 0 ? undefined : errors);
+    } else if (files.length === 1) {
+      // This is the last file to write
+      remaining = [];
     } else {
-      empty = false;
+      // There are multiple files left to write
+      remaining = files.slice(1, files.length);
     }
 
+    file = files[0];
+
+    // START REPLACE - with MIME library --------------------------------------
     var fn = file.name;
     if (fn.endsWith('~')) {
       fn = fn.substr(0, fn.length - 1);
@@ -161,6 +170,7 @@ Media.prototype.restore = function(type, oncomplete) {
         // Text I guess?
         mimeType = 'application/json';
     }
+    // END REPLACE - with MIME library ----------------------------------------
 
     var reader = new FileReader();
 
@@ -172,20 +182,28 @@ Media.prototype.restore = function(type, oncomplete) {
 
       ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, function(error) {
         if (error) {
-          // If the put fails, the restore has failed
-          oncomplete(type, error);
+          // If the put fails, break the callback chain. The restore has failed.
+          errors.push(error);
         }
-        // Report progress?
-      }, function(error) {
-        oncomplete(type, error);
+        writeFiles(remaining);
+        // TODO - Report progress?
       });
     };
-
     reader.readAsArrayBuffer(file);
+  };
+
+  // Ignore any errors in "get". They will show up in the oncomplete.
+  ffosbr.media.get('sdcard1', paths[type], function(file, error) {
+    if (!file) {
+      return;
+    }
+
+    allFiles.push(file);
   }, function(error) {
-    if (error || empty) {
-      // If the get fails, the restore has failed
+    if (error) {
       oncomplete(type, error);
+    } else {
+      writeFiles(allFiles);
     }
   });
 };
@@ -346,27 +364,26 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   external = storages.external;
 
   if (internal.ready === false && external.ready === false) {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
-  } else {
+    return oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+  }
 
-    if (type === 'sdcard1' && directory) {
-      if (!directory.startsWith('/')) {
-        directory = '/' + directory;
-      }
-      if (!directory.startsWith('/sdcard1')) {
-        directory = '/sdcard1' + directory;
-      }
-      if (!directory.endsWith('/')) {
-        directory = directory + '/';
-      }
+  if (type === 'sdcard1' && directory) {
+    if (!directory.startsWith('/')) {
+      directory = '/' + directory;
     }
+    if (!directory.startsWith('/sdcard1')) {
+      directory = '/sdcard1' + directory;
+    }
+    if (!directory.endsWith('/')) {
+      directory = directory + '/';
+    }
+  }
 
-    if (internal.ready === true) {
-      internalFiles = internal.store.enumerate();
-    }
-    if (external.ready === true) {
-      externalFiles = external.store.enumerate();
-    }
+  if (internal.ready === true) {
+    internalFiles = internal.store.enumerate();
+  }
+  if (external.ready === true) {
+    externalFiles = external.store.enumerate();
   }
 
   var onsuccess = function() {
@@ -510,19 +527,20 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
   };
 
   write.onerror = function() {
-    var error = this.error;
-    // Only call the oncomplete callback if it was provided
-    if (oncomplete) {
-
-      // The majority of errors thrown by Firefox OS do not provide messages.
-      if (error.message.length > 0) {
-        oncomplete(error);
+    targetStorage.fileExists(dest + filename, function(exists) {
+      if (exists) {
+        ffosbr.media.remove(directory + file.name, function(error) {
+          if (!error) {
+            that.put(type, file, dest, oncomplete);
+          } else {
+            console.error(error);
+            oncomplete(error);
+          }
+        });
       } else {
-        oncomplete(new Error('Attempt to write to an invalid storage. Abort.'));
+        oncomplete(this.error);
       }
-    } else {
-      throw new Error('Attempt to write to an invalid storage. Abort.');
-    }
+    });
   };
 };
 

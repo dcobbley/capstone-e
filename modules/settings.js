@@ -11,18 +11,21 @@ function Settings() {
     messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
+    systemsettings: true,
     registeredTimer: false,
     repeat: true
   };
 
+
   // Are these the paths we want?
   this.backupPaths = {
     apps: 'backup/apps/',
-    music: 'backup/music/',
+    // music: 'backup/music/',
     photos: 'backup/photos/',
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
     settings: 'backup/settings/',
+    systemsettings: 'backup/systemSettings/',
     messages: 'backup/messages/'
   };
 }
@@ -32,6 +35,17 @@ function Settings() {
  * @description Settings constructor
  */
 Settings.prototype.initialize = function() {
+  this.validTypes = {
+    photos: 'boolean',
+    videos: 'boolean',
+    contacts: 'boolean',
+    messages: 'boolean',
+    intervalTime: 'number',
+    id: 'number',
+    registeredTimer: 'boolean',
+    repeat: 'boolean'
+  };
+
   // Load persistent settings from local storage, if they exist
   try {
     this.load();
@@ -39,7 +53,26 @@ Settings.prototype.initialize = function() {
     // If load failed, the local storage "options" object
     // was malformed. It has now been cleared and Settings
     // options holds default values.
+    this.set(this.getDefault());
   }
+};
+
+/**
+ * @access public
+ * @description Returns settings default values.
+ */
+
+Settings.prototype.getDefault = function() {
+  return {
+    photos: true,
+    videos: true,
+    contacts: true,
+    messages: true,
+    intervalTime: 24, // pass in value in hours
+    id: 0,
+    registeredTimer: false,
+    repeat: true
+  };
 };
 
 /**
@@ -109,12 +142,12 @@ Settings.prototype.validate = function(potentialOptions, value) {
   var opts = null;
   var validTypes = {
     photos: 'boolean',
-    music: 'boolean',
     videos: 'boolean',
     contacts: 'boolean',
     messages: 'boolean',
     intervalTime: 'number',
     id: 'number',
+    systemsettings: 'boolean',
     registeredTimer: 'boolean',
     repeat: 'boolean'
   };
@@ -137,11 +170,11 @@ Settings.prototype.validate = function(potentialOptions, value) {
 
   // Support partial validation
   for (var field in opts) {
-    if (typeof this.options[field] === 'undefined') {
+    if (typeof this.validTypes[field] === 'undefined') {
       // TODO - replace with ErrorHandler module
       console.log('Unrecognized settings option', field);
       valid = false;
-    } else if (typeof opts[field] !== validTypes[field]) {
+    } else if (typeof opts[field] !== this.validTypes[field]) {
       // TODO - replace with ErrorHandler module
       console.log('Invalid type for settings option', field);
       valid = false;
@@ -177,6 +210,9 @@ Settings.prototype.set = function(newOptions, value) {
   }
 
   if (this.validate(opts) === true) {
+    if (!this.options) {
+      this.options = {};
+    }
     for (var field in opts) {
       this.options[field] = opts[field];
     }
