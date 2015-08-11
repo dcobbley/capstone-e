@@ -55,23 +55,30 @@ Media.prototype.initialize = function() {
  */
 Media.prototype.clean = function(type, oncomplete) {
   var paths = ffosbr.settings.getBackupDirectoryPaths();
+  var errors = [];
 
   if (paths[type] === undefined) {
     throw new Error('Invalid data type. Cannot clean type ' + type);
   }
 
-  ffosbr.media.get('sdcard1', paths[type], function(file) {
-    if (!file) {
-      return;
+  ffosbr.media.get('sdcard1', paths[type], function(file, error) {
+
+    if (error) {
+      return oncomplete(type, error);
     }
 
     var filename = paths[type] + file.name;
-    window.ffosbr.media.remove(file.name, function(error) {
+    ffosbr.media.remove(file.name, function(error) {
       if (error) {
-        throw error;
+        errors.push(error);
       }
     });
-  }, oncomplete);
+  }, function(error) {
+    if (error) {
+      errors.push(error);
+    }
+    oncomplete(type, errors.length === 0 ? undefined : errors);
+  });
 
 };
 
@@ -104,7 +111,9 @@ Media.prototype.backup = function(type, oncomplete) {
     ffosbr.media.put('sdcard1', file, dest, function() {
       // Report progress?
     });
-  }, oncomplete);
+  }, function(error) {
+    oncomplete(type, error);
+  });
 };
 
 /**
@@ -119,13 +128,30 @@ Media.prototype.backup = function(type, oncomplete) {
  * @param {callback} oncomplete
  */
 Media.prototype.restore = function(type, oncomplete) {
-  var paths = ffosbr.settings.getBackupDirectoryPaths();
 
-  ffosbr.media.get('sdcard1', paths[type], function(file) {
-    if (!file) {
-      return;
+  var paths = ffosbr.settings.getBackupDirectoryPaths();
+  var allFiles = []; // stores all files fetched by "get"
+  var errors = [];
+
+  var writeFiles = function(files) {
+
+    var file = null;
+    var remaining = null;
+
+    if (!files || files.length === 0) {
+      // There are no more files to write
+      return oncomplete(type, errors.length === 0 ? undefined : errors);
+    } else if (files.length === 1) {
+      // This is the last file to write
+      remaining = [];
+    } else {
+      // There are multiple files left to write
+      remaining = files.slice(1, files.length);
     }
 
+    file = files[0];
+
+    // START REPLACE - with MIME library --------------------------------------
     var fn = file.name;
     if (fn.endsWith('~')) {
       fn = fn.substr(0, fn.length - 1);
@@ -148,6 +174,7 @@ Media.prototype.restore = function(type, oncomplete) {
         // Text I guess?
         mimeType = 'application/json';
     }
+    // END REPLACE - with MIME library ----------------------------------------
 
     var reader = new FileReader();
 
@@ -157,15 +184,40 @@ Media.prototype.restore = function(type, oncomplete) {
         type: mimeType
       });
 
-      ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, oncomplete);
+      ffosbr.media.put(type === 'photos' ? 'pictures' : type, newFile, filename, function(error) {
+        if (error) {
+          // If the put fails, break the callback chain. The restore has failed.
+          errors.push(error);
+        }
+
+        writeFiles(remaining);
+
+        // TODO - Report progress?
+
+      });
     };
 
     reader.readAsArrayBuffer(file);
-  }, oncomplete);
+  };
+
+  // Ignore any errors in "get". They will show up in the oncomplete.
+  ffosbr.media.get('sdcard1', paths[type], function(file, error) {
+    if (!file) {
+      return;
+    }
+
+    allFiles.push(file);
+  }, function(error) {
+    if (error) {
+      oncomplete(type, error);
+    } else {
+      writeFiles(allFiles);
+    }
+  });
 };
 
 /**
- * @access public
+ * @access private
  * @description Takes an array of DeviceStorage objects and returns
  *   whichever represents the internal storage.
  * @param {array of DeviceStorage} stores
@@ -320,27 +372,26 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
   external = storages.external;
 
   if (internal.ready === false && external.ready === false) {
-    forEach(undefined, new Error('Attempt to read from an invalid storage. Abort.'));
-  } else {
+    return oncomplete(new Error('Attempt to read from an invalid storage. Abort.'));
+  }
 
-    if (type === 'sdcard1' && directory) {
-      if (!directory.startsWith('/')) {
-        directory = '/' + directory;
-      }
-      if (!directory.startsWith('/sdcard1')) {
-        directory = '/sdcard1' + directory;
-      }
-      if (!directory.endsWith('/')) {
-        directory = directory + '/';
-      }
+  if (type === 'sdcard1' && directory) {
+    if (!directory.startsWith('/')) {
+      directory = '/' + directory;
     }
+    if (!directory.startsWith('/sdcard1')) {
+      directory = '/sdcard1' + directory;
+    }
+    if (!directory.endsWith('/')) {
+      directory = directory + '/';
+    }
+  }
 
-    if (internal.ready === true) {
-      internalFiles = internal.store.enumerate();
-    }
-    if (external.ready === true) {
-      externalFiles = external.store.enumerate();
-    }
+  if (internal.ready === true) {
+    internalFiles = internal.store.enumerate();
+  }
+  if (external.ready === true) {
+    externalFiles = external.store.enumerate();
   }
 
   var onsuccess = function() {
@@ -423,7 +474,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
 
   if (oncomplete && !ffosbr.utils.isFunction(oncomplete)) {
     throw new Error('Callback is not a function');
-  } else {
+  } else if (!oncomplete) {
     // This allows us to safely call oncomplete, even when
     // the callback was not provided.
     oncomplete = function() {}; // dummy function
@@ -507,7 +558,7 @@ Media.prototype.put = function(type, file, dest, oncomplete) {
  * @param {String} filename - Specifies the full path to the file to be
  *   removed from the external sdcard (sdcard1).
  * @param {requestCallback} oncomplete (optional)
- * @throws 
+ * @throws
  */
 Media.prototype.remove = function(filename, oncomplete) {
 
@@ -640,7 +691,7 @@ Media.prototype.checkBlockSize = function(storage, oncomplete) {
  * @access public
  * @description
       Check if there is enough space for next backup file.
-       
+
        var content = '1234567890';
        var file = new File([content], 'Size' + content.length + '.txt', {
         type: 'text/plain'
