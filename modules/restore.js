@@ -24,7 +24,6 @@ var restore = function(onsuccess, onerror, oncomplete) {
   // Keeps track of which callbacks have finished, and calls
   // appropriate handlers.
   var callbackManager = function(type, error) {
-
     finished[type] = true;
 
     if (calledOncomplete === true) {

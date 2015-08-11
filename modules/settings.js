@@ -5,7 +5,7 @@ function Settings() {
 
   this.options = {
     photos: true,
-    music: true,
+    // music: true, // This hasn't been activated yet in Media
     videos: true,
     contacts: true,
     messages: true,
@@ -111,6 +111,22 @@ Settings.prototype.getBackupDirectoryPaths = function() {
     paths[field] = this.backupPaths[field];
   }
   return paths;
+};
+
+/**
+ * @access public
+ * @descripton Provides an array the current allowable backup,
+ *   clean, and restore types as strings.
+ * @returns {Array of String}
+ */
+Settings.prototype.getCurrentAllowedTypes = function() {
+  var allowed = [];
+  for (var type in this.backupPaths) {
+    if (this.options[type] === true) {
+      allowed.push(type);
+    }
+  }
+  return allowed;
 };
 
 /**

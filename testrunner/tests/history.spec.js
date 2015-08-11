@@ -4,8 +4,8 @@ var checkDefaults = function(assert) {
     'Photos',
     'photos title set to \"Photos\"');
   assert.strictEqual(ffosbr.history.history.photos.lastBackupDate,
-    '2015-06-20T19:00-0700',
-    'photos lastBackupDate set to \"2015-06-20T19:00-0700\"');
+    null,
+    'photos lastBackupDate set to null');
   assert.strictEqual(ffosbr.history.history.photos.backupSize,
     0,
     'photos backupSize set to 0');
@@ -14,8 +14,8 @@ var checkDefaults = function(assert) {
     'Videos',
     'videos title set to \"Videos\"');
   assert.strictEqual(ffosbr.history.history.videos.lastBackupDate,
-    '2015-06-20T19:00-0700',
-    'videos lastBackupDate set to \"2015-06-20T19:00-0700\"');
+    null,
+    'videos lastBackupDate set to null');
   assert.strictEqual(ffosbr.history.history.videos.backupSize,
     0,
     'videos backupSize set to 0');
@@ -24,8 +24,8 @@ var checkDefaults = function(assert) {
     'Music',
     'Music title set to \"Music\"');
   assert.strictEqual(ffosbr.history.history.music.lastBackupDate,
-    '2015-06-20T19:00-0700',
-    'Music lastBackupDate set to \"2015-06-20T19:00-0700\"');
+    null,
+    'Music lastBackupDate set to null');
   assert.strictEqual(ffosbr.history.history.music.backupSize,
     0,
     'music backupSize set to 0');
@@ -34,8 +34,8 @@ var checkDefaults = function(assert) {
     'Contacts',
     'contacts title set to \"Contacts\"');
   assert.strictEqual(ffosbr.history.history.contacts.lastBackupDate,
-    '2015-06-20T19:00-0700',
-    'contacts lastBackupDate set to \"2015-06-20T19:00-0700\"');
+    null,
+    'contacts lastBackupDate set to null');
   assert.strictEqual(ffosbr.history.history.contacts.backupSize,
     0,
     'contacts backupSize set to 0');
@@ -44,8 +44,8 @@ var checkDefaults = function(assert) {
     'Messages',
     'messages title set to \"Messages\"');
   assert.strictEqual(ffosbr.history.history.messages.lastBackupDate,
-    '2015-06-20T19:00-0700',
-    'messages lastBackupDate set to \"2015-06-20T19:00-0700\"');
+    null,
+    'messages lastBackupDate set to null');
   assert.strictEqual(ffosbr.history.history.messages.backupSize,
     0,
     'messages backupSize set to 0');

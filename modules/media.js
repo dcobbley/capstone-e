@@ -62,7 +62,6 @@ Media.prototype.clean = function(type, oncomplete) {
   }
 
   ffosbr.media.get('sdcard1', paths[type], function(file, error) {
-
     if (error) {
       return oncomplete(type, error);
     }
@@ -128,16 +127,13 @@ Media.prototype.backup = function(type, oncomplete) {
  * @param {callback} oncomplete
  */
 Media.prototype.restore = function(type, oncomplete) {
-
   var paths = ffosbr.settings.getBackupDirectoryPaths();
   var allFiles = []; // stores all files fetched by "get"
   var errors = [];
 
   var writeFiles = function(files) {
-
     var file = null;
     var remaining = null;
-
     if (!files || files.length === 0) {
       // There are no more files to write
       return oncomplete(type, errors.length === 0 ? undefined : errors);
@@ -189,14 +185,10 @@ Media.prototype.restore = function(type, oncomplete) {
           // If the put fails, break the callback chain. The restore has failed.
           errors.push(error);
         }
-
         writeFiles(remaining);
-
         // TODO - Report progress?
-
       });
     };
-
     reader.readAsArrayBuffer(file);
   };
 
