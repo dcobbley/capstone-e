@@ -137,11 +137,6 @@ window.addEventListener('DOMContentLoaded', function() {
     messagesUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('messages', 'lastBackupDate'));
     var messagesSize = document.getElementById('messages-hist-size');
     messagesSize.textContent = sizeFormat(ffosbr.history.getValue('messages', 'backupSize'));
-
-    var systemSettingsUpdatedAt = document.getElementById('systemSettings-hist-date');
-    systemSettingsUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('systemSettings', 'lastBackupDate'));
-    var systemSettingsSize = document.getElementById('systemSettings-hist-size');
-    systemSettingsSize.textContent = sizeFormat(ffosbr.history.getValue('systemSettings', 'backupSize'));
   }
 
   refreshHistories();
@@ -243,4 +238,5 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('systemSettings-infopane').addEventListener('click', function() {
     loadBackupDetailPage('systemSettings');
   });
+
 });

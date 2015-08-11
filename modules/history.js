@@ -140,7 +140,7 @@ History.prototype.validateAll = function(potentialHistoryObject) {
 /**
  * @access private
  * @description Validate a entry in history
- * @para {object} potentialHistoryEntry
+ * @param {object} potentialHistoryEntry
  * @return True if passed in history entry is valid otherwise false
  */
 History.prototype.validateEntry = function(potentialHistoryEntry) {
@@ -170,8 +170,8 @@ History.prototype.validateEntry = function(potentialHistoryEntry) {
 /**
  * @access private
  * @description Validate a entrys field in history
- * @para {String} field
- * @para {Object} value
+ * @param {String} field
+ * @param {Object} value
  * @return True if passed in history entry field is valid otherwise false
  */
 History.prototype.validateEntryField = function(field, value) {
@@ -191,8 +191,8 @@ History.prototype.validateEntryField = function(field, value) {
 /**
  * @access private
  * @description Update field or object in history
- * @para {Object} fieldNameOrHistoryObject
- * @para {Object} historyValue
+ * @param {Object} fieldNameOrHistoryObject
+ * @param {Object} historyValue
  * @return True if history was updated otherwise false
  */
 History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
@@ -216,8 +216,8 @@ History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
 /**
  * @access public
  * @description Get a field of history or the whole history object
- * @para {String} field
- * @para {String} subfield
+ * @param {String} field
+ * @param {String} subfield
  * @return field of history or the whole history object
  */
 History.prototype.get = function(field, subfield) {
