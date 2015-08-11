@@ -1,15 +1,14 @@
+function showProgressDialog(message) {
+  var progressMask = document.getElementById('progress-mask');
+  var progressMessage = progressMask.querySelector('#progress-message');
+  progressMessage.textContent = message;
+  progressMask.style.display = 'block';
+}
 
-  function showProgressDialog(message) {
-    var progressMask = document.getElementById('progress-mask');
-    var progressMessage = progressMask.querySelector('#progress-message');
-    progressMessage.textContent = message;
-    progressMask.style.display = 'block';
-  }
-
-  function hideProgressDialog() {
-    var progressMask = document.getElementById('progress-mask');
-    progressMask.style.display = 'none';
-  }
+function hideProgressDialog() {
+  var progressMask = document.getElementById('progress-mask');
+  progressMask.style.display = 'none';
+}
 
 // DOMContentLoaded is fired once the document has been loaded and parsed,
 // but without waiting for other external resources to load (css/images/etc)
@@ -148,37 +147,43 @@ window.addEventListener('DOMContentLoaded', function() {
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   document.getElementById('backup-button').addEventListener('click', function() {
-    showProgressDialog('backup initiated...');
-    
-    var successes = [];
-    var failures = [];
+    var flag = confirm('Warning! This will erase any other backup previously stored on SD card');
+    if (flag === false) {
+      console.log('Backup Cancelled');
+    } else {
 
-    var reportSuccess = function(type) {
-      showProgressDialog(type + ' saved successfully');
-      successes.push(type);
-    };
+      showProgressDialog('backup initiated...');
 
-    var reportError = function(type, error) {
-      showProgressDialog(type + ' failed');
-      failures.push(type);
-    };
+      var successes = [];
+      var failures = [];
 
-    var finished = function() {
-      var sitrep = 'SUCCESSES:\n';
-      for (var i = 0; i < successes.length; ++i) {
-        sitrep += '\t' + successes[i] + '\n';
-      }
-      sitrep += '\nFAILURES:\n';
-      
-      for(i = 0; i < failures.length; ++i) {
-        sitrep += '\t' + failures[i] + '\n';
-      }
+      var reportSuccess = function(type) {
+        showProgressDialog(type + ' saved successfully');
+        successes.push(type);
+      };
 
-      hideProgressDialog();
-      alert(sitrep);
-    };
+      var reportError = function(type, error) {
+        showProgressDialog(type + ' failed');
+        failures.push(type);
+      };
 
-    ffosbr.backup(reportSuccess, reportError, finished);
+      var finished = function() {
+        var sitrep = 'SUCCESSES:\n';
+        for (var i = 0; i < successes.length; ++i) {
+          sitrep += '\t' + successes[i] + '\n';
+        }
+        sitrep += '\nFAILURES:\n';
+
+        for (i = 0; i < failures.length; ++i) {
+          sitrep += '\t' + failures[i] + '\n';
+        }
+
+        hideProgressDialog();
+        alert(sitrep);
+      };
+
+      ffosbr.backup(reportSuccess, reportError, finished);
+    }
   });
 
   // Settings page listeners
