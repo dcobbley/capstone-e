@@ -148,12 +148,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('backup-button').addEventListener('click', function() {
     var flag = confirm('Warning! This will erase any other backup previously stored on SD card');
-    if (flag === false) {
-      console.log('Backup Cancelled');
-    } else {
-
+    if (flag === true) {
       showProgressDialog('backup initiated...');
-
       var successes = [];
       var failures = [];
 
