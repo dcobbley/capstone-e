@@ -1,5 +1,10 @@
 QUnit.test('Settings', function(assert) {
 
+  // Save old values
+  var oldSettings = ffosbr.settings.get();
+
+  ffosbr.settings.set(ffosbr.settings.getDefault());
+
   // Check Default settings values
   assert.strictEqual(ffosbr.settings.options.photos, true, 'photos is true before setting');
   assert.strictEqual(ffosbr.settings.options.videos, true, 'videos is true before setting');
@@ -96,15 +101,6 @@ QUnit.test('Settings', function(assert) {
   assert.strictEqual(ffosbr.settings.options.registeredTimer, true, 'registeredTimer is true after reloading');
   assert.strictEqual(ffosbr.settings.options.repeat, false, 'repeat is false after reloading');
 
-  // Reset default settings for next test run
-  ffosbr.settings.set({
-    photos: true,
-    videos: true,
-    contacts: true,
-    messages: true,
-    intervalTime: 24, // pass in value in hours
-    id: 0,
-    registeredTimer: false,
-    repeat: true
-  });
+  // Reset the user's original settings
+  ffosbr.settings.set(oldSettings);
 });
