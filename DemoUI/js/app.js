@@ -235,5 +235,8 @@ window.addEventListener('DOMContentLoaded', function() {
     loadBackupDetailPage('messages');
   });
 
+  document.getElementById('systemSettings-infopane').addEventListener('click', function() {
+    loadBackupDetailPage('systemSettings');
+  });
 
 });
