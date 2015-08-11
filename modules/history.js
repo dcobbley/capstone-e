@@ -25,29 +25,35 @@ History.prototype.getDefault = function() {
   return {
     photos: {
       title: 'Photos',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     videos: {
       title: 'Videos',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     music: {
       title: 'Music',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     contacts: {
       title: 'Contacts',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
       backupSize: 0
     },
     messages: {
       title: 'Messages',
-      lastBackupDate: '2015-06-20T19:00-0700',
+      lastBackupDate: null,
+      backupSize: 0
+    },
+    systemSettings: {
+      title: 'SystemSettings',
+      lastBackupDate: null,
       backupSize: 0
     }
+
   };
 };
 
@@ -78,17 +84,18 @@ History.prototype.loadHistory = function() {
  * @description Loads backup history settings from local storage if they exist
  * @return True if backup history settings was loaded from local storage otherwise False 
  */
-History.prototype.get = function(field, subfield) {
+History.prototype.getValue = function(field, subfield) {
   if (typeof field === 'undefined') {
     return this.history;
   } else if (typeof field !== 'string') {
-    return console.log('Invalid history field', field);
+    console.log('Invalid history field', field);
+    return;
   }
 
   if (typeof subfield === 'string') {
     var o1 = this.history[field];
-    if (typeof o1 === 'string') {
-      return o1[field];
+    if (typeof o1 !== 'undefined') {
+      return o1[subfield];
     }
   }
 
@@ -117,12 +124,13 @@ History.prototype.validateAll = function(potentialHistoryObject) {
     !this.validateEntry(hist.videos) ||
     !this.validateEntry(hist.music) ||
     !this.validateEntry(hist.contacts) ||
-    !this.validateEntry(hist.messages)) {
+    !this.validateEntry(hist.messages) ||
+    !this.validateEntry(hist.systemSettings)) {
     return false;
   }
 
   // Ensure that we don't have extra fields
-  if (Object.keys(hist).length !== 5) {
+  if (Object.keys(hist).length !== 6) {
     return false;
   }
 
@@ -171,7 +179,7 @@ History.prototype.validateEntryField = function(field, value) {
     return typeof value === 'string';
   }
   if (field === 'lastBackupDate') {
-    return !isNaN(Date.parse(value));
+    return !isNaN(Date.parse(value)) || value === null;
   }
   if (field === 'backupSize') {
     return typeof value === 'number' && value >= 0;
