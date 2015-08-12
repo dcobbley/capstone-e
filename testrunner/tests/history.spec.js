@@ -5,7 +5,11 @@ var checkDefaults = function(assert) {
     'photos title set to \"Photos\"');
   assert.strictEqual(ffosbr.history.history.photos.lastBackupDate,
     null,
+<<<<<<< HEAD
     'photos lastBackupDate set to \"null\"');
+=======
+    'photos lastBackupDate set to null');
+>>>>>>> master
   assert.strictEqual(ffosbr.history.history.photos.backupSize,
     0,
     'photos backupSize set to 0');
@@ -15,7 +19,11 @@ var checkDefaults = function(assert) {
     'videos title set to \"Videos\"');
   assert.strictEqual(ffosbr.history.history.videos.lastBackupDate,
     null,
+<<<<<<< HEAD
     'videos lastBackupDate set to \"null\"');
+=======
+    'videos lastBackupDate set to null');
+>>>>>>> master
   assert.strictEqual(ffosbr.history.history.videos.backupSize,
     0,
     'videos backupSize set to 0');
@@ -25,7 +33,11 @@ var checkDefaults = function(assert) {
     'Music title set to \"Music\"');
   assert.strictEqual(ffosbr.history.history.music.lastBackupDate,
     null,
+<<<<<<< HEAD
     'Music lastBackupDate set to \"null\"');
+=======
+    'Music lastBackupDate set to null');
+>>>>>>> master
   assert.strictEqual(ffosbr.history.history.music.backupSize,
     0,
     'music backupSize set to 0');
@@ -35,7 +47,11 @@ var checkDefaults = function(assert) {
     'contacts title set to \"Contacts\"');
   assert.strictEqual(ffosbr.history.history.contacts.lastBackupDate,
     null,
+<<<<<<< HEAD
     'contacts lastBackupDate set to \"null\"');
+=======
+    'contacts lastBackupDate set to null');
+>>>>>>> master
   assert.strictEqual(ffosbr.history.history.contacts.backupSize,
     0,
     'contacts backupSize set to 0');
@@ -45,7 +61,11 @@ var checkDefaults = function(assert) {
     'messages title set to \"Messages\"');
   assert.strictEqual(ffosbr.history.history.messages.lastBackupDate,
     null,
+<<<<<<< HEAD
     'messages lastBackupDate set to \"null\"');
+=======
+    'messages lastBackupDate set to null');
+>>>>>>> master
   assert.strictEqual(ffosbr.history.history.messages.backupSize,
     0,
     'messages backupSize set to 0');

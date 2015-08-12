@@ -6,7 +6,7 @@ var Contacts = function() {};
 
 /**
  * @access public
- * @description List of contacts initialized, as well as onProgress and onComplete for checking the status of the current backup
+ * @description List of contacts initialized, as well as onprogress and oncomplete for checking the status of the current backup
  */
 Contacts.prototype.initialize = function() {
   this.running = false;
@@ -35,8 +35,9 @@ Contacts.prototype.checkProgress = function() {
     setTimeout(function() {
       that.checkProgress();
     }, delay);
+
   } else if (this.oncomplete) {
-    this.oncomplete();
+    this.oncomplete('contacts');
     this.SIMfinished = false; //Reset for next backup
     this.OSfinished = false; //Reset for next backup
     this.running = false;
@@ -46,10 +47,12 @@ Contacts.prototype.checkProgress = function() {
 /**
  * @access public
  * @description Saves all contacts from the device and SIM/ICC cards to a JSON file on the SD card.
- * Note: Calls getContactsFromSIM() calls getContactsFromOS() on completion.
+ *   Note: Calls getContactsFromSIM() calls getContactsFromOS() on completion.
+ * @param {callback} oncomplete
  */
-Contacts.prototype.backup = function() {
+Contacts.prototype.backup = function(oncomplete) {
   if (!this.running) {
+    this.oncomplete = oncomplete;
     this.running = true;
     this.checkProgress();
     this.contacts = [];
@@ -59,21 +62,25 @@ Contacts.prototype.backup = function() {
 
 /**
  * @access public
- * @description Loads contacts from a JSON file on the SD card onto the phone.
+ * @description Loads contacts from a JSON file on the external SD card back
+ *   onto the phone.
+ * @param {callback} oncomplete
  */
-Contacts.prototype.restore = function() {
+Contacts.prototype.restore = function(oncomplete) {
   var that = this;
   var reader = new FileReader();
+  var cursor = {};
 
   reader.onloadend = function() {
     var contents = this.result;
     var data;
+
     try {
       data = JSON.parse(contents);
     } catch (SyntaxError) {
-      alert('Invalid contacts.');
-      return;
+      return oncomplete('contacts', new Error('Invalid contacts JSON file.'));
     }
+
     for (var i = 0; i < data.length; ++i) {
       var myContact = new mozContact(data[i]);
       var nameSplit = data[i].name[0].split(' ');
@@ -86,19 +93,34 @@ Contacts.prototype.restore = function() {
 
       navigator.mozContacts.save(myContact);
     }
+
+    // NOTE: mozContacts.save is an asynchronous call. Currently, we are not
+    // checking whether this request is successful or not. However, it's more
+    // difficult to do so than other DOMRequests. Mozilla should add support
+    // for accepting multiple contacts as an argument, which would make tracking
+    // the status of the request much easier.
+    oncomplete('contacts');
   };
 
 
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
 
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-  var request = sdcard.get(path);
+  var request = {};
+
+  if (sdcard) {
+    request = sdcard.get(path);
+  } else {
+    oncomplete('contacts', new Error('Cannot load contacts JSON file.'));
+  }
 
   request.onsuccess = function() {
     reader.readAsText(this.result);
   };
 
-  request.onerror = function() {};
+  request.onerror = function() {
+    oncomplete('contacts', new Error('Failed to load contacts JSON file.'));
+  };
 };
 
 /**
@@ -110,9 +132,20 @@ Contacts.prototype.clean = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.contacts + '/contacts.json';
   var that = this;
   var sdcard = navigator.getDeviceStorages('sdcard')[1];
-  var remove = sdcard.delete(path);
+  var remove = {}; // cursor
+
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
+
+  if (sdcard) {
+    remove = sdcard.delete(path);
+  } else {
+    return oncomplete('contacts', new Error('Cannot remove contacts JSON file.'));
+  }
 
   remove.onsuccess = function() {
+<<<<<<< HEAD
 
     ffosbr.history.set('contacts', {
       title: 'Contacts',
@@ -123,12 +156,13 @@ Contacts.prototype.clean = function(oncomplete) {
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete('Clean success');
     }
+=======
+    oncomplete('contacts');
+>>>>>>> master
   };
 
   remove.onerror = function() {
-    if (window.ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete(remove.error);
-    }
+    oncomplete('contacts', this.error);
   };
 };
 
@@ -184,6 +218,12 @@ Contacts.prototype.getContactsFromSIM = function() {
   var request = null;
   var numSIMCards = 0;
   var numHandlersCalled = 0;
+
+  // Nothing to backup from SIM
+  if (!cards || cards.length === 0) {
+    that.SIMfinished = true;
+    return this.getContactsFromOS();
+  }
 
   var onSuccessFunction = function() {
     var contact = this.result;

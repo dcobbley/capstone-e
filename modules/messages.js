@@ -13,52 +13,54 @@ Messages.prototype.initialize = function() {};
  * @access public
  * @description Backups the current SMS and MMS messages on the device
  *   to external storage. Callback is invoked upon completion. If an error
- *   occurred, it will be passed as the first parameter to the callback.
- * @param {callback} callback
+ *   occurred, it will be passed as the first parameter to oncomplete.
+ * @param {callback} oncomplete
  */
-Messages.prototype.backup = function(callback) {
+Messages.prototype.backup = function(oncomplete) {
   var that = this;
 
-  this._getMessages(function(msgs) {
+  this._getMessages(function(msgs, error) {
     var msgsJSON = [];
 
-    if (msgs.error) {
-      callback(msgs.error);
+    if (error) {
+      oncomplete('messages', error);
       return;
     }
 
-    for (var i = 0; i < msgs.list.length; i++) {
+    for (var i = 0; i < msgs.length; i++) {
       var msg = {
-        type: msgs.list[i].type,
-        id: msgs.list[i].id,
-        threadId: msgs.list[i].threadId,
-        delivery: msgs.list[i].delivery,
-        deliveryStatus: msgs.list[i].deliveryStatus,
-        read: msgs.list[i].read,
-        receiver: msgs.list[i].receiver,
-        sender: msgs.list[i].sender,
-        timestamp: msgs.list[i].timestamp
+        type: msgs[i].type,
+        id: msgs[i].id,
+        threadId: msgs[i].threadId,
+        delivery: msgs[i].delivery,
+        deliveryStatus: msgs[i].deliveryStatus,
+        read: msgs[i].read,
+        receiver: msgs[i].receiver,
+        sender: msgs[i].sender,
+        timestamp: msgs[i].timestamp
       };
 
-      if (msgs.list[i] instanceof MozSmsMessage) {
-        msg.body = msgs.list[i].body;
-        msg.messageClass = msgs.list[i].messageClass;
+      if (msgs[i] instanceof MozSmsMessage) {
+        msg.body = msgs[i].body;
+        msg.messageClass = msgs[i].messageClass;
 
-      } else if (msgs.list[i] instanceof MozMmsMessage) {
-        msg.subject = msgs.list[i].subject;
-        msg.smil = msgs.list[i].smil;
-        msg.attachments = msgs.list[i].attachments;
-        msg.expiryDate = msgs.list[i].expiryDate;
+      } else if (msgs[i] instanceof MozMmsMessage) {
+        msg.subject = msgs[i].subject;
+        msg.smil = msgs[i].smil;
+        msg.attachments = msgs[i].attachments;
+        msg.expiryDate = msgs[i].expiryDate;
 
       } else {
-        callback('unknown message type');
+        oncomplete('messages', new Error('unknown message type'));
         return;
       }
 
       msgsJSON.push(JSON.stringify(msg));
     }
 
-    that._putMessagesOnSD(msgsJSON, callback);
+    that._putMessagesOnSD(msgsJSON, function(error) {
+      oncomplete('messages', error);
+    });
   });
 };
 
@@ -66,27 +68,37 @@ Messages.prototype.backup = function(callback) {
  * @access public
  * @description Firefox OS current exposes no API to
  *  restore messages to the device so this function is a noop.
- * @param {callback} callback
+ * @param {callback} oncomplete
  */
-Messages.prototype.restore = function(callback) {
-  // **This is not possible**
-  // Firefox OS current exposes no API to restore messages to device!
-  if (callback) {
-    callback();
+Messages.prototype.restore = function(oncomplete) {
+
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    onsuccess = function() {};
   }
+
+  // ** This is not possible **
+  // Firefox OS current exposes no API to restore messages to device!
+
+  // Behave as if successful.
+  oncomplete('messages');
 };
 
 /**
  * @access public
  * @description Deletes the messages file from external storage.
  *   Callback is invoked upon completion. If an error occurred,
- *   it will be passed as the first parameter to the callback.
- * @param {callback} callback
+ *   it will be passed as the first parameter to oncomplete.
+ * @param {callback} oncomplete
  */
-Messages.prototype.clean = function(callback) {
+Messages.prototype.clean = function(oncomplete) {
   var path = ffosbr.settings.backupPaths.messages;
 
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
+
   ffosbr.media.remove(path + 'messages.json', function(err) {
+<<<<<<< HEAD
     if (err !== undefined) {
       ffosbr.history.set('messages', {
         title: 'Messages',
@@ -98,6 +110,9 @@ Messages.prototype.clean = function(callback) {
     if (callback) {
       callback(err ? err : undefined);
     }
+=======
+    oncomplete('messages', err);
+>>>>>>> master
   });
 };
 
@@ -105,34 +120,42 @@ Messages.prototype.clean = function(callback) {
  * @access private
  * @description Retrieves the current messages from the device.
  *   Callback is invoked upon completion. If an error occurred,
- *   it will be passed as the first parameter to the callback.
+ *   it will be passed as the first parameter to oncomplete.
  *   If no error occured then the a list of messages will be passed
- *   to the callback.
- * @param {callback} callback
+ *   to oncomplete.
+ * @param {callback} oncomplete
  */
-Messages.prototype._getMessages = function(callback) {
+Messages.prototype._getMessages = function(oncomplete) {
   var msgs = [];
+<<<<<<< HEAD
 
   // !WARNING! This only works on the device
   var cursor = navigator.mozMobileMessage.getMessages({}, false);
+=======
+  var cursor = {};
+
+  try {
+    cursor = navigator.mozMobileMessage.getMessages({}, false);
+  } catch (e) {
+    // Most likely means we're running on simulator
+    console.error(e);
+    oncomplete(msgs, new Error('Failed to get messages: ' + e.message));
+  }
+>>>>>>> master
 
   cursor.onsuccess = function() {
-    if (cursor.result) {
-      msgs.push(cursor.result);
+    if (this.result) {
+      msgs.push(this.result);
       cursor.continue();
     }
 
-    if (cursor.done) {
-      callback({
-        list: msgs
-      });
+    if (this.done) {
+      oncomplete(msgs);
     }
   };
 
   cursor.onerror = function(event) {
-    callback({
-      error: event.target.error.name
-    });
+    oncomplete(msgs, new Error(event.target.error.name));
   };
 };
 

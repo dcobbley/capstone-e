@@ -46,8 +46,17 @@ History.prototype.getDefault = function() {
     messages: {
       title: 'Messages',
       lastBackupDate: null,
+<<<<<<< HEAD
+=======
+      backupSize: 0
+    },
+    systemSettings: {
+      title: 'SystemSettings',
+      lastBackupDate: null,
+>>>>>>> master
       backupSize: 0
     }
+
   };
 };
 
@@ -75,6 +84,32 @@ History.prototype.loadHistory = function() {
 
 /**
  * @access private
+<<<<<<< HEAD
+=======
+ * @description Loads backup history settings from local storage if they exist
+ * @return True if backup history settings was loaded from local storage otherwise False 
+ */
+History.prototype.getValue = function(field, subfield) {
+  if (typeof field === 'undefined') {
+    return this.history;
+  } else if (typeof field !== 'string') {
+    console.log('Invalid history field', field);
+    return;
+  }
+
+  if (typeof subfield === 'string') {
+    var o1 = this.history[field];
+    if (typeof o1 !== 'undefined') {
+      return o1[subfield];
+    }
+  }
+
+  return this.history[field];
+};
+
+/**
+ * @access private
+>>>>>>> master
  * @description Validate all passed in history
  * @param {object} potentialHistoryObject
  * @return True if passed in history are valid otherwise false
@@ -95,12 +130,13 @@ History.prototype.validateAll = function(potentialHistoryObject) {
     !this.validateEntry(hist.videos) ||
     !this.validateEntry(hist.music) ||
     !this.validateEntry(hist.contacts) ||
-    !this.validateEntry(hist.messages)) {
+    !this.validateEntry(hist.messages) ||
+    !this.validateEntry(hist.systemSettings)) {
     return false;
   }
 
   // Ensure that we don't have extra fields
-  if (Object.keys(hist).length !== 5) {
+  if (Object.keys(hist).length !== 6) {
     return false;
   }
 
@@ -110,7 +146,7 @@ History.prototype.validateAll = function(potentialHistoryObject) {
 /**
  * @access private
  * @description Validate a entry in history
- * @para {object} potentialHistoryEntry
+ * @param {object} potentialHistoryEntry
  * @return True if passed in history entry is valid otherwise false
  */
 History.prototype.validateEntry = function(potentialHistoryEntry) {
@@ -140,8 +176,8 @@ History.prototype.validateEntry = function(potentialHistoryEntry) {
 /**
  * @access private
  * @description Validate a entrys field in history
- * @para {String} field
- * @para {Object} value
+ * @param {String} field
+ * @param {Object} value
  * @return True if passed in history entry field is valid otherwise false
  */
 History.prototype.validateEntryField = function(field, value) {
@@ -149,11 +185,15 @@ History.prototype.validateEntryField = function(field, value) {
     return typeof value === 'string';
   }
   if (field === 'lastBackupDate') {
+<<<<<<< HEAD
     if (value === null) {
       return true;
     } else {
       return !isNaN(Date.parse(value));
     }
+=======
+    return !isNaN(Date.parse(value)) || value === null;
+>>>>>>> master
   }
   if (field === 'backupSize') {
     return typeof value === 'number' && value >= 0;
@@ -165,8 +205,8 @@ History.prototype.validateEntryField = function(field, value) {
 /**
  * @access private
  * @description Update field or object in history
- * @para {Object} fieldNameOrHistoryObject
- * @para {Object} historyValue
+ * @param {Object} fieldNameOrHistoryObject
+ * @param {Object} historyValue
  * @return True if history was updated otherwise false
  */
 History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
@@ -189,8 +229,15 @@ History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
 
 /**
  * @access public
+<<<<<<< HEAD
  * @description Loads backup history settings from local storage if they exist
  * @return True if backup history settings was loaded from local storage otherwise False 
+=======
+ * @description Get a field of history or the whole history object
+ * @param {String} field
+ * @param {String} subfield
+ * @return field of history or the whole history object
+>>>>>>> master
  */
 History.prototype.get = function(field, subfield) {
   if (typeof field === 'undefined') {

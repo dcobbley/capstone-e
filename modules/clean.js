@@ -1,26 +1,79 @@
 /**
  * @access public
- * @description Deletes every data type set as true in settings
- * Calls the callback on every error
+ * @description Deletes every data type set as true in settings.
+ *
+ *   Calls onsuccess after each sub-clean (per type) finishes
+ *   without error. Only argument is the type of clean.
+ *
+ *   Calls onerror after each sub-clean (per type) finished with
+ *   an error.  First argument is the type of clean, second
+ *   is the error.
+ *
+ *   Calls oncomplete after all restores have finished, regardless
+ *   of success/failure status. No arguments are provided.
+ * @param {callback} onsuccess
  * @param {callback} onerror
+ * @param {callback} oncomplete
  */
-var clean = function(onerror) {
-  var cleanTypes = ['contacts', 'messages', 'photos', 'music', 'videos'];
+var clean = function(onsuccess, onerror, oncomplete) {
 
-  var asyncClean = function(type) {
-    setTimeout(function() {
-      if (ffosbr.settings.get(type)) {
-        ffosbr[type].clean(function(err) {
-          if (err) {
-            onerror(err);
-          }
-        });
+  var cleanTypes = ffosbr.settings.getCurrentAllowedTypes();
+  var finished = {}; // object containing all completed types
+  var calledOncomplete = false;
+
+  // Keeps track of which callbacks have finished, and calls
+  // appropriate handlers.
+  var callbackManager = function(type, error) {
+
+    finished[type] = true;
+    if (calledOncomplete === true) {
+      // Do nothing if we've already completed
+      return;
+    } else if (error) {
+      onerror(type, error);
+    } else {
+      onsuccess(type);
+    }
+
+    // If there are any outstanding callbacks, we return early.
+    for (var f in finished) {
+      if (finished[f] === false) {
+        return;
       }
-    }, 0);
+    }
+
+    // All callbacks have finished. Call master oncomplete.
+    calledOncomplete = true;
+    oncomplete();
   };
 
-  for (var i = 0; i < cleanTypes.length; i++) {
-    asyncClean(cleanTypes[i]);
+  // Kicks off a clean asycnronously, using timeouts.
+  var launchClean = function(type) {
+    var nodelay = 0;
+    setTimeout(function() {
+      ffosbr[type].clean(callbackManager);
+    }, nodelay);
+  };
+
+  if (!ffosbr.utils.isFunction(onsuccess)) {
+    onsuccess = function() {};
+  }
+  if (!ffosbr.utils.isFunction(onerror)) {
+    onerror = function() {};
+  }
+  if (!ffosbr.utils.isFunction(oncomplete)) {
+    oncomplete = function() {};
+  }
+
+  // Record expected types to finish
+  for (var i = 0; i < cleanTypes.length; ++i) {
+    // Values are false by default. True after finishing.
+    finished[cleanTypes[i]] = false;
+  }
+
+  // Launch each clean asynchronously.
+  for (var j = 0; j < cleanTypes.length; ++j) {
+    launchClean(cleanTypes[j]);
   }
 };
 

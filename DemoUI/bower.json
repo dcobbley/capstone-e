@@ -1,0 +1,19 @@
+{
+  "name": "TestRunner",
+  "version": "0.0.0",
+  "authors": [
+    "Thomas Guerena <guerena.t@gmail.com>"
+  ],
+  "description": "Firefox OS app unit test runner",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+  }
+}
