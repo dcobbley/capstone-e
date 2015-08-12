@@ -100,8 +100,8 @@ SystemSettings.prototype.backup = function(oncomplete) {
     if (err !== undefined) {
       ffosbr.history.set('systemSettings', {
         title: 'SystemSettings',
-        lastBackupDate: null,
-        backupSize: 0,
+        lastBackupDate: new Date(),
+        backupSize: settingsToWrite.size,
       });
     }
 
