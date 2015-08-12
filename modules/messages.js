@@ -98,7 +98,7 @@ Messages.prototype.clean = function(oncomplete) {
   }
 
   ffosbr.media.remove(path + 'messages.json', function(err) {
-    if (err !== undefined) {
+    if (err === undefined) {
       ffosbr.history.set('messages', {
         title: 'Messages',
         lastBackupDate: null,

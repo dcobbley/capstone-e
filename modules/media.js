@@ -44,7 +44,7 @@ Media.prototype.initialize = function() {
 };
 
 function capitalize(s) {
-    return s[0].toUpperCase() + s.slice(1);
+  return s[0].toUpperCase() + s.slice(1);
 }
 
 /**
@@ -125,7 +125,7 @@ Media.prototype.backup = function(type, oncomplete) {
       // Report progress?
     });
   }, function(error) {
-    if (error !== undefined) {
+    if (error === undefined) {
       ffosbr.history.set(type, {
         title: capitalize(type),
         lastBackupDate: new Date(),

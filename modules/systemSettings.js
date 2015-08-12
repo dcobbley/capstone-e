@@ -67,7 +67,7 @@ SystemSettings.prototype.clean = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.systemsettings + '/systemSettings.json';
 
   ffosbr.media.remove(path, function(err) {
-    if (err !== undefined) {
+    if (err === undefined) {
       ffosbr.history.set('systemSettings', {
         title: 'SystemSettings',
         lastBackupDate: null,
@@ -97,7 +97,7 @@ SystemSettings.prototype.backup = function(oncomplete) {
   });
 
   ffosbr.media.put('sdcard1', settingsToWrite, path, function(err) {
-    if (err !== undefined) {
+    if (err === undefined) {
       ffosbr.history.set('systemSettings', {
         title: 'SystemSettings',
         lastBackupDate: new Date(),
