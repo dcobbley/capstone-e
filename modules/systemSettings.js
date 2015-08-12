@@ -63,11 +63,20 @@ SystemSettings.prototype.initialize = function() {
  *
  */
 
-SystemSettings.prototype.clean = function() {
+SystemSettings.prototype.clean = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.systemsettings + '/systemSettings.json';
 
-  ffosbr.media.remove(path);
+  ffosbr.media.remove(path, function(err) {
+    if (err !== undefined) {
+      ffosbr.history.set('systemSettings', {
+        title: 'SystemSettings',
+        lastBackupDate: null,
+        backupSize: 0,
+      });
+    }
 
+    oncomplete('systemSettings', err);
+  });
 };
 
 
@@ -77,7 +86,7 @@ SystemSettings.prototype.clean = function() {
  *
  *
  */
-SystemSettings.prototype.backup = function() {
+SystemSettings.prototype.backup = function(oncomplete) {
   var that = this;
   var path = ffosbr.settings.backupPaths.systemsettings + '/systemSettings.json';
 
@@ -87,7 +96,17 @@ SystemSettings.prototype.backup = function() {
     type: 'text/json'
   });
 
-  ffosbr.media.put('sdcard1', settingsToWrite, path);
+  ffosbr.media.put('sdcard1', settingsToWrite, path, function(err) {
+    if (err !== undefined) {
+      ffosbr.history.set('systemSettings', {
+        title: 'SystemSettings',
+        lastBackupDate: null,
+        backupSize: 0,
+      });
+    }
+
+    oncomplete('systemSettings', err);
+  });
 };
 
 
@@ -99,13 +118,14 @@ SystemSettings.prototype.backup = function() {
  *
  */
 
-SystemSettings.prototype.restore = function() {
+SystemSettings.prototype.restore = function(oncomplete) {
   var path = '/sdcard1/' + ffosbr.settings.backupPaths.systemsettings;
 
   ffosbr.media.get('sdcard1', path, copyToSettings, oncomplete);
   this.writeSettingsToDevice(JSON.stringify(this.systemsettings));
   console.log('system settings successfully restored');
 
+  oncomplete('systemSettings');
 };
 
 
