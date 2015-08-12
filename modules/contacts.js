@@ -113,6 +113,13 @@ Contacts.prototype.clean = function(oncomplete) {
   var remove = sdcard.delete(path);
 
   remove.onsuccess = function() {
+
+    ffosbr.history.set('contacts', {
+      title: 'Contacts',
+      lastBackupDate: null,
+      backupSize: 0,
+    });
+
     if (window.ffosbr.utils.isFunction(oncomplete)) {
       oncomplete('Clean success');
     }
@@ -242,6 +249,13 @@ Contacts.prototype.putContactsOnSD = function(oncomplete) {
         var path = ffosbr.settings.backupPaths.contacts + '/contacts.json';
         var request = sdcard.addNamed(file, path);
         request.onsuccess = function() {
+
+          ffosbr.history.set('contacts', {
+            title: 'Contacts',
+            lastBackupDate: new Date(),
+            backupSize: file.size,
+          });
+
           if (window.ffosbr.utils.isFunction(oncomplete)) {
             oncomplete();
           }
