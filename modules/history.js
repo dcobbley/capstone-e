@@ -46,14 +46,11 @@ History.prototype.getDefault = function() {
     messages: {
       title: 'Messages',
       lastBackupDate: null,
-<<<<<<< HEAD
-=======
       backupSize: 0
     },
     systemSettings: {
       title: 'SystemSettings',
       lastBackupDate: null,
->>>>>>> master
       backupSize: 0
     }
 
@@ -84,8 +81,6 @@ History.prototype.loadHistory = function() {
 
 /**
  * @access private
-<<<<<<< HEAD
-=======
  * @description Loads backup history settings from local storage if they exist
  * @return True if backup history settings was loaded from local storage otherwise False 
  */
@@ -185,15 +180,7 @@ History.prototype.validateEntryField = function(field, value) {
     return typeof value === 'string';
   }
   if (field === 'lastBackupDate') {
-<<<<<<< HEAD
-    if (value === null) {
-      return true;
-    } else {
-      return !isNaN(Date.parse(value));
-    }
-=======
     return !isNaN(Date.parse(value)) || value === null;
->>>>>>> master
   }
   if (field === 'backupSize') {
     return typeof value === 'number' && value >= 0;
@@ -229,15 +216,10 @@ History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
 
 /**
  * @access public
-<<<<<<< HEAD
- * @description Loads backup history settings from local storage if they exist
- * @return True if backup history settings was loaded from local storage otherwise False 
-=======
  * @description Get a field of history or the whole history object
  * @param {String} field
  * @param {String} subfield
  * @return field of history or the whole history object
->>>>>>> master
  */
 History.prototype.get = function(field, subfield) {
   if (typeof field === 'undefined') {

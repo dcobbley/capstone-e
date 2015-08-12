@@ -98,7 +98,6 @@ Messages.prototype.clean = function(oncomplete) {
   }
 
   ffosbr.media.remove(path + 'messages.json', function(err) {
-<<<<<<< HEAD
     if (err !== undefined) {
       ffosbr.history.set('messages', {
         title: 'Messages',
@@ -107,12 +106,7 @@ Messages.prototype.clean = function(oncomplete) {
       });
     }
 
-    if (callback) {
-      callback(err ? err : undefined);
-    }
-=======
     oncomplete('messages', err);
->>>>>>> master
   });
 };
 
@@ -127,11 +121,6 @@ Messages.prototype.clean = function(oncomplete) {
  */
 Messages.prototype._getMessages = function(oncomplete) {
   var msgs = [];
-<<<<<<< HEAD
-
-  // !WARNING! This only works on the device
-  var cursor = navigator.mozMobileMessage.getMessages({}, false);
-=======
   var cursor = {};
 
   try {
@@ -141,7 +130,6 @@ Messages.prototype._getMessages = function(oncomplete) {
     console.error(e);
     oncomplete(msgs, new Error('Failed to get messages: ' + e.message));
   }
->>>>>>> master
 
   cursor.onsuccess = function() {
     if (this.result) {

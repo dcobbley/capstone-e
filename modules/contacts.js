@@ -145,20 +145,13 @@ Contacts.prototype.clean = function(oncomplete) {
   }
 
   remove.onsuccess = function() {
-<<<<<<< HEAD
-
     ffosbr.history.set('contacts', {
       title: 'Contacts',
       lastBackupDate: null,
       backupSize: 0,
     });
 
-    if (window.ffosbr.utils.isFunction(oncomplete)) {
-      oncomplete('Clean success');
-    }
-=======
     oncomplete('contacts');
->>>>>>> master
   };
 
   remove.onerror = function() {
