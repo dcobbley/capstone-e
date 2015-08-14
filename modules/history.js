@@ -104,7 +104,6 @@ History.prototype.getValue = function(field, subfield) {
 
 /**
  * @access private
->>>>>>> master
  * @description Validate all passed in history
  * @param {object} potentialHistoryObject
  * @return True if passed in history are valid otherwise false
