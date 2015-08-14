@@ -147,7 +147,6 @@ Media.prototype.restore = function(type, oncomplete) {
 
     file = files[0];
 
-    // START REPLACE - with MIME library --------------------------------------
     var fn = file.name;
     if (fn.endsWith('~')) {
       fn = fn.substr(0, fn.length - 1);
@@ -155,26 +154,7 @@ Media.prototype.restore = function(type, oncomplete) {
     var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
     var extension = fn.substr(fn.lastIndexOf('.') + 1, fn.length);
 
-    var mimeType;
-    switch (extension) {
-      case 'jpg':
-        mimeType = 'image/jpeg';
-        break;
-      case 'png':
-        mimeType = 'image/png';
-        break;
-      case '3gp':
-        mimeType = 'video/3gpp';
-        break;
-      case 'mp3':
-        mimeType = 'audio/mpeg3';
-        break;
-      default:
-        // THROW AN ERROR?
-        // Text I guess?
-        mimeType = 'application/json';
-    }
-    // END REPLACE - with MIME library ----------------------------------------
+    var mimeType = mime.lookup(fn);
 
     var reader = new FileReader();
 
