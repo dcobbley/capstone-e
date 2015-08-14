@@ -2,6 +2,21 @@
  * Manages library settings and exposes ways to change them.
  */
 function Settings() {
+
+  this.options = {
+    photos: true,
+    // music: true, // This hasn't been activated yet in Media
+    videos: true,
+    contacts: true,
+    messages: true,
+    intervalTime: 24, // pass in value in hours
+    id: 0,
+    systemsettings: true,
+    registeredTimer: false,
+    repeat: true
+  };
+
+
   // Are these the paths we want?
   this.backupPaths = {
     apps: 'backup/apps/',
@@ -10,6 +25,7 @@ function Settings() {
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
     settings: 'backup/settings/',
+    systemsettings: 'backup/systemSettings/',
     messages: 'backup/messages/'
   };
 }
@@ -100,16 +116,43 @@ Settings.prototype.getBackupDirectoryPaths = function() {
 };
 
 /**
+ * @access public
+ * @descripton Provides an array the current allowable backup,
+ *   clean, and restore types as strings.
+ * @returns {Array of String}
+ */
+Settings.prototype.getCurrentAllowedTypes = function() {
+  var allowed = [];
+  for (var type in this.backupPaths) {
+    if (this.options[type] === true) {
+      allowed.push(type);
+    }
+  }
+  return allowed;
+};
+
+/**
  * @access private
  * @description Validate passed in setting
- * @para {object} potentialOptions
- * @para {object}  value
+ * @param {object} potentialOptions
+ * @param {object}  value
  * @return True if passed in settings are valid otherwise false
  */
 Settings.prototype.validate = function(potentialOptions, value) {
 
   var valid = true;
   var opts = null;
+  var validTypes = {
+    photos: 'boolean',
+    videos: 'boolean',
+    contacts: 'boolean',
+    messages: 'boolean',
+    intervalTime: 'number',
+    id: 'number',
+    systemsettings: 'boolean',
+    registeredTimer: 'boolean',
+    repeat: 'boolean'
+  };
 
   if (typeof potentialOptions === 'object') {
     opts = potentialOptions; // validate parameter object
@@ -146,8 +189,8 @@ Settings.prototype.validate = function(potentialOptions, value) {
 /**
  * @access public
  * @description Set settings
- * @para {setting object} newOptions
- * @para {object} value (optional)
+ * @param {setting object} newOptions
+ * @param {object} value (optional)
  * @throws if new value is invalid
  */
 Settings.prototype.set = function(newOptions, value) {
@@ -190,7 +233,7 @@ Settings.prototype.set = function(newOptions, value) {
 /**
  * @access public
  * @description Get's current settings or a particular field if passsed in
- * @para {object} field (optional)
+ * @param {object} field (optional)
  * @return current options
  */
 Settings.prototype.get = function(field) {

@@ -26,7 +26,6 @@ var clean = function(onsuccess, onerror, oncomplete) {
   var callbackManager = function(type, error) {
 
     finished[type] = true;
-
     if (calledOncomplete === true) {
       // Do nothing if we've already completed
       return;

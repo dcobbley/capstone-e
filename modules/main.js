@@ -12,6 +12,7 @@
       'contacts': require('./contacts'),
       'photos': require('./photos'),
       'videos': require('./videos'),
+      'systemSettings': require('./systemSettings'),
       'music': require('./music')
     };
 
@@ -35,61 +36,4 @@
 
   window.ffosbr = new Ffosbr();
   window.ffosbr.initialize();
-
-  // REMOVE - testing purposes only
-  window.backup = function() {
-    ffosbr.backup(function(type) {
-      // on success
-      console.log('success ' + type);
-    }, function(type, error) {
-      // on error
-      console.log('error ' + type + ': ' + error.message);
-    }, function(type, error) {
-      // on complete
-      console.log('backup complete!');
-    });
-  };
-
-  // REMOVE - testing purposes only
-  window.restore = function() {
-    ffosbr.restore(function(type) {
-      // on success
-      console.log('success ' + type);
-    }, function(type, error) {
-      // on error
-      console.log('error ' + type + ': ' + error.message);
-    }, function(type, error) {
-      // on complete
-      error = error ? error : {};
-      console.log('restore complete!');
-    });
-  };
-
-  // REMOVE - testing purposes only
-  window.clean = function() {
-    ffosbr.clean(function(type) {
-      // on success
-      console.log('success ' + type);
-    }, function(type, error) {
-      // on error
-      console.log('error ' + type + ': ' + error.message);
-    }, function(type, error) {
-      // on complete
-      error = error ? error : {};
-      console.log('clean complete!');
-    });
-  };
-
-  // REMOVE - testing purposes only
-  window.put = function() {
-    var file = new File(['ass'], 'assfile.txt');
-    var directory = 'test/files/';
-    ffosbr.media.put('sdcard1', file, directory, function(error) {
-      if (!error) {
-        console.log('put successful');
-      } else {
-        console.log('put failed');
-      }
-    });
-  };
 })();

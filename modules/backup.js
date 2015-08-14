@@ -18,6 +18,7 @@
 var backup = function(onsuccess, onerror, oncomplete) {
 
   var backupTypes = ffosbr.settings.getCurrentAllowedTypes();
+
   var finished = {}; // object contained finished types
   var calledOncomplete = false;
 
@@ -26,7 +27,6 @@ var backup = function(onsuccess, onerror, oncomplete) {
   var callbackManager = function(type, error) {
 
     finished[type] = true;
-
     if (calledOncomplete === true) {
       // Do nothing if we've already completed
       return;
