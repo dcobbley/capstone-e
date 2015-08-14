@@ -1,6 +1,6 @@
 /**
  * Manages internal and external storages, or handles to storage
- * devices, and their various data sets, including apps, music,
+ * devices, and their various data sets, including music,
  * pictures, sdcard, and videos.
  */
 function Media() {
@@ -9,7 +9,6 @@ function Media() {
 
   // Valid storage types
   this.storageTypes = [
-    // 'apps',
     // 'music',
     'pictures',
     'sdcard',
@@ -141,7 +140,7 @@ Media.prototype.backup = function(type, oncomplete) {
  * @access public
  * @description Writes files stored in a Ffosbr backup back
  *   to Firefox OS. The contents restored depends on the
- *   backup present. Valid data types are: apps, music, photos,
+ *   backup present. Valid data types are: music, photos,
  *   videos, contacts, and settings.
  *   If an error occurs, restore tries to call the "oncomplete"
  *   handler.
@@ -441,12 +440,12 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
 /**
  * @access public
  * @description Writes files to a specified destination. If the file type is
- *   'apps', 'music', 'pictures', 'sdcard', or 'videos' then the file will be
+ *   music', 'pictures', 'sdcard', or 'videos' then the file will be
  *   handed off to the OS and any file paths in the 'dest' parameter will be
  *   ignored. If the file type is 'sdcard1' the file will be written to the
  *   external storage device with the exact 'dest' provided. If an oncomplete
  *   callback if provided, it will be called after the file has been written.
- * @param {String} type - [apps, music, pictures, sdcard, sdcard1, videos]
+ * @param {String} type - [music, pictures, sdcard, sdcard1, videos]
  * @param {File} file - Mozilla File (Blob) to be written
  * @param {String} dest - path (with or without file name) relative to the
  *   default directory of the storage device. Only valid for types sdcard
