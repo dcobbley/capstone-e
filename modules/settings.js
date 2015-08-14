@@ -135,8 +135,8 @@ Settings.prototype.getCurrentAllowedTypes = function() {
 /**
  * @access private
  * @description Validate passed in setting
- * @para {object} potentialOptions
- * @para {object}  value
+ * @param {object} potentialOptions
+ * @param {object}  value
  * @return True if passed in settings are valid otherwise false
  */
 Settings.prototype.validate = function(potentialOptions, value) {
@@ -190,8 +190,8 @@ Settings.prototype.validate = function(potentialOptions, value) {
 /**
  * @access public
  * @description Set settings
- * @para {setting object} newOptions
- * @para {object} value (optional)
+ * @param {setting object} newOptions
+ * @param {object} value (optional)
  * @throws if new value is invalid
  */
 Settings.prototype.set = function(newOptions, value) {
@@ -234,7 +234,7 @@ Settings.prototype.set = function(newOptions, value) {
 /**
  * @access public
  * @description Get's current settings or a particular field if passsed in
- * @para {object} field (optional)
+ * @param {object} field (optional)
  * @return current options
  */
 Settings.prototype.get = function(field) {

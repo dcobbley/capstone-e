@@ -1,15 +1,14 @@
+function showProgressDialog(message) {
+  var progressMask = document.getElementById('progress-mask');
+  var progressMessage = progressMask.querySelector('#progress-message');
+  progressMessage.textContent = message;
+  progressMask.style.display = 'block';
+}
 
-  function showProgressDialog(message) {
-    var progressMask = document.getElementById('progress-mask');
-    var progressMessage = progressMask.querySelector('#progress-message');
-    progressMessage.textContent = message;
-    progressMask.style.display = 'block';
-  }
-
-  function hideProgressDialog() {
-    var progressMask = document.getElementById('progress-mask');
-    progressMask.style.display = 'none';
-  }
+function hideProgressDialog() {
+  var progressMask = document.getElementById('progress-mask');
+  progressMask.style.display = 'none';
+}
 
 // DOMContentLoaded is fired once the document has been loaded and parsed,
 // but without waiting for other external resources to load (css/images/etc)
@@ -143,6 +142,11 @@ window.addEventListener('DOMContentLoaded', function() {
     messagesUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('messages', 'lastBackupDate'));
     var messagesSize = document.getElementById('messages-hist-size');
     messagesSize.textContent = sizeFormat(ffosbr.history.getValue('messages', 'backupSize'));
+
+    var systemSettingsUpdatedAt = document.getElementById('systemSettings-hist-date');
+    systemSettingsUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('systemSettings', 'lastBackupDate'));
+    var systemSettingsSize = document.getElementById('systemSettings-hist-size');
+    systemSettingsSize.textContent = sizeFormat(ffosbr.history.getValue('systemSettings', 'backupSize'));
   }
 
   refreshHistories();
@@ -153,37 +157,39 @@ window.addEventListener('DOMContentLoaded', function() {
    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   document.getElementById('backup-button').addEventListener('click', function() {
-    showProgressDialog('backup initiated...');
-    
-    var successes = [];
-    var failures = [];
+    var flag = confirm('Warning! This will erase any other backup previously stored on SD card');
+    if (flag === true) {
+      showProgressDialog('backup initiated...');
+      var successes = [];
+      var failures = [];
 
-    var reportSuccess = function(type) {
-      showProgressDialog(type + ' saved successfully');
-      successes.push(type);
-    };
+      var reportSuccess = function(type) {
+        showProgressDialog(type + ' saved successfully');
+        successes.push(type);
+      };
 
-    var reportError = function(type, error) {
-      showProgressDialog(type + ' failed');
-      failures.push(type);
-    };
+      var reportError = function(type, error) {
+        showProgressDialog(type + ' failed');
+        failures.push(type);
+      };
 
-    var finished = function() {
-      var sitrep = 'SUCCESSES:\n';
-      for (var i = 0; i < successes.length; ++i) {
-        sitrep += '\t' + successes[i] + '\n';
-      }
-      sitrep += '\nFAILURES:\n';
-      
-      for(i = 0; i < failures.length; ++i) {
-        sitrep += '\t' + failures[i] + '\n';
-      }
+      var finished = function() {
+        var sitrep = 'SUCCESSES:\n';
+        for (var i = 0; i < successes.length; ++i) {
+          sitrep += '\t' + successes[i] + '\n';
+        }
+        sitrep += '\nFAILURES:\n';
 
-      hideProgressDialog();
-      alert(sitrep);
-    };
+        for (i = 0; i < failures.length; ++i) {
+          sitrep += '\t' + failures[i] + '\n';
+        }
 
-    ffosbr.backup(reportSuccess, reportError, finished);
+        hideProgressDialog();
+        alert(sitrep);
+      };
+
+      ffosbr.backup(reportSuccess, reportError, finished);
+    }
   });
 
   // Settings page listeners
@@ -243,5 +249,8 @@ window.addEventListener('DOMContentLoaded', function() {
     loadBackupDetailPage('messages');
   });
 
+  document.getElementById('systemSettings-infopane').addEventListener('click', function() {
+    loadBackupDetailPage('systemSettings');
+  });
 
 });
