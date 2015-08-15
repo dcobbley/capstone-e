@@ -1,7 +1,6 @@
 /**
- * Manages internal and external storages, or handles to storage
- * devices, and their various data sets, including apps, music,
- * pictures, sdcard, and videos.
+ * Stores backup history information for each type of
+ * user data.
  */
 function History() {}
 

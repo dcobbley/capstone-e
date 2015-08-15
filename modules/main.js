@@ -35,5 +35,6 @@
   };
 
   window.ffosbr = new Ffosbr();
+  window.mime = require('mime');
   window.ffosbr.initialize();
 })();

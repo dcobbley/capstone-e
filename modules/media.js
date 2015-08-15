@@ -1,6 +1,6 @@
 /**
  * Manages internal and external storages, or handles to storage
- * devices, and their various data sets, including music,
+ * devices, and their various data sets, including apps, music,
  * pictures, sdcard, and videos.
  */
 function Media() {
@@ -9,7 +9,8 @@ function Media() {
 
   // Valid storage types
   this.storageTypes = [
-    // 'music',
+    // 'apps',
+    'music',
     'pictures',
     'sdcard',
     'videos'
@@ -41,10 +42,6 @@ Media.prototype.initialize = function() {
     this.external[type] = new ffosbr.Storage(type, this.getExternalStorage(stores));
   }
 };
-
-function capitalize(s) {
-  return s[0].toUpperCase() + s.slice(1);
-}
 
 /**
  * @access public
@@ -78,14 +75,7 @@ Media.prototype.clean = function(type, oncomplete) {
   }, function(error) {
     if (error) {
       errors.push(error);
-    } else {
-      ffosbr.history.set(type, {
-        title: capitalize(type),
-        lastBackupDate: null,
-        backupSize: 0,
-      });
     }
-
     oncomplete(type, errors.length === 0 ? undefined : errors);
   });
 
@@ -103,7 +93,6 @@ Media.prototype.clean = function(type, oncomplete) {
  */
 Media.prototype.backup = function(type, oncomplete) {
 
-  var fileSizeRunningTotal = 0;
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
   if (paths[type] === undefined) {
@@ -115,8 +104,6 @@ Media.prototype.backup = function(type, oncomplete) {
       return;
     }
 
-    fileSizeRunningTotal += file.size;
-
     var fn = file.name;
     fn = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
     var dest = paths[type] + fn + '~';
@@ -124,14 +111,6 @@ Media.prototype.backup = function(type, oncomplete) {
       // Report progress?
     });
   }, function(error) {
-    if (error === undefined) {
-      ffosbr.history.set(type, {
-        title: capitalize(type),
-        lastBackupDate: new Date(),
-        backupSize: fileSizeRunningTotal,
-      });
-    }
-
     oncomplete(type, error);
   });
 };
@@ -140,7 +119,7 @@ Media.prototype.backup = function(type, oncomplete) {
  * @access public
  * @description Writes files stored in a Ffosbr backup back
  *   to Firefox OS. The contents restored depends on the
- *   backup present. Valid data types are: music, photos,
+ *   backup present. Valid data types are: apps, music, photos,
  *   videos, contacts, and settings.
  *   If an error occurs, restore tries to call the "oncomplete"
  *   handler.
@@ -168,7 +147,6 @@ Media.prototype.restore = function(type, oncomplete) {
 
     file = files[0];
 
-    // START REPLACE - with MIME library --------------------------------------
     var fn = file.name;
     if (fn.endsWith('~')) {
       fn = fn.substr(0, fn.length - 1);
@@ -176,22 +154,7 @@ Media.prototype.restore = function(type, oncomplete) {
     var filename = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
     var extension = fn.substr(fn.lastIndexOf('.') + 1, fn.length);
 
-    var mimeType;
-    switch (extension) {
-      case 'jpg':
-        mimeType = 'image/jpeg';
-        break;
-      case 'png':
-        mimeType = 'image/png';
-        break;
-      case '3gp':
-        mimeType = 'video/3gpp';
-        break;
-      default:
-        // Text I guess?
-        mimeType = 'application/json';
-    }
-    // END REPLACE - with MIME library ----------------------------------------
+    var mimeType = mime.lookup(fn);
 
     var reader = new FileReader();
 
@@ -440,12 +403,12 @@ Media.prototype.get = function(type, directory, forEach, oncomplete) {
 /**
  * @access public
  * @description Writes files to a specified destination. If the file type is
- *   music', 'pictures', 'sdcard', or 'videos' then the file will be
+ *   'apps', 'music', 'pictures', 'sdcard', or 'videos' then the file will be
  *   handed off to the OS and any file paths in the 'dest' parameter will be
  *   ignored. If the file type is 'sdcard1' the file will be written to the
  *   external storage device with the exact 'dest' provided. If an oncomplete
  *   callback if provided, it will be called after the file has been written.
- * @param {String} type - [music, pictures, sdcard, sdcard1, videos]
+ * @param {String} type - [apps, music, pictures, sdcard, sdcard1, videos]
  * @param {File} file - Mozilla File (Blob) to be written
  * @param {String} dest - path (with or without file name) relative to the
  *   default directory of the storage device. Only valid for types sdcard
