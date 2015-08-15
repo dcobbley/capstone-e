@@ -5,7 +5,7 @@ function Settings() {
 
   this.options = {
     photos: true,
-    // music: true, // This hasn't been activated yet in Media
+    music: true,
     videos: true,
     contacts: true,
     messages: true,
@@ -41,6 +41,7 @@ Settings.prototype.initialize = function() {
     music: 'boolean',
     contacts: 'boolean',
     messages: 'boolean',
+    systemsettings: 'boolean',
     intervalTime: 'number',
     id: 'number',
     registeredTimer: 'boolean',
