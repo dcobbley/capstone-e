@@ -98,6 +98,14 @@ Messages.prototype.clean = function(oncomplete) {
   }
 
   ffosbr.media.remove(path + 'messages.json', function(err) {
+    if (err === undefined) {
+      ffosbr.history.set('messages', {
+        title: 'Messages',
+        lastBackupDate: null,
+        backupSize: 0,
+      });
+    }
+
     oncomplete('messages', err);
   });
 };
@@ -169,6 +177,13 @@ Messages.prototype._putMessagesOnSD = function(messageData, callback) {
       }
 
       request.onsuccess = function() {
+
+        ffosbr.history.set('messages', {
+          title: 'Messages',
+          lastBackupDate: new Date(),
+          backupSize: file.size,
+        });
+
         if (callback) {
           callback();
         }
