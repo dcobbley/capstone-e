@@ -3,20 +3,6 @@
  */
 function Settings() {
 
-  this.options = {
-    photos: true,
-    music: true,
-    videos: true,
-    contacts: true,
-    messages: true,
-    intervalTime: 24, // pass in value in hours
-    id: 0,
-    systemsettings: true,
-    registeredTimer: false,
-    repeat: true
-  };
-
-
   // Are these the paths we want?
   this.backupPaths = {
     apps: 'backup/apps/',
@@ -25,7 +11,7 @@ function Settings() {
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
     settings: 'backup/settings/',
-    systemsettings: 'backup/systemSettings/',
+    systemSettings: 'backup/systemSettings/',
     messages: 'backup/messages/'
   };
 }
@@ -41,7 +27,7 @@ Settings.prototype.initialize = function() {
     music: 'boolean',
     contacts: 'boolean',
     messages: 'boolean',
-    systemsettings: 'boolean',
+    systemSettings: 'boolean',
     intervalTime: 'number',
     id: 'number',
     registeredTimer: 'boolean',
@@ -67,12 +53,13 @@ Settings.prototype.initialize = function() {
 Settings.prototype.getDefault = function() {
   return {
     photos: true,
-    videos: true,
     music: true,
+    videos: true,
     contacts: true,
     messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
+    systemSettings: true,
     registeredTimer: false,
     repeat: true
   };
@@ -151,7 +138,7 @@ Settings.prototype.validate = function(potentialOptions, value) {
     messages: 'boolean',
     intervalTime: 'number',
     id: 'number',
-    systemsettings: 'boolean',
+    systemSettings: 'boolean',
     registeredTimer: 'boolean',
     repeat: 'boolean'
   };
