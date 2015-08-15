@@ -128,6 +128,11 @@ window.addEventListener('DOMContentLoaded', function() {
     var videoSize = document.getElementById('video-hist-size');
     videoSize.textContent = sizeFormat(ffosbr.history.getValue('videos', 'backupSize'));
 
+    var musicUpdatedAt = document.getElementById('music-hist-date');
+    musicUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('music', 'lastBackupDate'));
+    var musicSize = document.getElementById('music-hist-size');
+    musicSize.textContent = sizeFormat(ffosbr.history.getValue('music', 'backupSize'));
+
     var contactUpdatedAt = document.getElementById('contact-hist-date');
     contactUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('contacts', 'lastBackupDate'));
     var contactSize = document.getElementById('contact-hist-size');
@@ -230,6 +235,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('video-infopane').addEventListener('click', function() {
     loadBackupDetailPage('videos');
+  });
+
+  document.getElementById('music-infopane').addEventListener('click', function() {
+    loadBackupDetailPage('music');
   });
 
   document.getElementById('contact-infopane').addEventListener('click', function() {
