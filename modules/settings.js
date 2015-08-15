@@ -11,7 +11,7 @@ function Settings() {
     messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
-    systemsettings: true,
+    systemSettings: true,
     registeredTimer: false,
     repeat: true
   };
@@ -24,7 +24,7 @@ function Settings() {
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
     settings: 'backup/settings/',
-    systemsettings: 'backup/systemSettings/',
+    systemSettings: 'backup/systemSettings/',
     messages: 'backup/messages/'
   };
 }
