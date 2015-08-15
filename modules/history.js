@@ -190,22 +190,22 @@ History.prototype.validateEntryField = function(field, value) {
 
 /**
  * @access private
- * @description Update field or object in history
- * @param {Object} fieldNameOrHistoryObject
- * @param {Object} historyValue
+ * @description Update sub object or whole history
+ * @param {Object} HistoryObjectOrSubObjectName
+ * @param {Object} historySubObject
  * @return True if history was updated otherwise false
  */
-History.prototype.set = function(fieldNameOrHistoryObject, historyValue) {
+History.prototype.set = function(HistoryObjectOrSubObjectName, historySubObject) {
   // Is the first argument a field name or a full history object?
-  if (typeof fieldNameOrHistoryObject === 'string') {
-    if (this.validateEntry(historyValue)) {
-      this.history[fieldNameOrHistoryObject] = historyValue;
+  if (typeof HistoryObjectOrSubObjectName === 'string') {
+    if (this.validateEntry(historySubObject)) {
+      this.history[HistoryObjectOrSubObjectName] = historySubObject;
       localStorage.setItem('ffosbrHistory', JSON.stringify(this.history));
       return true;
     }
-  } else if (typeof fieldNameOrHistoryObject === 'object' &&
-    this.validateAll(fieldNameOrHistoryObject)) {
-    this.history = fieldNameOrHistoryObject;
+  } else if (typeof HistoryObjectOrSubObjectName === 'object' &&
+    this.validateAll(HistoryObjectOrSubObjectName)) {
+    this.history = HistoryObjectOrSubObjectName;
     localStorage.setItem('ffosbrHistory', JSON.stringify(this.history));
     return true;
   }
