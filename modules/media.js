@@ -75,7 +75,14 @@ Media.prototype.clean = function(type, oncomplete) {
   }, function(error) {
     if (error) {
       errors.push(error);
+    } else {
+      ffosbr.history.set(type, {
+        title: capitalize(type),
+        lastBackupDate: null,
+        backupSize: 0,
+      });
     }
+
     oncomplete(type, errors.length === 0 ? undefined : errors);
   });
 
@@ -93,6 +100,7 @@ Media.prototype.clean = function(type, oncomplete) {
  */
 Media.prototype.backup = function(type, oncomplete) {
 
+  var fileSizeRunningTotal = 0;
   var paths = ffosbr.settings.getBackupDirectoryPaths();
 
   if (paths[type] === undefined) {
@@ -105,12 +113,21 @@ Media.prototype.backup = function(type, oncomplete) {
     }
 
     var fn = file.name;
+    fileSizeRunningTotal += file.size;
     fn = fn.substr(fn.lastIndexOf('/') + 1, fn.length);
     var dest = paths[type] + fn + '~';
     ffosbr.media.put('sdcard1', file, dest, function() {
       // Report progress?
     });
   }, function(error) {
+    if (error === undefined) {
+      ffosbr.history.set(type, {
+        title: capitalize(type),
+        lastBackupDate: new Date(),
+        backupSize: fileSizeRunningTotal,
+      });
+    }
+
     oncomplete(type, error);
   });
 };
