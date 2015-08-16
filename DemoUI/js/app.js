@@ -172,13 +172,17 @@ window.addEventListener('DOMContentLoaded', function() {
       var failures = [];
 
       var reportSuccess = function(type) {
-        showProgressDialog(type + ' saved successfully');
-        successes.push(type);
+        if (!successes.includes(type)) {
+          showProgressDialog(type + ' saved successfully');
+          successes.push(type);
+        }
       };
 
       var reportError = function(type, error) {
-        showProgressDialog(type + ' failed');
-        failures.push(type);
+        if (!failures.includes(type)) {
+          showProgressDialog(type + ' failed');
+          failures.push(type);
+        }
       };
 
       var finished = function() {
