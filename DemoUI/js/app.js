@@ -93,6 +93,14 @@ window.addEventListener('DOMContentLoaded', function() {
       return 'Never';
     }
 
+    if (typeof(date) === 'string') {
+      try {
+        date = new Date(date);
+      } catch(e) {
+        return 'Never';
+      }
+    }
+
     var minutes = date.getMinutes();
     if (minutes < 10) {
       minutes = '0' + minutes;
@@ -189,6 +197,7 @@ window.addEventListener('DOMContentLoaded', function() {
       };
 
       ffosbr.backup(reportSuccess, reportError, finished);
+      refreshHistories();
     }
   });
 
