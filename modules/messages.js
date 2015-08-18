@@ -156,9 +156,9 @@ Messages.prototype._getMessages = function(oncomplete) {
  * @param {callback} callback
  */
 Messages.prototype._putMessagesOnSD = function(messageData, callback) {
-  this.clean(function(err) {
-    if (err) {
-      callback(err);
+  this.clean(function(type, error) {
+    if (error) {
+      callback('messages', error);
     } else {
       var sdcard = ffosbr.media.getStorageByName('sdcard').external;
       var file = new Blob([JSON.stringify(messageData)], {
@@ -172,7 +172,7 @@ Messages.prototype._putMessagesOnSD = function(messageData, callback) {
       if (sdcard.ready === true) {
         request = sdcard.store.addNamed(file, path + filename);
       } else {
-        callback('Attempt to delete from invalid storage');
+        callback('messages', new Error('Attempt to delete from invalid storage'));
         return;
       }
 
@@ -185,13 +185,13 @@ Messages.prototype._putMessagesOnSD = function(messageData, callback) {
         });
 
         if (callback) {
-          callback();
+          callback('messages');
         }
       };
 
       request.onerror = function() {
         if (callback) {
-          callback(this.error);
+          callback('messages', this.error);
         }
       };
     }
