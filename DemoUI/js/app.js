@@ -145,11 +145,13 @@ window.addEventListener('DOMContentLoaded', function() {
     contactUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('contacts', 'lastBackupDate'));
     var contactSize = document.getElementById('contact-hist-size');
     contactSize.textContent = sizeFormat(ffosbr.history.getValue('contacts', 'backupSize'));
-
+    
+    /*
     var messagesUpdatedAt = document.getElementById('messages-hist-date');
     messagesUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('messages', 'lastBackupDate'));
     var messagesSize = document.getElementById('messages-hist-size');
     messagesSize.textContent = sizeFormat(ffosbr.history.getValue('messages', 'backupSize'));
+    */
 
     var systemSettingsUpdatedAt = document.getElementById('systemSettings-hist-date');
     systemSettingsUpdatedAt.textContent = dateFormat(ffosbr.history.getValue('systemSettings', 'lastBackupDate'));
@@ -217,7 +219,7 @@ window.addEventListener('DOMContentLoaded', function() {
     ffosbr.settings.set(key, value);
   });
 
-
+  /*
   document.getElementById('settings-button').addEventListener('click', function() {
     var settingsPage = document.getElementById('settings-page');
 
@@ -225,6 +227,7 @@ window.addEventListener('DOMContentLoaded', function() {
     settingsPage.style.zIndex = '100';
     settingsPage.setAttribute('class', 'slide-up');
   });
+  */
 
   document.getElementById('settings-done-button').addEventListener('click', function() {
     var settingsPage = document.getElementById('settings-page');
@@ -258,9 +261,11 @@ window.addEventListener('DOMContentLoaded', function() {
     loadBackupDetailPage('contacts');
   });
 
+  /*
   document.getElementById('messages-infopane').addEventListener('click', function() {
     loadBackupDetailPage('messages');
   });
+  */
 
   document.getElementById('systemSettings-infopane').addEventListener('click', function() {
     loadBackupDetailPage('systemSettings');

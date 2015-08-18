@@ -8,7 +8,7 @@
       'media': require('./media'),
       'settings': require('./settings'),
       'history': require('./history'),
-      'messages': require('./messages'),
+      //'messages': require('./messages'),
       'contacts': require('./contacts'),
       'photos': require('./photos'),
       'videos': require('./videos'),

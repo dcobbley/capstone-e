@@ -11,8 +11,8 @@ function Settings() {
     videos: 'backup/videos/',
     contacts: 'backup/contacts/',
     settings: 'backup/settings/',
-    systemSettings: 'backup/systemSettings/',
-    messages: 'backup/messages/'
+    // messages: 'backup/messages/',
+    systemSettings: 'backup/systemSettings/'
   };
 }
 
@@ -26,7 +26,7 @@ Settings.prototype.initialize = function() {
     videos: 'boolean',
     music: 'boolean',
     contacts: 'boolean',
-    messages: 'boolean',
+    //messages: 'boolean',
     systemSettings: 'boolean',
     intervalTime: 'number',
     id: 'number',
@@ -56,7 +56,7 @@ Settings.prototype.getDefault = function() {
     music: true,
     videos: true,
     contacts: true,
-    messages: true,
+    // messages: true,
     intervalTime: 24, // pass in value in hours
     id: 0,
     systemSettings: true,
