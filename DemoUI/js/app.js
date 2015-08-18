@@ -115,6 +115,10 @@ window.addEventListener('DOMContentLoaded', function() {
     var units = ' bytes';
     if (size > 1024) {
       size /= 1024;
+      units = ' KB';
+    }
+    if (size > 1024) {
+      size /= 1024;
       units = ' MB';
     }
     if (size > 1024) {
