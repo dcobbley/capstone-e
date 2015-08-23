@@ -10,6 +10,23 @@ function hideProgressDialog() {
   progressMask.style.display = 'none';
 }
 
+function setActionButtonStatus(status) {
+  actionButtonIds = [
+    'backup-button',
+    'detail-restore-button',
+    'detail-clean-button'
+  ];
+
+  for(var i = 0; i < actionButtonIds.length; ++i) {
+    var button = document.getElementById(actionButtonIds[i]);
+    if (status) {
+      button.removeAttribute('disabled');
+    } else {
+      button.setAttribute('disabled', 'true');
+    }
+  }
+}
+
 // DOMContentLoaded is fired once the document has been loaded and parsed,
 // but without waiting for other external resources to load (css/images/etc)
 // That makes the app more responsive and perceived as faster.
@@ -18,6 +35,13 @@ window.addEventListener('DOMContentLoaded', function() {
   // We'll ask the browser to use strict code to help us catch errors earlier.
   // https://developer.mozilla.org/Web/JavaScript/Reference/Functions_and_function_scope/Strict_mode
   'use strict';
+
+  // Check that external SD card is installed
+  var sdCards = ffosbr.media.getStorageByName('sdcard');
+  if(!sdCards.external.ready) {
+    alert('SD card not found. An SD card is required to use FFOSBR.');
+    setActionButtonStatus(false);
+  }
 
   var translate = navigator.mozL10n.get;
 
