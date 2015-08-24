@@ -202,14 +202,14 @@ window.addEventListener('DOMContentLoaded', function() {
       var failures = [];
 
       var reportSuccess = function(type) {
-        if (!successes.includes(type)) {
+        if (type && !successes.includes(type)) {
           showProgressDialog(type + ' saved successfully');
           successes.push(type);
         }
       };
 
       var reportError = function(type, error) {
-        if (!failures.includes(type)) {
+        if (type && !failures.includes(type)) {
           showProgressDialog(type + ' failed');
           failures.push(type);
         }
@@ -232,6 +232,46 @@ window.addEventListener('DOMContentLoaded', function() {
 
       ffosbr.backup(reportSuccess, reportError, finished);
       refreshHistories();
+    }
+  });
+
+  document.getElementById('restore-button').addEventListener('click', function() {
+    var flag = confirm('Restore personal data now?');
+    if (flag === true) {
+      showProgressDialog('restore initiated...');
+      var successes = [];
+      var failures = [];
+
+      var reportSuccess = function(type) {
+        if (type && !successes.includes(type)) {
+          showProgressDialog(type + ' restored successfully');
+          successes.push(type);
+        }
+      };
+
+      var reportError = function(type, error) {
+        if (type && !failures.includes(type)) {
+          showProgressDialog(type + ' failed');
+          failures.push(type);
+        }
+      };
+
+      var finished = function() {
+        var sitrep = 'SUCCESSES:\n';
+        for (var i = 0; i < successes.length; ++i) {
+          sitrep += '\t' + successes[i] + '\n';
+        }
+        sitrep += '\nFAILURES:\n';
+
+        for (i = 0; i < failures.length; ++i) {
+          sitrep += '\t' + failures[i] + '\n';
+        }
+
+        hideProgressDialog();
+        alert(sitrep);
+      };
+
+      ffosbr.restore(reportSuccess, reportError, finished);
     }
   });
 
